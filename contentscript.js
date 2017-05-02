@@ -48,14 +48,14 @@ var Toolkit = {
   canvas: document.createElement('canvas'),
 
   construct: function(tab) {
-    console.log('construct');
+    // console.log('construct');
     this.tab = tab;
 
     this.onBrowserDisconnectClosure = this.onBrowserDisconnect.bind(this);
     this.receiveBrowserMessageClosure = this.receiveBrowserMessage.bind(this);
 
-    // chrome.tabs.insertCSS(this.tab.id, { file: 'tooltip.css' });
     chrome.tabs.executeScript(this.tab.id, { file: 'injected.js' });
+    chrome.tabs.insertCSS(this.tab.id, { file: 'css/injected.css' });
 
     // Set active icon
     chrome.browserAction.setIcon({  
@@ -114,7 +114,6 @@ var Toolkit = {
       // return;
     }
 
-    console.log('init port listeners');
     this.port.onMessage.addListener(this.receiveBrowserMessageClosure);
     this.port.onDisconnect.addListener(this.onBrowserDisconnectClosure);
     this.port.postMessage({
@@ -139,15 +138,22 @@ var Toolkit = {
           coord: event.coord
         });
         break;
+      case 'color':
+        console.log('receiveBrowserMessage color', event.data.data);
+        this.port.postMessage({
+          type: 'color',
+          coord: event.data
+        })
+        break;
     }
   },
 
   receiveWorkerMessage: function(event){
-    var forward = ['debug screen', 'distances', 'screenshot processed' , 'mousePos'];
-
+    var forward = ['debug screen', 'color', 'screenshot processed' , 'mousePos'];
     console.log('received worker message', event);
-    if(forward.indexOf(event.type) > -1){
-      // this.port.postMessage(event.data)
+
+    if(forward.indexOf(event.data.type) > -1){
+      this.port.postMessage(event.data)
     }
   },
 

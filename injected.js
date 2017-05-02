@@ -14,6 +14,9 @@ var debug;
 
 function init() {
   window.addEventListener('mousemove', mouseMove);
+
+  Magnifier.construct();
+
   // window.addEventListener('touchmove', onInputMove);
   // window.addEventListener('scroll', onVisibleAreaChange);
   // window.addEventListener('resize', onResizeWindow);
@@ -29,11 +32,6 @@ port.onMessage.addListener(function(request, sender, sendResponse){
   if (connectionClosed) {
     return;
   }
-
-  console.log('received message');
-  console.log('request :', request);
-  console.log('sender :', sender);
-
   switch (request.type) {
     case 'init':
       console.log('init');
@@ -44,10 +42,11 @@ port.onMessage.addListener(function(request, sender, sendResponse){
       if (debug && request.imageData) {
         createDebugOverlay(request);
       }
-      // resume();
+      break;
+    case 'color':
+      Magnifier.setColor(request.data);
       break;
     case 'debug screen':
-      // renderDebugScreenshot(request.map)
       break;
     case 'destroy':
       // destroy();
@@ -56,7 +55,7 @@ port.onMessage.addListener(function(request, sender, sendResponse){
 });
 
 var canvas = document.createElement('canvas');
-canvas.id = "toolkit__debug";
+canvas.id = 'toolkit__debug';
 var context = canvas.getContext('2d');
 
 function createDebugOverlay(request) {
@@ -72,16 +71,13 @@ function createDebugOverlay(request) {
 function displayScreenshot() {
   context.drawImage(this, 0, 0, canvas.width, canvas.height);
 
-  var overlay = document.getElementById("toolkit__debug");
+  var overlay = document.getElementById('toolkit__debug');
   if (overlay) { overlay.parentNode.removeChild(overlay); }
   
   document.body.appendChild(canvas);
 }
 
-
 function mouseMove(event) {
-  console.log('mousemove event');
-
   Xpos = event.clientX;
   Ypos = event.clientY;
 
@@ -89,4 +85,27 @@ function mouseMove(event) {
     type: 'mousePos',
     coord: { x: Xpos, y: Ypos }
   });
+}
+
+/**
+ * Magnifier component
+ * Displays a square color indicator
+ */
+var Magnifier = {
+  color: '',
+  el: '',
+  setColor: function(color) {
+    if (color.r) {
+      this.color = color;
+      this.el.style.backgroundColor = 'rgba('+this.color.r+', '+this.color.g+', '+this.color.b+', '+this.color.a+')';
+    }
+  },
+  construct: function() {
+    this.el = document.createElement('div');
+    this.el.className = 'toolkit__magnifier';
+    document.body.appendChild(this.el);
+  },
+  destroy: function() {
+    this.el.parentNode.removeChild(this.el);
+  },
 }
