@@ -1,21 +1,11 @@
 {
 // "update_url": "https://clients2.google.com/service/update2/crx",
 
-  "name": "Toolkit",
+  "name": "Black-shrimp",
   "description": "desc",
-  "version": "0",
+  "version": "1.0.0",
   "manifest_version": 2,
   "author": "Thomas L'huillier",
-  "icons": { 
-    "16":  "img/icon16.png",
-    "32":  "img/icon16@2x.png",
-    "48":  "img/icon48.png",
-    "128": "img/icon128.png" 
-  },
-  "background": {
-    "scripts": ["contentscript.js"],
-    "persistent": false
-  },
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
@@ -23,11 +13,22 @@
       }
     }
   },
+  "background": {
+    "scripts": ["contentscript.js"],
+    "persistent": false
+  },
+  "web_accessible_resources": ["*.woff"],
   "browser_action": {
     "default_icon": {
       "16": "img/icon16.png"
     },
     "default_title": "Toolkit"
+  },
+  "icons": { 
+    "16":  "img/icon16.png",
+    "32":  "img/icon16@2x.png",
+    "48":  "img/icon48.png",
+    "128": "img/icon128.png" 
   },
   "permissions": [
     "activeTab"

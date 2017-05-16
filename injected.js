@@ -14,12 +14,12 @@ var debug;
 
 function init() {
   window.addEventListener('mousemove', mouseMove);
+  window.addEventListener('scroll', windowScroll);
+  window.addEventListener('resize', windowResize);
 
-  Magnifier.construct();
+  ColorPicker.construct();
 
   // window.addEventListener('touchmove', onInputMove);
-  // window.addEventListener('scroll', onVisibleAreaChange);
-  // window.addEventListener('resize', onResizeWindow);
 
   // window.addEventListener('keydown', detectAltKeyPress);
   // window.addEventListener('keyup', detectAltKeyRelease);
@@ -28,6 +28,7 @@ function init() {
   // requestNewScreenshot();
 }
 
+// Dispatch messages
 port.onMessage.addListener(function(request, sender, sendResponse){
   if (connectionClosed) {
     return;
@@ -44,12 +45,12 @@ port.onMessage.addListener(function(request, sender, sendResponse){
       }
       break;
     case 'color':
-      Magnifier.setColor(request.data);
+      ColorPicker.setColor(request.data);
       break;
     case 'debug screen':
       break;
     case 'destroy':
-      // destroy();
+      // destroy(); //@TODO
       break;
   }
 });
@@ -77,32 +78,64 @@ function displayScreenshot() {
   document.body.appendChild(canvas);
 }
 
+/**
+ * Browser events
+ */
+
+var scrollPos = {};
 function mouseMove(event) {
-  Xpos = event.clientX;
-  Ypos = event.clientY;
+  scrollPos.x = event.clientX;
+  scrollPos.y = event.clientY;
 
   port.postMessage({
-    type: 'mousePos',
-    coord: { x: Xpos, y: Ypos }
+    'type': 'mousePos',
+    'coord': { 'x': scrollPos.x, 'y': scrollPos.y }
   });
+}
+
+var pageOffset = {};
+function windowScroll(event) {
+  var doc = document.documentElement;
+  pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+  pageOffset.y = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+
+  port.postMessage({
+    'type': 'viewportChange',
+    'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y },
+    // 'zoom' : '' //@TODO
+  });
+}
+
+function windowResize(event) {
+
 }
 
 /**
  * Magnifier component
  * Displays a square color indicator
  */
-var Magnifier = {
-  color: '',
-  el: '',
+var ColorPicker = {
+  'color': '',
+  'el': '',
   setColor: function(color) {
     if (color.r) {
       this.color = color;
-      this.el.style.backgroundColor = 'rgba('+this.color.r+', '+this.color.g+', '+this.color.b+', '+this.color.a+')';
+      // this.el.style.backgroundColor = 'rgba('+this.color.r+', '+this.color.g+', '+this.color.b+', '+this.color.a+')';
+      $('.colorPicker__color').css({
+        'backgroundColor': 'rgba('+this.color.r+', '+this.color.g+', '+this.color.b+', '+this.color.a+')'
+      });
     }
   },
   construct: function() {
     this.el = document.createElement('div');
-    this.el.className = 'toolkit__magnifier';
+    this.el.className = 'colorPicker';
+
+    this.el.innerHTML = '';
+    this.el.innerHTML += '<div class="colorPicker__color"></div>';
+    this.el.innerHTML += '<div class="colorPicker__valueWrapper"><div class="colorPicker__rgba"><input type="text" class="colorPicker__r"><input type="text" class="colorPicker__g"><input type="text" class="colorPicker__b"><input type="text" class="colorPicker__a"></div></div>';
+    this.el.innerHTML += '<div class="colorPicker__colorType">colorType</div>';
+    this.el.innerHTML += '<select class="colorPicker__colorSwitch" name="" id=""><option value="hex">hex</option><option value="rgba">rgba</option><option value="hsla">hsla</option></select>';
+
     document.body.appendChild(this.el);
   },
   destroy: function() {

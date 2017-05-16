@@ -38,7 +38,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 });
 
 chrome.runtime.onSuspend.addListener(function() {
-  for(var tabId in tabs){
+  for (var tabId in tabs) {
     tabs[tabId].deactivate(true);
   }
 });
@@ -54,7 +54,11 @@ var Toolkit = {
     this.onBrowserDisconnectClosure = this.onBrowserDisconnect.bind(this);
     this.receiveBrowserMessageClosure = this.receiveBrowserMessage.bind(this);
 
-    chrome.tabs.executeScript(this.tab.id, { file: 'injected.js' });
+    var tabId = this.tab.id;
+    // chrome.tabs.executeScript(this.tab.id, { file: 'injected.js' });
+    chrome.tabs.executeScript(tabId, { file: 'vendors/jquery-3.2.1.min.js' }, function() {
+      chrome.tabs.executeScript(tabId, { file: 'injected.js' });
+    });
     chrome.tabs.insertCSS(this.tab.id, { file: 'css/injected.css' });
 
     // Set active icon
@@ -96,23 +100,22 @@ var Toolkit = {
       tabId: this.tab.id,
       path: {
         16: 'img/icon16.png',
-        32: 'img/icon16@2x.png',
+        32: 'img/icon16@2x.png'
       }
     });
 
     clearTab(this.tab.id);
   },
 
-  initialize: function(port){
+  initialize: function(port) {
     this.port = port;
 
     console.log('initialize - port:', port);
 
-    if(!this.alive){
-      // was deactivated whilest still booting up
+    // if (!this.alive) {
       // this.destroy();
       // return;
-    }
+    // }
 
     this.port.onMessage.addListener(this.receiveBrowserMessageClosure);
     this.port.onDisconnect.addListener(this.onBrowserDisconnectClosure);
@@ -122,7 +125,7 @@ var Toolkit = {
     });
   },
 
-  onBrowserDisconnect: function(){
+  onBrowserDisconnect: function() {
     this.destroy(true);
   },
 
@@ -145,10 +148,14 @@ var Toolkit = {
           coord: event.data
         })
         break;
+      case 'viewportChange':
+        console.log('receiveBrowserMessage viewportChange', event.pageOffset);
+        this.captureTab();
+        break;
     }
   },
 
-  receiveWorkerMessage: function(event){
+  receiveWorkerMessage: function(event) {
     var forward = ['debug screen', 'color', 'screenshot processed' , 'mousePos'];
     console.log('received worker message', event);
 
@@ -176,7 +183,7 @@ var Toolkit = {
     // draw the image to the canvas
     this.context.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
     
-    // read out the image data from the canvas
+    // store image data
     var imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height).data;
     this.sendImageData(imageData);
   },

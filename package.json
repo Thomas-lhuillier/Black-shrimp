@@ -1,0 +1,21 @@
+{
+  "name": "Black-shrimp",
+  "version": "1.0.0",
+  "description": "Another web tools box.",
+  "author": "Thomas L'huillier <lhuillier.tom@gmail.com>",
+  "scripts": {
+    "watch": "sass -w sass:css"
+  },
+  "main": "contentscript.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Thomas-lhuillier/Black-shrimp"
+  },
+  "dependencies": {
+    "vue": "2.3.3"
+  },
+  "devDependencies": {
+    "bourbon": "^4.3.4"
+  },
+  "private": true
+}
