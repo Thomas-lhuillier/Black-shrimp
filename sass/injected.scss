@@ -56,16 +56,28 @@ $soft-white: #f0f0f0;
 			display: inline-block;
 			height: 22px;
 			text-align: center;
+			font-size: 11px;
 			font-family: 'Poppins', monospace;
 		}
 
-		.colorPicker__rgba {
+		.colorPicker__hexWrapper {
 			input {
-				width: 32px;
+				width: 100%;
+			}
+		}
+
+		.colorPicker__rgbWrapper,
+		.colorPicker__hslWrapper {
+			input {
+				width: 43px;
 			}
 			input + input {
 				margin-left: 2px;
 			}
+		}
+
+		.hidden {
+			display: none !important;
 		}
 	}
 

@@ -115,29 +115,99 @@ function windowResize(event) {
  * Displays a square color indicator
  */
 var ColorPicker = {
-  'color': '',
   'el': '',
+  'color': '',
+  'colorMode': 'hex',
+
   setColor: function(color) {
-    if (color.r) {
-      this.color = color;
-      // this.el.style.backgroundColor = 'rgba('+this.color.r+', '+this.color.g+', '+this.color.b+', '+this.color.a+')';
-      $('.colorPicker__color').css({
-        'backgroundColor': 'rgba('+this.color.r+', '+this.color.g+', '+this.color.b+', '+this.color.a+')'
-      });
+    color = typeof color !== 'undefined' ? color : this.color;
+    this.color = color;
+
+    switch (this.colorMode) {
+      case 'hex':
+        $('.colorPicker__hex').val(this.color.hex);
+        break;
+      case 'rgb':
+        $('.colorPicker__r').val(this.color.r);
+        $('.colorPicker__g').val(this.color.g);
+        $('.colorPicker__b').val(this.color.b);
+        break;
+      case 'hsl':
+        $('.colorPicker__h').val(this.color.h);
+        $('.colorPicker__s').val(this.color.s);
+        $('.colorPicker__l').val(this.color.l);
+        break;
     }
+
+    $('.colorPicker__color').css({
+      'backgroundColor': 'rgb('+this.color.r+', '+this.color.g+', '+this.color.b+')'
+    });
   },
+
+  setColorMode: function(value) {
+    $('.colorPicker__hexWrapper, .colorPicker__rgbWrapper, .colorPicker__hslWrapper').addClass('hidden');
+    switch (value) {
+      case 'hex':
+        $('.colorPicker__hexWrapper').removeClass('hidden');
+        break;
+      case 'rgb':
+        $('.colorPicker__rgbWrapper').removeClass('hidden');
+        break;
+      case 'hsl':
+        $('.colorPicker__hslWrapper').removeClass('hidden');
+        break;
+    }
+
+    this.colorMode = value;
+    this.setColor();
+  },
+
   construct: function() {
+    var self = this;
+
     this.el = document.createElement('div');
     this.el.className = 'colorPicker';
 
-    this.el.innerHTML = '';
-    this.el.innerHTML += '<div class="colorPicker__color"></div>';
-    this.el.innerHTML += '<div class="colorPicker__valueWrapper"><div class="colorPicker__rgba"><input type="text" class="colorPicker__r"><input type="text" class="colorPicker__g"><input type="text" class="colorPicker__b"><input type="text" class="colorPicker__a"></div></div>';
-    this.el.innerHTML += '<div class="colorPicker__colorType">colorType</div>';
-    this.el.innerHTML += '<select class="colorPicker__colorSwitch" name="" id=""><option value="hex">hex</option><option value="rgba">rgba</option><option value="hsla">hsla</option></select>';
+    var html = '';
+    html += '<div class="colorPicker__color"></div>';
+    html += '<div class="colorPicker__valueWrapper">';
+
+      html += '<div class="colorPicker__hexWrapper">';
+        html += '<input type="text" class="colorPicker__hex">';
+      html += '</div>';
+
+      html += '<div class="colorPicker__rgbWrapper hidden">';
+        html += '<input type="text" class="colorPicker__r">';
+        html += '<input type="text" class="colorPicker__g">';
+        html += '<input type="text" class="colorPicker__b">';
+      html += '</div>';
+
+      html += '<div class="colorPicker__hslWrapper hidden">';
+        html += '<input type="text" class="colorPicker__h">';
+        html += '<input type="text" class="colorPicker__s">';
+        html += '<input type="text" class="colorPicker__l">';
+      html += '</div>';
+
+    html += '</div>';
+
+    html += '<div class="colorPicker__colorType">colorType</div>';
+
+    html += '<select class="colorPicker__colorSwitch" name="" id="">';
+      html += '<option value="hex">hex</option>';
+      html += '<option value="rgb">rgb</option>';
+      html += '<option value="hsl">hsl</option>';
+    html += '</select>';
+
+    this.el.innerHTML = html;
+
+    $(document).on('change', '.colorPicker__colorSwitch', function() {
+      var value = $(this).val();
+      self.setColorMode(value);
+    });
 
     document.body.appendChild(this.el);
   },
+
   destroy: function() {
     this.el.parentNode.removeChild(this.el);
   },

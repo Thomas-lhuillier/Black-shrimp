@@ -35,11 +35,18 @@
       display: inline-block;
       height: 22px;
       text-align: center;
+      font-size: 11px;
       font-family: 'Poppins', monospace; }
-    .colorPicker .colorPicker__valueWrapper .colorPicker__rgba input {
-      width: 32px; }
-    .colorPicker .colorPicker__valueWrapper .colorPicker__rgba input + input {
+    .colorPicker .colorPicker__valueWrapper .colorPicker__hexWrapper input {
+      width: 100%; }
+    .colorPicker .colorPicker__valueWrapper .colorPicker__rgbWrapper input,
+    .colorPicker .colorPicker__valueWrapper .colorPicker__hslWrapper input {
+      width: 43px; }
+    .colorPicker .colorPicker__valueWrapper .colorPicker__rgbWrapper input + input,
+    .colorPicker .colorPicker__valueWrapper .colorPicker__hslWrapper input + input {
       margin-left: 2px; }
+    .colorPicker .colorPicker__valueWrapper .hidden {
+      display: none !important; }
   .colorPicker input[type="text"] {
     color: #f0f0f0;
     background-color: #474747;
