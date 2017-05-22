@@ -1,0 +1,58 @@
+@import "variables";
+
+@font-face {
+  font-family: 'Black-shrimp';
+  src:
+    // url('#{$icomoon-font-path}/Black-shrimp.ttf?o1kej0') format('truetype'),
+    // url('#{$icomoon-font-path}/Black-shrimp.svg?o1kej0#Black-shrimp') format('svg'),
+    url('chrome-extension://mmjjfbgmblmokgeefhlpigndfmohkchh/assets/fonts/Black-shrimp/Black-shrimp.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+i {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'Black-shrimp' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bs-icon-binoculars {
+  &:before {
+    content: $bs-icon-binoculars;
+  }
+}
+.bs-icon-eyeDropper {
+  &:before {
+    content: $bs-icon-eyeDropper;
+  }
+}
+.bs-icon-folder {
+  &:before {
+    content: $bs-icon-folder;
+  }
+}
+.bs-icon-plus {
+  &:before {
+    content: $bs-icon-plus;
+  }
+}
+.bs-icon-ruler {
+  &:before {
+    content: $bs-icon-ruler;
+  }
+}
+.bs-icon-trash {
+  &:before {
+    content: $bs-icon-trash;
+  }
+}
+

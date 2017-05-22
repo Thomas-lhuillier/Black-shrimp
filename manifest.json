@@ -1,6 +1,5 @@
 {
 // "update_url": "https://clients2.google.com/service/update2/crx",
-
   "name": "Black-shrimp",
   "description": "desc",
   "version": "1.0.0",
@@ -20,15 +19,15 @@
   "web_accessible_resources": ["*.woff"],
   "browser_action": {
     "default_icon": {
-      "16": "img/icon16.png"
+      "16": "assets/img/icon16.png"
     },
     "default_title": "Toolkit"
   },
   "icons": { 
-    "16":  "img/icon16.png",
-    "32":  "img/icon16@2x.png",
-    "48":  "img/icon48.png",
-    "128": "img/icon128.png" 
+    "16":  "assets/img/icon16.png",
+    "32":  "assets/img/icon16@2x.png",
+    "48":  "assets/img/icon48.png",
+    "128": "assets/img/icon128.png" 
   },
   "permissions": [
     "activeTab"

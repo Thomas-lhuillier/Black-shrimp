@@ -4,18 +4,29 @@
   "description": "Another web tools box.",
   "author": "Thomas L'huillier <lhuillier.tom@gmail.com>",
   "scripts": {
-    "watch": "sass -w sass:css"
+    "sass": "sass -w sass:css",
+    "webpack": "webpack -w"
   },
   "main": "contentscript.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Thomas-lhuillier/Black-shrimp"
   },
-  "dependencies": {
-    "vue": "2.3.3"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "bourbon": "^4.3.4"
+    "babel-core": "latest",
+    "babel-loader": "latest",
+    "babel-preset-es2015": "latest",
+    "bourbon": "latest",
+    "postcss-loader": "latest",
+    "node-sass": "latest",
+    "sass-loader": "latest",
+    "css-loader": "latest",
+    "style-loader": "latest",
+    "vue-cli": "latest",
+    "extract-text-webpack-plugin": "latest",
+    "url-loader": "latest",
+    "webpack": "latest"
   },
   "private": true
 }

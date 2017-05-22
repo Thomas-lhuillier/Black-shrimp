@@ -65,8 +65,8 @@ var Toolkit = {
     chrome.browserAction.setIcon({  
       tabId: this.tab.id,
       path: {
-        16: 'img/icon16.png',
-        32: 'img/icon16@2x.png',
+        16: 'assets/img/icon16.png',
+        32: 'assets/img/icon16@2x.png',
       }
     });
 
@@ -99,8 +99,8 @@ var Toolkit = {
     chrome.browserAction.setIcon({  
       tabId: this.tab.id,
       path: {
-        16: 'img/icon16.png',
-        32: 'img/icon16@2x.png'
+        16: 'assets/img/icon16.png',
+        32: 'assets/img/icon16@2x.png'
       }
     });
 
