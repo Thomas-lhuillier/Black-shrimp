@@ -1,17 +1,59 @@
 import Vue from 'vue';
+
+import Vuex from 'vuex';
+Vue.use(Vuex);
+
+const store = new Vuex.Store({
+  state: {
+    color: {
+      value: {
+        hex: '...',
+        r: '',
+        g: '',
+        b: '',
+        h: '',
+        s: '',
+        l: '',
+      }
+    }
+  },
+  getters: {
+    getColorState: state => state.color
+  },
+  mutations: {
+    setColor(state, val) {
+      // console.log('state', state);
+      // console.log('val', val);
+      state.color = val;
+    }
+  }
+});
+// import store from './vuex/store.js'
+// import { setColor } from './vuex/actions'
+
 import MainComponent from './main.vue';
+
+(function(){
+  constructUI();
+})();
 
 function constructUI() {
   var el = document.createElement('div');
   el.id = 'black-shrimp';
-  el.className = 'black-shrimp';
+  el.className = 'blackShrimp';
   document.body.appendChild(el);
 
-  var main = new Vue({
+  app = new Vue({
+    store, // inject store to all children
     el: '#black-shrimp',
     template: '<MainComponent/>',
     components: {
       MainComponent
+    },
+    methods: {
+      setColor (val) {
+        store.commit('setColor', val);
+      },
     },
     mounted() {
       console.log('mounted');
@@ -34,8 +76,6 @@ overlay.className = 'toolkit__debug';
 var debug;
 
 function init() {
-  constructUI();
-
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('scroll', windowScroll);
   window.addEventListener('resize', windowResize);
@@ -69,6 +109,9 @@ port.onMessage.addListener(function(request, sender, sendResponse){
       break;
     case 'color':
       ColorPicker.setColor(request.data);
+      // store.commit('setColor');
+      app.setColor({ 'value': request.data });
+      // app.$emit('colorChange', { 'value': request.data });
       break;
     case 'debug screen':
       break;
@@ -137,6 +180,7 @@ function windowResize(event) {
  * Magnifier component
  * Displays a square color indicator
  */
+var app;
 var ColorPicker = {
   'el': '',
   'color': '',
@@ -186,6 +230,30 @@ var ColorPicker = {
   },
 
   construct: function() {
+    var el = document.createElement('div');
+    el.id = 'black-shrimp';
+    el.className = 'blackShrimp';
+    document.body.appendChild(el);
+
+    app = new Vue({
+      store, // inject store to all children
+      el: '#black-shrimp',
+      template: '<MainComponent/>',
+      components: {
+        MainComponent
+      },
+      methods: {
+        setColor (val) {
+          store.commit('setColor', val);
+        },
+      },
+      mounted() {
+        console.log('mounted');
+      }
+    });
+
+    return;
+
     var self = this;
 
     this.el = document.createElement('div');

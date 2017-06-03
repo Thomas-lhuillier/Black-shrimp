@@ -5,7 +5,7 @@
   "author": "Thomas L'huillier <lhuillier.tom@gmail.com>",
   "scripts": {
     "sass": "sass -w sass:css",
-    "webpack": "webpack -w"
+    "webpack": "webpack --watch --colors"
   },
   "main": "contentscript.js",
   "repository": {
@@ -19,11 +19,16 @@
     "babel-preset-es2015": "latest",
     "bourbon": "latest",
     "postcss-loader": "latest",
+    "postcss-cssnext": "latest",
     "node-sass": "latest",
+    "scss-loader": "latest",
     "sass-loader": "latest",
     "css-loader": "latest",
+    "postcss-import": "latest",
     "style-loader": "latest",
     "vue-cli": "latest",
+    "vue-hot-reload-api": "latest",
+    "vuex": "latest",
     "extract-text-webpack-plugin": "latest",
     "url-loader": "latest",
     "webpack": "latest"
