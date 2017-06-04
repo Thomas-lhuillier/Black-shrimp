@@ -5,9 +5,10 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
+    isVisible: true,
     color: {
       value: {
-        hex: '...',
+        hex: '',
         r: '',
         g: '',
         b: '',
@@ -15,26 +16,34 @@ const store = new Vuex.Store({
         s: '',
         l: '',
       }
+    },
+    cursorOverlay: {
+      isVisible: true,
+      cursor: 'eyeDropper',
     }
   },
   getters: {
-    getColorState: state => state.color
+    getColorState: state => state.color,
+    getVisibilityState: state => state.isVisible,
+    getCursorOverlayState: state => state.cursorOverlay.isVisible,
+    getCursorOverlayType: state => state.cursorOverlay.cursor,
   },
   mutations: {
     setColor(state, val) {
       // console.log('state', state);
       // console.log('val', val);
       state.color = val;
-    }
+    },
+    setVisibility(state, val) {
+      state.isVisible = val;
+    },
   }
 });
-// import store from './vuex/store.js'
-// import { setColor } from './vuex/actions'
 
 import MainComponent from './main.vue';
 
 (function(){
-  constructUI();
+  // constructUI();
 })();
 
 function constructUI() {
@@ -77,8 +86,8 @@ var debug;
 
 function init() {
   window.addEventListener('mousemove', mouseMove);
-  window.addEventListener('scroll', windowScroll);
-  window.addEventListener('resize', windowResize);
+  window.addEventListener('scroll', viewportChange);
+  window.addEventListener('resize', viewportChange);
 
   ColorPicker.construct();
 
@@ -91,9 +100,12 @@ function init() {
   // requestNewScreenshot();
 }
 
-// Dispatch messages
-port.onMessage.addListener(function(request, sender, sendResponse){
-  if (connectionClosed) {
+
+/**
+ * Dispatch messages
+ */
+port.onMessage.addListener(function(request, sender, sendResponse) {
+  if (connectionClosed) { // @TODO
     return;
   }
   switch (request.type) {
@@ -103,17 +115,15 @@ port.onMessage.addListener(function(request, sender, sendResponse){
       init();
       break;
     case 'imageData':
+      // Screenshot processed
       if (debug && request.imageData) {
         createDebugOverlay(request);
       }
+      app.showUI();
       break;
     case 'color':
-      ColorPicker.setColor(request.data);
-      // store.commit('setColor');
+      // ColorPicker.setColor(request.data);
       app.setColor({ 'value': request.data });
-      // app.$emit('colorChange', { 'value': request.data });
-      break;
-    case 'debug screen':
       break;
     case 'destroy':
       // destroy(); //@TODO
@@ -131,8 +141,12 @@ function createDebugOverlay(request) {
   img.src = request.imageData;
   img.onload = displayScreenshot.bind(img);
 
-  canvas.width  = request.width;
-  canvas.height = request.height;
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  // canvas.width  = request.width;
+  // canvas.height = request.height;
+  // canvas.setAttribute('width', window.innerWidth);
+  // canvas.setAttribute('height', window.innerHeight);
 }
 
 function displayScreenshot() {
@@ -141,8 +155,10 @@ function displayScreenshot() {
   var overlay = document.getElementById('toolkit__debug');
   if (overlay) { overlay.parentNode.removeChild(overlay); }
   
+  
   document.body.appendChild(canvas);
 }
+
 
 /**
  * Browser events
@@ -160,10 +176,12 @@ function mouseMove(event) {
 }
 
 var pageOffset = {};
-function windowScroll(event) {
+function viewportChange(event) {
   var doc = document.documentElement;
   pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
   pageOffset.y = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+
+  app.hideUI();
 
   port.postMessage({
     'type': 'viewportChange',
@@ -176,58 +194,16 @@ function windowResize(event) {
 
 }
 
+
 /**
  * Magnifier component
- * Displays a square color indicator
+ * Displays color indicators
  */
 var app;
 var ColorPicker = {
   'el': '',
   'color': '',
   'colorMode': 'hex',
-
-  setColor: function(color) {
-    color = typeof color !== 'undefined' ? color : this.color;
-    this.color = color;
-
-    switch (this.colorMode) {
-      case 'hex':
-        $('.colorPicker__hex').val(this.color.hex);
-        break;
-      case 'rgb':
-        $('.colorPicker__r').val(this.color.r);
-        $('.colorPicker__g').val(this.color.g);
-        $('.colorPicker__b').val(this.color.b);
-        break;
-      case 'hsl':
-        $('.colorPicker__h').val(this.color.h);
-        $('.colorPicker__s').val(this.color.s);
-        $('.colorPicker__l').val(this.color.l);
-        break;
-    }
-
-    $('.colorPicker__color').css({
-      'backgroundColor': 'rgb('+this.color.r+', '+this.color.g+', '+this.color.b+')'
-    });
-  },
-
-  setColorMode: function(value) {
-    $('.colorPicker__hexWrapper, .colorPicker__rgbWrapper, .colorPicker__hslWrapper').addClass('hidden');
-    switch (value) {
-      case 'hex':
-        $('.colorPicker__hexWrapper').removeClass('hidden');
-        break;
-      case 'rgb':
-        $('.colorPicker__rgbWrapper').removeClass('hidden');
-        break;
-      case 'hsl':
-        $('.colorPicker__hslWrapper').removeClass('hidden');
-        break;
-    }
-
-    this.colorMode = value;
-    this.setColor();
-  },
 
   construct: function() {
     var el = document.createElement('div');
@@ -246,60 +222,21 @@ var ColorPicker = {
         setColor (val) {
           store.commit('setColor', val);
         },
+        hideUI() {
+          store.commit('setVisibility', false);
+        },
+        showUI() {
+          store.commit('setVisibility', true);
+        },
       },
       mounted() {
         console.log('mounted');
       }
     });
-
-    return;
-
-    var self = this;
-
-    this.el = document.createElement('div');
-    this.el.className = 'colorPicker';
-
-    var html = '';
-    html += '<div class="colorPicker__color"></div>';
-    html += '<div class="colorPicker__valueWrapper">';
-
-      html += '<div class="colorPicker__hexWrapper">';
-        html += '<input type="text" class="colorPicker__hex">';
-      html += '</div>';
-
-      html += '<div class="colorPicker__rgbWrapper hidden">';
-        html += '<input type="text" class="colorPicker__r">';
-        html += '<input type="text" class="colorPicker__g">';
-        html += '<input type="text" class="colorPicker__b">';
-      html += '</div>';
-
-      html += '<div class="colorPicker__hslWrapper hidden">';
-        html += '<input type="text" class="colorPicker__h">';
-        html += '<input type="text" class="colorPicker__s">';
-        html += '<input type="text" class="colorPicker__l">';
-      html += '</div>';
-
-    html += '</div>';
-
-    html += '<div class="colorPicker__colorType">colorType</div>';
-
-    html += '<select class="colorPicker__colorSwitch" name="" id="">';
-      html += '<option value="hex">hex</option>';
-      html += '<option value="rgb">rgb</option>';
-      html += '<option value="hsl">hsl</option>';
-    html += '</select>';
-
-    this.el.innerHTML = html;
-
-    $(document).on('change', '.colorPicker__colorSwitch', function() {
-      var value = $(this).val();
-      self.setColorMode(value);
-    });
-
-    document.body.appendChild(this.el);
   },
 
   destroy: function() {
-    this.el.parentNode.removeChild(this.el);
+    // @TODO
+    // this.el.parentNode.removeChild(this.el);
   },
 }

@@ -157,11 +157,12 @@
   z-index: auto;
   all: initial;
   /* blocking inheritance for all properties */
-  box-sizing: border-box;
+  display: none;
   position: fixed;
   top: 10px;
   left: 10px;
   width: 235px;
+  box-sizing: border-box;
   font-family: 'Poppins', monospace;
   z-index: 9999;
 }
@@ -169,8 +170,12 @@
     all: unset;
     /* allowing inheritance within .black-shrimp */
 }
+.blackShrimp.-visible {
+    display: block;
+}
 
 .blackShrimp .menu {
+  position: relative;
   display: block;
   height: 28px;
   color: #474747;
@@ -214,6 +219,7 @@
 }
 
 .blackShrimp .panel {
+  position: relative;
   display: block;
   padding: 8px;
   font-size: 10px;
@@ -350,4 +356,31 @@
 .blackShrimp .select-block > .options > .option.-selected {
           color: #f0f0f0;
           background-color: #666666;
+}
+.blackShrimp .select-block > .options > .option.-selected:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 3px;
+            height: 3px;
+            border-radius: 100%;
+}
+
+.blackShrimp .cursor-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.blackShrimp .cursor-overlay.-visible {
+    display: block;
+}
+.blackShrimp .cursor-overlay.-visible.-eyeDropper, .blackShrimp .cursor-overlay.-visible.-eyeDropper:hover {
+      cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAACXBIWXMAAAsSAAALEgHS3X78AAABhElEQVQ4y63Vu4rCQBQG4GFriyktfYR5AAsfwXLLeQQfISxWa7/1FLKVxYKVW2ylVhkIhDGEWMQhweIgLARdrP6tEuIlXqIDfzMMH5zhHA4DwB5IS2s9jqIoXi6Xb/l9LQgA11qP5/P5X7fbRavVguM4ICILgN+D8SAIfowx+zRN90opMMYO4jgOXNdVN4NEZKWUJ1A5nHNEURQ/DSyjL+yJp9/v7xuNxvst6G+aplYIcfGRlJK122232Wx+XC3f87ypUgqcc/i+j6pvCIIguamljsEkSbDZbM7Cg8Hg6yp6DK5WKwDAbrfDYrE4AKWUmM1m3xfRKnC73SIMQ3DOIaUsEsfxBgCvRG8FPc+bEpG11lIZPEHvAfMePgYP0BpgZRgANplMXvNZVkphvV7XBgt0NBp9lkctDENkWVYLLFBjjC+EOJjh/CvuBXPUGQ6H+3NTUgfM0ZhzXkCdTgeMMfR6vVpggQohipKttUREmeu6qu6aYQCEMcYnokxrPXhwZzEA7B90uUovodIxjgAAAABJRU5ErkJggg==) 0 22, pointer;
+}
+.blackShrimp .cursor-overlay.-visible.-eyeDropper:active, .blackShrimp .cursor-overlay.-visible.-eyeDropper:hover:active {
+        cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAACXBIWXMAAAsSAAALEgHS3X78AAABaUlEQVQ4y63VMWrDQBAF0CG1iyld6gh7ABc+go+wR3CRA4jgKupTb+EDBNylSGW70sKCECrkQiwRGIZAwEVQ9VNJyLJlO7YGfrMMD3YYGAJADySw1q7yPC92u91L/X4XBICttavtdvs7m80QBAHCMISIeAD8H4yzLPtM07Qqy7IyxoCIjhKGIeI4NjeDIuK11idQO8yMPM+LwcA2+kQD1mKxqEaj0est6E9Zll4pdbFJa02TySQej8dvV7/vnFsbY8DMcM6hbwxZln3dtFJdsK5zcBRF71fRPhAAnHNHoNYam83m4yJag0R0FmRmaK2bFEXxDYB70TZIRDDGnAWdc2sR8d57aYMnaBdsw12w3uEueIT2gd3ZtcDeEABKkuR5KLBBnXProcAG3e/3pVJqELBGw+VyWQ0F1mjBzA00nU5BRJjP53eBDaqUAjPDGAPvvYjIIY5jc++ZIQAqTdNERA7W2ujBm0UA6A8Wihn3FKuIMAAAAABJRU5ErkJggg==) 0 22, pointer;
 }

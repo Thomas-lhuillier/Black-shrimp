@@ -1,5 +1,6 @@
 <template>
-  <div id="black-shrimp" class="blackShrimp">
+  <div id="black-shrimp" class="blackShrimp" v-bind:class="[{ '-visible': isVisible }]">
+    <CursorComponent></CursorComponent>
     <MenuComponent></MenuComponent>
     <ColorComponent></ColorComponent>
   </div>
@@ -19,30 +20,42 @@
       all: unset; /* allowing inheritance within .black-shrimp */
     }
 
-    box-sizing: border-box;
+    display: none;
     position: fixed;
     top: 10px;
     left: 10px;
     width: 235px;
+    box-sizing: border-box;
 
     font-family: 'Poppins', monospace;
 
     z-index: 9999;
+
+    &.-visible {
+      display: block;
+    }
   }
 </style>
 
 <script>
 import MenuComponent  from './components/menu.vue'
 import ColorComponent from './components/color.vue'
+import CursorComponent from './components/cursor-overlay.vue'
 
 export default {
   components: {
     MenuComponent,
-    ColorComponent
+    ColorComponent,
+    CursorComponent
   },
   data() {
     return {
       debug: true
+    }
+  },
+  computed: {
+    isVisible () {
+      return this.$store.getters.getVisibilityState;
     }
   }
 }

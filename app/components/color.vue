@@ -74,16 +74,12 @@
       changeColorMode: function(e) {
         console.log('changeColorMode');
         console.log(this.$store.getters.getColorState.value);
-        let i = 0;
         for (let text in this.color) {
           this.color[text].isActive = text == e.text ? true : false;
         }
       },
     },
     mounted: function() {
-      for (var val in this.color) {
-        console.log(val);
-      }
     }
   }
 </script>
@@ -92,6 +88,7 @@
   @import "../sass/_vars.scss";
   .blackShrimp {
     .panel {
+      position: relative;
       display: block;
       padding: 8px;
 

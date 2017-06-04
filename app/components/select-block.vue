@@ -156,6 +156,15 @@
           &.-selected {
             color: $soft-white;
             background-color: $gray-light;
+            &:before {
+              content: '';
+              position: absolute;
+              left: 0;
+              top: 50%;
+              width: 3px;
+              height: 3px;
+              border-radius: 100%;
+            }
           }
         }
 
