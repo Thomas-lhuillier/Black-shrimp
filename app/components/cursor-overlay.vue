@@ -1,5 +1,5 @@
 <template>
-  <div class="cursor-overlay" v-bind:class="[{ '-visible': isVisible }, { '-clicked': isClicked }, '-'+cursor]" track-by="isClicked" v-on:mouseleave="setIsClicked(false)" v-on:mousedown="setIsClicked(true)" v-on:mouseup="setIsClicked(false)">
+  <div class="cursor-overlay" v-bind:class="[{ '-visible': isVisible }, { '-clicked': isClicked }, '-'+cursor]">
   </div>
 </template>
 
@@ -7,7 +7,6 @@
   export default {
     data() {
       return {
-        isClicked: false
       }
     },
     computed: {
@@ -19,9 +18,6 @@
       },
     },
     methods: {
-      setIsClicked(val) {
-        this.isClicked = val;
-      }
     }
   }
 </script>
@@ -38,6 +34,8 @@
       bottom: 0;
       left: 0;
 
+      user-select: none;
+
       &.-visible {
         display: block;
         &.-eyeDropper,
@@ -47,8 +45,6 @@
           &:active {
             cursor: url('~../../assets/img/cursor-eyeDropper-filled.png') 0 22, pointer;
           }
-        }
-        &.-clicked:hover {
         }
       }
     }

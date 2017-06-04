@@ -488,9 +488,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data() {
-    return {
-      isClicked: false
-    };
+    return {};
   },
   computed: {
     isVisible() {
@@ -500,11 +498,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       return this.$store.getters.getCursorOverlayType;
     }
   },
-  methods: {
-    setIsClicked(val) {
-      this.isClicked = val;
-    }
-  }
+  methods: {}
 });
 
 /***/ }),
@@ -1067,21 +1061,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       '-visible': _vm.isVisible
     }, {
       '-clicked': _vm.isClicked
-    }, '-' + _vm.cursor],
-    attrs: {
-      "track-by": "isClicked"
-    },
-    on: {
-      "mouseleave": function($event) {
-        _vm.setIsClicked(false)
-      },
-      "mousedown": function($event) {
-        _vm.setIsClicked(true)
-      },
-      "mouseup": function($event) {
-        _vm.setIsClicked(false)
-      }
-    }
+    }, '-' + _vm.cursor]
   })
 },staticRenderFns: []}
 module.exports.render._withStripped = true

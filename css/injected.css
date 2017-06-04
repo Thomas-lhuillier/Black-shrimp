@@ -374,6 +374,10 @@
   right: 0;
   bottom: 0;
   left: 0;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }
 .blackShrimp .cursor-overlay.-visible {
     display: block;
