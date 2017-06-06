@@ -54,7 +54,7 @@ export default {
     }
   },
   computed: {
-    isVisible () {
+    isVisible() {
       return this.$store.getters.getVisibilityState;
     }
   }

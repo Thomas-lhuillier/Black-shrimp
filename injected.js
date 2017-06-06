@@ -145,6 +145,7 @@ _vue2.default.use(_vuex2.default);
 var store = new _vuex2.default.Store({
   state: {
     isVisible: true,
+    activeTab: 'color',
     color: {
       value: {
         hex: '',
@@ -159,30 +160,40 @@ var store = new _vuex2.default.Store({
     cursorOverlay: {
       isVisible: true,
       cursor: 'eyeDropper'
-    }
+    },
+    port: chrome.runtime.connect({ name: "toolkit" })
   },
   getters: {
-    getColorState: function getColorState(state) {
-      return state.color;
-    },
     getVisibilityState: function getVisibilityState(state) {
       return state.isVisible;
     },
-    getCursorOverlayState: function getCursorOverlayState(state) {
+    getActiveTab: function getActiveTab(state) {
+      return state.activeTab;
+    },
+    getColorState: function getColorState(state) {
+      return state.color;
+    },
+    getCursorVisibility: function getCursorVisibility(state) {
       return state.cursorOverlay.isVisible;
     },
-    getCursorOverlayType: function getCursorOverlayType(state) {
+    getCursorType: function getCursorType(state) {
       return state.cursorOverlay.cursor;
+    },
+    getPort: function getPort(state) {
+      return state.port;
     }
   },
   mutations: {
+    setVisibility: function setVisibility(state, val) {
+      state.isVisible = val;
+    },
+    setActiveTab: function setActiveTab(state, val) {
+      state.activeTab = val;
+    },
     setColor: function setColor(state, val) {
       // console.log('state', state);
       // console.log('val', val);
       state.color = val;
-    },
-    setVisibility: function setVisibility(state, val) {
-      state.isVisible = val;
     }
   }
 });
@@ -198,6 +209,7 @@ function constructUI() {
   document.body.appendChild(el);
 
   app = new _vue2.default({
+    port: port,
     store: store, // inject store to all children
     el: '#black-shrimp',
     template: '<MainComponent/>',
@@ -230,7 +242,7 @@ overlay.className = 'toolkit__debug';
 var debug;
 
 function init() {
-  window.addEventListener('mousemove', mouseMove);
+  // window.addEventListener('mousemove', mouseMove);
   window.addEventListener('scroll', viewportChange);
   window.addEventListener('resize', viewportChange);
 
@@ -431,6 +443,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   },
   data() {
     return {
+      isActive: true,
       currentColorType: 'hex',
       color: {
         'hex': { isActive: true },
@@ -469,6 +482,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       for (let text in this.color) {
         this.color[text].isActive = text == e.text ? true : false;
       }
+    },
+    selectInputText: function (event) {
+      event.target.select();
     }
   },
   mounted: function () {}
@@ -488,17 +504,49 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data() {
-    return {};
+    return {
+      scrollPos: {}
+    };
   },
   computed: {
     isVisible() {
-      return this.$store.getters.getCursorOverlayState;
+      return this.$store.getters.getCursorVisibility;
+    },
+    activeTab() {
+      return this.$store.getters.getActiveTab;
     },
     cursor() {
-      return this.$store.getters.getCursorOverlayType;
+      return this.$store.getters.getCursorType;
+    },
+    port() {
+      return this.$store.getters.getPort;
     }
   },
-  methods: {}
+  methods: {
+    mouseMove(event) {
+      if (this.activeTab == 'color') {
+        this.scrollPos.x = event.clientX;
+        this.scrollPos.y = event.clientY;
+        if (event.which == 1) {
+          // mousedown
+          // do job
+
+          this.port.postMessage({
+            'type': 'mousePos',
+            'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
+          });
+        }
+      }
+    },
+    click(event) {
+      if (this.activeTab == 'color' && this.scrollPos.x && this.scrollPos.y) {
+        this.port.postMessage({
+          'type': 'mousePos',
+          'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
+        });
+      }
+    }
+  }
 });
 
 /***/ }),
@@ -1059,9 +1107,15 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "cursor-overlay",
     class: [{
       '-visible': _vm.isVisible
-    }, {
-      '-clicked': _vm.isClicked
-    }, '-' + _vm.cursor]
+    }, '-' + _vm.cursor],
+    on: {
+      "mousemove": function($event) {
+        _vm.mouseMove($event)
+      },
+      "mousedown": function($event) {
+        _vm.click($event)
+      }
+    }
   })
 },staticRenderFns: []}
 module.exports.render._withStripped = true
@@ -1102,12 +1156,16 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }],
     staticClass: "value_hex",
     attrs: {
-      "type": "text"
+      "type": "text",
+      "spellcheck": "false"
     },
     domProps: {
       "value": (_vm.hex)
     },
     on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
       "input": function($event) {
         if ($event.target.composing) { return; }
         _vm.hex = $event.target.value
@@ -1127,12 +1185,16 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }],
     staticClass: "value_r",
     attrs: {
-      "type": "text"
+      "type": "text",
+      "spellcheck": "false"
     },
     domProps: {
       "value": (_vm.r)
     },
     on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
       "input": function($event) {
         if ($event.target.composing) { return; }
         _vm.r = $event.target.value
@@ -1147,12 +1209,16 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }],
     staticClass: "value_g",
     attrs: {
-      "type": "text"
+      "type": "text",
+      "spellcheck": "false"
     },
     domProps: {
       "value": (_vm.g)
     },
     on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
       "input": function($event) {
         if ($event.target.composing) { return; }
         _vm.g = $event.target.value
@@ -1167,12 +1233,16 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }],
     staticClass: "value_b",
     attrs: {
-      "type": "text"
+      "type": "text",
+      "spellcheck": "false"
     },
     domProps: {
       "value": (_vm.b)
     },
     on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
       "input": function($event) {
         if ($event.target.composing) { return; }
         _vm.b = $event.target.value
@@ -1192,12 +1262,16 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }],
     staticClass: "value_h",
     attrs: {
-      "type": "text"
+      "type": "text",
+      "spellcheck": "false"
     },
     domProps: {
       "value": (_vm.h)
     },
     on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
       "input": function($event) {
         if ($event.target.composing) { return; }
         _vm.h = $event.target.value
@@ -1212,12 +1286,16 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }],
     staticClass: "value_s",
     attrs: {
-      "type": "text"
+      "type": "text",
+      "spellcheck": "false"
     },
     domProps: {
       "value": (_vm.s)
     },
     on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
       "input": function($event) {
         if ($event.target.composing) { return; }
         _vm.s = $event.target.value
@@ -1232,12 +1310,16 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }],
     staticClass: "value_l",
     attrs: {
-      "type": "text"
+      "type": "text",
+      "spellcheck": "false"
     },
     domProps: {
       "value": (_vm.l)
     },
     on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
       "input": function($event) {
         if ($event.target.composing) { return; }
         _vm.l = $event.target.value

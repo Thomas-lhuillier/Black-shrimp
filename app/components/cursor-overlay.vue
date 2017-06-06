@@ -1,5 +1,5 @@
 <template>
-  <div class="cursor-overlay" v-bind:class="[{ '-visible': isVisible }, { '-clicked': isClicked }, '-'+cursor]">
+  <div class="cursor-overlay" v-bind:class="[{ '-visible': isVisible }, '-'+cursor]" @mousemove="mouseMove($event)" @mousedown="click($event)">
   </div>
 </template>
 
@@ -7,17 +7,46 @@
   export default {
     data() {
       return {
+        scrollPos: {},
       }
     },
     computed: {
       isVisible () {
-        return this.$store.getters.getCursorOverlayState;
+        return this.$store.getters.getCursorVisibility;
       },
-      cursor () {
-        return this.$store.getters.getCursorOverlayType;
+      activeTab() {
+        return this.$store.getters.getActiveTab;
       },
+      cursor() {
+        return this.$store.getters.getCursorType;
+      },
+      port() {
+        return this.$store.getters.getPort;
+      }
     },
     methods: {
+      mouseMove(event) {
+        if (this.activeTab == 'color') {
+          this.scrollPos.x = event.clientX;
+          this.scrollPos.y = event.clientY;
+          if (event.which == 1) { // mousedown
+            // do job
+
+            this.port.postMessage({
+              'type': 'mousePos',
+              'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
+            });
+          }
+        }
+      },
+      click(event) {
+        if (this.activeTab == 'color' && this.scrollPos.x && this.scrollPos.y) {
+          this.port.postMessage({
+            'type': 'mousePos',
+            'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
+          });
+        }
+      },
     }
   }
 </script>

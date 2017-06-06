@@ -6,6 +6,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     isVisible: true,
+    activeTab: 'color',
     color: {
       value: {
         hex: '',
@@ -20,22 +21,28 @@ const store = new Vuex.Store({
     cursorOverlay: {
       isVisible: true,
       cursor: 'eyeDropper',
-    }
+    },
+    port: chrome.runtime.connect({ name: "toolkit" }),
   },
   getters: {
-    getColorState: state => state.color,
     getVisibilityState: state => state.isVisible,
-    getCursorOverlayState: state => state.cursorOverlay.isVisible,
-    getCursorOverlayType: state => state.cursorOverlay.cursor,
+    getActiveTab: state => state.activeTab,
+    getColorState: state => state.color,
+    getCursorVisibility: state => state.cursorOverlay.isVisible,
+    getCursorType: state => state.cursorOverlay.cursor,
+    getPort: state => state.port,
   },
   mutations: {
+    setVisibility(state, val) {
+      state.isVisible = val;
+    },
+    setActiveTab(state, val) {
+      state.activeTab = val;
+    },
     setColor(state, val) {
       // console.log('state', state);
       // console.log('val', val);
       state.color = val;
-    },
-    setVisibility(state, val) {
-      state.isVisible = val;
     },
   }
 });
@@ -53,6 +60,7 @@ function constructUI() {
   document.body.appendChild(el);
 
   app = new Vue({
+    port,
     store, // inject store to all children
     el: '#black-shrimp',
     template: '<MainComponent/>',
@@ -85,7 +93,7 @@ overlay.className = 'toolkit__debug';
 var debug;
 
 function init() {
-  window.addEventListener('mousemove', mouseMove);
+  // window.addEventListener('mousemove', mouseMove);
   window.addEventListener('scroll', viewportChange);
   window.addEventListener('resize', viewportChange);
 

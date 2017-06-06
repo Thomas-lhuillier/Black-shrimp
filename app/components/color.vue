@@ -5,17 +5,17 @@
 
       <div class="valueWrapper">
         <div class="hexWrapper" v-bind:class="[{ active: color.hex.isActive }]">
-          <input type="text" class="value_hex" v-model="hex">
+          <input type="text" class="value_hex" v-model="hex" spellcheck="false" @click="selectInputText($event)">
         </div>
         <div class="rgbWrapper" v-bind:class="[{ active: color.rgb.isActive }]">
-          <input type="text" class="value_r" v-model="r">
-          <input type="text" class="value_g" v-model="g">
-          <input type="text" class="value_b" v-model="b">
+          <input type="text" class="value_r" v-model="r" spellcheck="false" @click="selectInputText($event)">
+          <input type="text" class="value_g" v-model="g" spellcheck="false" @click="selectInputText($event)">
+          <input type="text" class="value_b" v-model="b" spellcheck="false" @click="selectInputText($event)">
         </div>
         <div class="hslWrapper" v-bind:class="[{ active: color.hsl.isActive }]">
-          <input type="text" class="value_h" v-model="h">
-          <input type="text" class="value_s" v-model="s">
-          <input type="text" class="value_l" v-model="l">
+          <input type="text" class="value_h" v-model="h" spellcheck="false" @click="selectInputText($event)">
+          <input type="text" class="value_s" v-model="s" spellcheck="false" @click="selectInputText($event)">
+          <input type="text" class="value_l" v-model="l" spellcheck="false" @click="selectInputText($event)">
         </div>
       </div>
 
@@ -39,6 +39,7 @@
     },
     data() {
       return {
+        isActive: true,
         currentColorType: 'hex',
         color: {
           'hex': { isActive: true  },
@@ -77,6 +78,9 @@
         for (let text in this.color) {
           this.color[text].isActive = text == e.text ? true : false;
         }
+      },
+      selectInputText: function(event) {
+        event.target.select();
       },
     },
     mounted: function() {

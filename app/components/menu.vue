@@ -23,14 +23,14 @@
     methods: {
       move : function(divid, xpos, ypos) {
         divid.style.left = xpos + 'px';
-        divid.style.top = ypos + 'px';
+        divid.style.top  = ypos + 'px';
       },
 
       startMoving : function(divid, container, evt) {
         evt = evt || window.event;
-        var posX = evt.clientX,
-            posY = evt.clientY,
-            divTop = divid.style.top,
+        var posX    = evt.clientX,
+            posY    = evt.clientY,
+            divTop  = divid.style.top,
             divLeft = divid.style.left,
             eWi = parseInt(divid.style.width),
             eHe = parseInt(divid.style.height),
@@ -62,7 +62,7 @@
       stopMoving : function(container) {
         var a = document.createElement('script');
         document.getElementById(container).style.cursor = 'default';
-        document.onmousemove = function(){}
+        document.onmousemove = function() {}
       },
     }
   }
