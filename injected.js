@@ -142,6 +142,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 _vue2.default.use(_vuex2.default);
 
+
+/**
+ * Store
+ *
+ * Contains the state of the application,
+ * to be shared with application components.
+ */
 var store = new _vuex2.default.Store({
   state: {
     isVisible: true,
@@ -205,80 +212,26 @@ var store = new _vuex2.default.Store({
 
 });
 
-(function () {
-  // constructUI();
-})();
-
-function constructUI() {
-  var el = document.createElement('div');
-  el.id = 'black-shrimp';
-  el.className = 'blackShrimp';
-  document.body.appendChild(el);
-
-  app = new _vue2.default({
-    port: port,
-    store: store, // inject store to all children
-    el: '#black-shrimp',
-    template: '<MainComponent/>',
-    components: {
-      MainComponent: _main2.default
-    },
-    methods: {
-      setColor: function setColor(val) {
-        store.commit('setColor', val);
-      }
-    },
-    mounted: function mounted() {
-      console.log('mounted');
-    }
-  });
-};
-
-var body = document.querySelector('body');
-var port = chrome.runtime.connect({ name: "toolkit" });
-var changeDelay = 300;
-var changeTimeout;
-var paused = true;
-var inputX, inputY;
-var altKeyWasPressed = false;
-var connectionClosed = false;
-// var lineColor = getLineColor();
-var colorThreshold = [0.2, 0.5, 0.2];
-var overlay = document.createElement('div');
-overlay.className = 'toolkit__debug';
-var debug;
-
-function init() {
-  // window.addEventListener('mousemove', mouseMove);
-  window.addEventListener('scroll', viewportChange);
-  window.addEventListener('resize', viewportChange);
-
-  ColorPicker.construct();
-
-  // window.addEventListener('touchmove', onInputMove);
-
-  // window.addEventListener('keydown', detectAltKeyPress);
-  // window.addEventListener('keyup', detectAltKeyRelease);
-
-  // disableCursor();
-  // requestNewScreenshot();
-}
-
 /**
- * Dispatch messages
+ * Dispatch Chrome port messages
  */
+var debug;
+var connectionClosed = false;
+var port = store.getters.getPort;
 port.onMessage.addListener(function (request, sender, sendResponse) {
+  console.log('request :', request);
   if (connectionClosed) {
-    // @TODO
     return;
-  }
+  } // @TODO
+
   switch (request.type) {
     case 'init':
-      console.log('init');
+      console.log('request init');
       debug = request.debug;
-      init();
+      BlackShrimp.create();
       break;
     case 'imageData':
+      console.log('request imageData');
       // Screenshot processed
       if (debug && request.imageData) {
         createDebugOverlay(request);
@@ -286,15 +239,18 @@ port.onMessage.addListener(function (request, sender, sendResponse) {
       app.showUI();
       break;
     case 'color':
-      // ColorPicker.setColor(request.data);
+      console.log('request color');
       app.setColor({ 'value': request.data });
       break;
     case 'destroy':
-      // destroy(); //@TODO
+      BlackShrimp.destroy();
       break;
   }
 });
 
+/**
+ * Display debug screen
+ */
 var canvas = document.createElement('canvas');
 canvas.id = 'toolkit__debug';
 var context = canvas.getContext('2d');
@@ -307,10 +263,6 @@ function createDebugOverlay(request) {
 
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  // canvas.width  = request.width;
-  // canvas.height = request.height;
-  // canvas.setAttribute('width', window.innerWidth);
-  // canvas.setAttribute('height', window.innerHeight);
 }
 
 function displayScreenshot() {
@@ -325,52 +277,19 @@ function displayScreenshot() {
 }
 
 /**
- * Browser events
+ * Vue app
  */
+// var changeDelay = 300;
+// var changeTimeout;
+// var paused = true;
+// var altKeyWasPressed = false;
+// var colorThreshold = [0.2,0.5,0.2];
+var overlay = document.createElement('div');
+overlay.className = 'toolkit__debug';
 
-var scrollPos = {};
-function mouseMove(event) {
-  scrollPos.x = event.clientX;
-  scrollPos.y = event.clientY;
-
-  port.postMessage({
-    'type': 'mousePos',
-    'coord': { 'x': scrollPos.x, 'y': scrollPos.y }
-  });
-}
-
-var pageOffset = {};
-function viewportChange(event) {
-  var doc = document.documentElement;
-  pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-  pageOffset.y = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
-
-  app.hideUI();
-
-  port.postMessage({
-    'type': 'viewportChange',
-    'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y }
-  });
-}
-
-function windowResize(event) {}
-
-/**
- * Magnifier component
- * Displays color indicators
- */
 var app;
-var ColorPicker = {
-  'el': '',
-  'color': '',
-  'colorMode': 'hex',
-
-  construct: function construct() {
-    var el = document.createElement('div');
-    el.id = 'black-shrimp';
-    el.className = 'blackShrimp';
-    document.body.appendChild(el);
-
+var BlackShrimp = {
+  create: function create() {
     app = new _vue2.default({
       store: store, // inject store to all children
       el: '#black-shrimp',
@@ -387,16 +306,42 @@ var ColorPicker = {
         },
         showUI: function showUI() {
           store.commit('setVisibility', true);
+        },
+        onViewportChange: function onViewportChange(event) {
+          var doc = document.documentElement;
+          var pageOffset = {};
+          pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+          pageOffset.y = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+
+          app.hideUI();
+
+          port.postMessage({
+            'type': 'viewportChange',
+            'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y }
+          });
         }
       },
+      beforeCreate: function beforeCreate() {
+        var el = document.createElement('div');
+        el.id = 'black-shrimp';
+        document.body.appendChild(el);
+      },
       mounted: function mounted() {
-        console.log('mounted');
+        console.log('app mounted');
+        window.addEventListener('scroll', this.onViewportChange);
+        window.addEventListener('resize', this.onViewportChange);
+      },
+      beforeDestroy: function beforeDestroy() {
+        window.removeEventListener('scroll', this.onViewportChange);
+        window.removeEventListener('resize', this.onViewportChange);
       }
     });
   },
 
   destroy: function destroy() {
     // @TODO
+    console.log('destroy');
+    app.$destroy();
     // this.el.parentNode.removeChild(this.el);
   }
 };
@@ -730,6 +675,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 
@@ -761,22 +707,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     }
   },
   methods: {
-    move: function (event) {
-      if (!this.isMoving) {
-        return;
-      }
-
-      event = event || window.event;
-
-      var posX = event.clientX,
-          posY = event.clientY,
-          diffX = posX - this.tempPos.mouseX,
-          diffY = posY - this.tempPos.mouseY;
-
-      this.styleObject.left = this.tempPos.left + diffX;
-      this.styleObject.top = this.tempPos.top + diffY;
-    },
-
+    /* Store initial position and set moving cursor before moving the main box  */
     startMoving: function (event) {
       event = event || window.event;
       console.log(event);
@@ -797,6 +728,50 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       this.$store.commit('setMovingStatus', true);
     },
 
+    /* Moves the main box when dragged */
+    move: function (event) {
+      if (!this.isMoving) {
+        return;
+      }
+
+      event = event || window.event;
+
+      var mouseX = event.clientX;
+      var mouseY = event.clientY;
+
+      var diffX = mouseX - this.tempPos.mouseX;
+      var diffY = mouseY - this.tempPos.mouseY;
+
+      var posX = this.tempPos.left + diffX;
+      var posY = this.tempPos.top + diffY;
+
+      this.styleObject.left = posX;
+      this.styleObject.top = posY;
+
+      this.fitBounds();
+    },
+
+    /* Prevents the main box from getting past window inner border */
+    fitBounds: function (posX, posY) {
+      var el = document.getElementById('black-shrimp');
+      var width = el.clientWidth;
+      var height = el.clientHeight;
+
+      if (this.styleObject.left + width > window.innerWidth) {
+        this.styleObject.left = window.innerWidth - width;
+      }
+      if (this.styleObject.top + height > window.innerHeight) {
+        this.styleObject.top = window.innerHeight - height;
+      }
+      if (this.styleObject.left < 0) {
+        this.styleObject.left = 0;
+      }
+      if (this.styleObject.top < 0) {
+        this.styleObject.top = 0;
+      }
+    },
+
+    /* Set back normal cursor, and moving status after moving the main box */
     stopMoving: function (event) {
       this.styleObject.cursor = 'default';
       this.isMoving = false;

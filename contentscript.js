@@ -62,7 +62,7 @@ var Toolkit = {
     chrome.tabs.insertCSS(this.tab.id, { file: 'css/injected.css' });
 
     // Set active icon
-    chrome.browserAction.setIcon({  
+    chrome.browserAction.setIcon({
       tabId: this.tab.id,
       path: {
         16: 'assets/img/icon16.png',
@@ -72,9 +72,9 @@ var Toolkit = {
 
     this.worker = new Worker('worker.js');
     this.worker.onmessage = this.receiveWorkerMessage.bind(this);
-    this.worker.postMessage({ 
+    this.worker.postMessage({
       type: 'init',
-      debug: debug 
+      debug: debug
     });
 
     this.captureTab();
@@ -91,12 +91,15 @@ var Toolkit = {
     // if(!silent) {
     //   this.port.postMessage({ type: 'destroy' });
     // }
-    
+
     // this.port.onMessage.removeListener(this.receiveBrowserMessageClosure);
     // this.port.onDisconnect.removeListener(this.onBrowserDisconnectClosure);
 
+
+    this.port.postMessage({ type: 'destroy' });
+
     // Set back normal Icon
-    chrome.browserAction.setIcon({  
+    chrome.browserAction.setIcon({
       tabId: this.tab.id,
       path: {
         16: 'assets/img/icon16.png',
@@ -179,10 +182,10 @@ var Toolkit = {
     // adjust the canvas size to the image size
     this.canvas.width = this.tab.width;
     this.canvas.height = this.tab.height;
-    
+
     // draw the image to the canvas
     this.context.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
-    
+
     // store image data
     var imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height).data;
     this.sendImageData(imageData);

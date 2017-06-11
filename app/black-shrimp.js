@@ -1,8 +1,15 @@
 import Vue from 'vue';
-
 import Vuex from 'vuex';
 Vue.use(Vuex);
+import MainComponent from './main.vue';
 
+
+/**
+ * Store
+ *
+ * Contains the state of the application,
+ * to be shared with application components.
+ */
 const store = new Vuex.Store({
   state: {
     isVisible: true,
@@ -53,82 +60,25 @@ const store = new Vuex.Store({
 
 });
 
-import MainComponent from './main.vue';
-
-(function(){
-  // constructUI();
-})();
-
-function constructUI() {
-  var el = document.createElement('div');
-  el.id = 'black-shrimp';
-  el.className = 'blackShrimp';
-  document.body.appendChild(el);
-
-  app = new Vue({
-    port,
-    store, // inject store to all children
-    el: '#black-shrimp',
-    template: '<MainComponent/>',
-    components: {
-      MainComponent
-    },
-    methods: {
-      setColor (val) {
-        store.commit('setColor', val);
-      },
-    },
-    mounted() {
-      console.log('mounted');
-    }
-  });
-};
-
-var body = document.querySelector('body');
-var port = chrome.runtime.connect({ name: "toolkit" });
-var changeDelay = 300;
-var changeTimeout;
-var paused = true;
-var inputX, inputY;
-var altKeyWasPressed = false;
-var connectionClosed = false;
-// var lineColor = getLineColor();
-var colorThreshold = [0.2,0.5,0.2];
-var overlay = document.createElement('div');
-overlay.className = 'toolkit__debug';
-var debug;
-
-function init() {
-  // window.addEventListener('mousemove', mouseMove);
-  window.addEventListener('scroll', viewportChange);
-  window.addEventListener('resize', viewportChange);
-
-  ColorPicker.construct();
-
-  // window.addEventListener('touchmove', onInputMove);
-
-  // window.addEventListener('keydown', detectAltKeyPress);
-  // window.addEventListener('keyup', detectAltKeyRelease);
-
-  // disableCursor();
-  // requestNewScreenshot();
-}
-
 
 /**
- * Dispatch messages
+ * Dispatch Chrome port messages
  */
+var debug;
+var connectionClosed = false;
+var port = store.getters.getPort;
 port.onMessage.addListener(function(request, sender, sendResponse) {
-  if (connectionClosed) { // @TODO
-    return;
-  }
+  console.log('request :', request);
+  if (connectionClosed) { return; } // @TODO
+
   switch (request.type) {
     case 'init':
-      console.log('init');
+      console.log('request init');
       debug = request.debug;
-      init();
+      BlackShrimp.create();
       break;
     case 'imageData':
+      console.log('request imageData');
       // Screenshot processed
       if (debug && request.imageData) {
         createDebugOverlay(request);
@@ -136,31 +86,31 @@ port.onMessage.addListener(function(request, sender, sendResponse) {
       app.showUI();
       break;
     case 'color':
-      // ColorPicker.setColor(request.data);
+      console.log('request color');
       app.setColor({ 'value': request.data });
       break;
     case 'destroy':
-      // destroy(); //@TODO
+      BlackShrimp.destroy();
       break;
   }
 });
 
+
+/**
+ * Display debug screen
+ */
 var canvas = document.createElement('canvas');
 canvas.id = 'toolkit__debug';
 var context = canvas.getContext('2d');
 
 function createDebugOverlay(request) {
   var img;
-  img = new Image();
-  img.src = request.imageData;
+  img        = new Image();
+  img.src    = request.imageData;
   img.onload = displayScreenshot.bind(img);
 
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
-  // canvas.width  = request.width;
-  // canvas.height = request.height;
-  // canvas.setAttribute('width', window.innerWidth);
-  // canvas.setAttribute('height', window.innerHeight);
 }
 
 function displayScreenshot() {
@@ -174,56 +124,19 @@ function displayScreenshot() {
 
 
 /**
- * Browser events
+ * Vue app
  */
+// var changeDelay = 300;
+// var changeTimeout;
+// var paused = true;
+// var altKeyWasPressed = false;
+// var colorThreshold = [0.2,0.5,0.2];
+var overlay = document.createElement('div');
+overlay.className = 'toolkit__debug';
 
-var scrollPos = {};
-function mouseMove(event) {
-  scrollPos.x = event.clientX;
-  scrollPos.y = event.clientY;
-
-  port.postMessage({
-    'type': 'mousePos',
-    'coord': { 'x': scrollPos.x, 'y': scrollPos.y }
-  });
-}
-
-var pageOffset = {};
-function viewportChange(event) {
-  var doc = document.documentElement;
-  pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-  pageOffset.y = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-
-  app.hideUI();
-
-  port.postMessage({
-    'type': 'viewportChange',
-    'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y },
-    // 'zoom' : '' //@TODO
-  });
-}
-
-function windowResize(event) {
-
-}
-
-
-/**
- * Magnifier component
- * Displays color indicators
- */
 var app;
-var ColorPicker = {
-  'el': '',
-  'color': '',
-  'colorMode': 'hex',
-
-  construct: function() {
-    var el = document.createElement('div');
-    el.id = 'black-shrimp';
-    el.className = 'blackShrimp';
-    document.body.appendChild(el);
-
+var BlackShrimp = {
+  create: function() {
     app = new Vue({
       store, // inject store to all children
       el: '#black-shrimp',
@@ -241,15 +154,42 @@ var ColorPicker = {
         showUI() {
           store.commit('setVisibility', true);
         },
+        onViewportChange(event) {
+          var doc = document.documentElement;
+          var pageOffset = {};
+          pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+          pageOffset.y = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+
+          app.hideUI();
+
+          port.postMessage({
+            'type': 'viewportChange',
+            'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y },
+            // 'zoom' : '' //@TODO
+          });
+        },
+      },
+      beforeCreate() {
+        var el = document.createElement('div');
+        el.id = 'black-shrimp';
+        document.body.appendChild(el);
       },
       mounted() {
-        console.log('mounted');
-      }
+        console.log('app mounted');
+        window.addEventListener('scroll', this.onViewportChange);
+        window.addEventListener('resize', this.onViewportChange);
+      },
+      beforeDestroy() {
+        window.removeEventListener('scroll', this.onViewportChange);
+        window.removeEventListener('resize', this.onViewportChange);
+      },
     });
   },
 
   destroy: function() {
     // @TODO
+    console.log('destroy');
+    app.$destroy();
     // this.el.parentNode.removeChild(this.el);
   },
 }
