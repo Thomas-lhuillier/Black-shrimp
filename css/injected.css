@@ -183,6 +183,10 @@
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   overflow: hidden;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }
 .blackShrimp .menu .item {
     display: inline-block;
@@ -204,6 +208,9 @@
       background: #474747;
       color: #f0f0f0;
 }
+.blackShrimp .menu .item.-moving {
+      cursor: move;
+}
 .blackShrimp .menu .item.active {
       color: #f0f0f0;
       background-color: #535353;
@@ -216,6 +223,9 @@
     padding: 0;
     width: 28px;
     text-align: center;
+}
+.blackShrimp .menu .jsClose.-moving {
+      cursor: move;
 }
 
 .blackShrimp .panel {

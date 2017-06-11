@@ -1,11 +1,11 @@
 <template>
-  <div class="menu">
-    <span v-for="item in items" class="item" v-bind:class="[{active: item.isActive }, 'item--' + item.name]">
-      <i class="bs-icon" v-bind:class="['bs-icon-' + item.icon]"></i>
-      <span>{{item.name}}</span>
+  <div class="menu" data-js-draggable>
+    <span v-for="item in items" class="item" v-bind:class="[{active: item.isActive }, {'-moving': isMoving}, 'item--' + item.name]" data-js-draggable>
+      <i class="bs-icon" v-bind:class="['bs-icon-' + item.icon]" data-js-draggable></i>
+      <span data-js-draggable>{{item.name}}</span>
     </span>
 
-    <span class="jsClose item"><i class="bs-icon bs-icon-close"></i></span>
+    <span class="jsClose item" :class="{'-moving': isMoving}" data-js-draggable><i class="bs-icon bs-icon-close" data-js-draggable></i></span>
   </div>
 </template>
 
@@ -17,52 +17,12 @@
           {name: 'Color', icon: 'eyeDropper', isActive: true},
           {name: 'Ruler', icon: 'ruler', isActive: false},
           {name: 'Info' , icon: 'binoculars', isActive: false}
-        ] 
+        ],
       }
     },
-    methods: {
-      move : function(divid, xpos, ypos) {
-        divid.style.left = xpos + 'px';
-        divid.style.top  = ypos + 'px';
-      },
-
-      startMoving : function(divid, container, evt) {
-        evt = evt || window.event;
-        var posX    = evt.clientX,
-            posY    = evt.clientY,
-            divTop  = divid.style.top,
-            divLeft = divid.style.left,
-            eWi = parseInt(divid.style.width),
-            eHe = parseInt(divid.style.height),
-            cWi = parseInt(document.getElementById(container).style.width),
-            cHe = parseInt(document.getElementById(container).style.height);
-
-        document.getElementById(container).style.cursor = 'move';
-
-        divTop = divTop.replace('px', '');
-        divLeft = divLeft.replace('px', '');
-
-        var diffX = posX - divLeft,
-            diffY = posY - divTop;
-
-        document.onmousemove = function(evt) {
-          evt = evt || window.event;
-          var posX = evt.clientX,
-              posY = evt.clientY,
-              aX = posX - diffX,
-              aY = posY - diffY;
-          if (aX < 0) aX = 0;
-          if (aY < 0) aY = 0;
-          if (aX + eWi > cWi) aX = cWi - eWi;
-          if (aY + eHe > cHe) aY = cHe -eHe;
-          mydragg.move(divid, aX, aY);
-        }
-      },
-
-      stopMoving : function(container) {
-        var a = document.createElement('script');
-        document.getElementById(container).style.cursor = 'default';
-        document.onmousemove = function() {}
+    computed: {
+      isMoving() {
+        return this.$store.getters.getMovingStatus;
       },
     }
   }
@@ -85,6 +45,7 @@
       border-top-right-radius: $border-radius;
 
       overflow: hidden;
+      user-select: none;
 
       .item {
         display: inline-block;
@@ -98,7 +59,7 @@
 
         cursor: pointer;
         transition: all 0.3s linear;
-        
+
         > * {
           display: inline-block;
           vertical-align: top;
@@ -108,6 +69,10 @@
         &:hover, &:focus {
           background: $gray-dark;
           color: $soft-white;
+        }
+
+        &.-moving {
+          cursor: move;
         }
 
         &.active {
@@ -124,6 +89,9 @@
         padding: 0;
         width: $height;
         text-align: center;
+        &.-moving {
+          cursor: move;
+        }
       }
     }
   }

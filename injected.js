@@ -145,6 +145,7 @@ _vue2.default.use(_vuex2.default);
 var store = new _vuex2.default.Store({
   state: {
     isVisible: true,
+    isMoving: false,
     activeTab: 'color',
     color: {
       value: {
@@ -161,11 +162,14 @@ var store = new _vuex2.default.Store({
       isVisible: true,
       cursor: 'eyeDropper'
     },
-    port: chrome.runtime.connect({ name: "toolkit" })
-  },
+    port: chrome.runtime.connect({ name: "toolkit" }) },
+
   getters: {
-    getVisibilityState: function getVisibilityState(state) {
+    getVisibility: function getVisibility(state) {
       return state.isVisible;
+    },
+    getMovingStatus: function getMovingStatus(state) {
+      return state.isMoving;
     },
     getActiveTab: function getActiveTab(state) {
       return state.activeTab;
@@ -183,6 +187,7 @@ var store = new _vuex2.default.Store({
       return state.port;
     }
   },
+
   mutations: {
     setVisibility: function setVisibility(state, val) {
       state.isVisible = val;
@@ -191,11 +196,13 @@ var store = new _vuex2.default.Store({
       state.activeTab = val;
     },
     setColor: function setColor(state, val) {
-      // console.log('state', state);
-      // console.log('val', val);
       state.color = val;
+    },
+    setMovingStatus: function setMovingStatus(state, val) {
+      state.isMoving = val;
     }
   }
+
 });
 
 (function () {
@@ -524,19 +531,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   },
   methods: {
     mouseMove(event) {
-      if (this.activeTab == 'color') {
-        this.scrollPos.x = event.clientX;
-        this.scrollPos.y = event.clientY;
-        if (event.which == 1) {
-          // mousedown
-          // do job
-
-          this.port.postMessage({
-            'type': 'mousePos',
-            'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
-          });
-        }
+      if (this.activeTab != 'color') {
+        return;
       }
+      // if (this.activeTab == 'color') {
+      this.scrollPos.x = event.clientX;
+      this.scrollPos.y = event.clientY;
+
+      if (event.which == 1) {
+        // mousedown
+        this.port.postMessage({
+          'type': 'mousePos',
+          'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
+        });
+      }
+      // }
     },
     click(event) {
       if (this.activeTab == 'color' && this.scrollPos.x && this.scrollPos.y) {
@@ -573,49 +582,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       items: [{ name: 'Color', icon: 'eyeDropper', isActive: true }, { name: 'Ruler', icon: 'ruler', isActive: false }, { name: 'Info', icon: 'binoculars', isActive: false }]
     };
   },
-  methods: {
-    move: function (divid, xpos, ypos) {
-      divid.style.left = xpos + 'px';
-      divid.style.top = ypos + 'px';
-    },
-
-    startMoving: function (divid, container, evt) {
-      evt = evt || window.event;
-      var posX = evt.clientX,
-          posY = evt.clientY,
-          divTop = divid.style.top,
-          divLeft = divid.style.left,
-          eWi = parseInt(divid.style.width),
-          eHe = parseInt(divid.style.height),
-          cWi = parseInt(document.getElementById(container).style.width),
-          cHe = parseInt(document.getElementById(container).style.height);
-
-      document.getElementById(container).style.cursor = 'move';
-
-      divTop = divTop.replace('px', '');
-      divLeft = divLeft.replace('px', '');
-
-      var diffX = posX - divLeft,
-          diffY = posY - divTop;
-
-      document.onmousemove = function (evt) {
-        evt = evt || window.event;
-        var posX = evt.clientX,
-            posY = evt.clientY,
-            aX = posX - diffX,
-            aY = posY - diffY;
-        if (aX < 0) aX = 0;
-        if (aY < 0) aY = 0;
-        if (aX + eWi > cWi) aX = cWi - eWi;
-        if (aY + eHe > cHe) aY = cHe - eHe;
-        mydragg.move(divid, aX, aY);
-      };
-    },
-
-    stopMoving: function (container) {
-      var a = document.createElement('script');
-      document.getElementById(container).style.cursor = 'default';
-      document.onmousemove = function () {};
+  computed: {
+    isMoving() {
+      return this.$store.getters.getMovingStatus;
     }
   }
 });
@@ -749,6 +718,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -762,12 +743,64 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   },
   data() {
     return {
-      debug: true
+      debug: true,
+      styleObject: {
+        left: 10,
+        top: 10,
+        cursor: 'default'
+      },
+      tempPos: {}
     };
   },
   computed: {
     isVisible() {
-      return this.$store.getters.getVisibilityState;
+      return this.$store.getters.getVisibility;
+    },
+    isMoving() {
+      return this.$store.getters.getMovingStatus;
+    }
+  },
+  methods: {
+    move: function (event) {
+      if (!this.isMoving) {
+        return;
+      }
+
+      event = event || window.event;
+
+      var posX = event.clientX,
+          posY = event.clientY,
+          diffX = posX - this.tempPos.mouseX,
+          diffY = posY - this.tempPos.mouseY;
+
+      this.styleObject.left = this.tempPos.left + diffX;
+      this.styleObject.top = this.tempPos.top + diffY;
+    },
+
+    startMoving: function (event) {
+      event = event || window.event;
+      console.log(event);
+      console.log(event.srcElement);
+
+      if (event.srcElement.getAttribute('data-js-draggable') === null) {
+        return;
+      }
+
+      this.styleObject.cursor = 'move';
+
+      this.tempPos.left = this.styleObject.left;
+      this.tempPos.top = this.styleObject.top;
+      this.tempPos.mouseX = event.clientX;
+      this.tempPos.mouseY = event.clientY;
+
+      this.isMoving = true;
+      this.$store.commit('setMovingStatus', true);
+    },
+
+    stopMoving: function (event) {
+      this.styleObject.cursor = 'default';
+      this.isMoving = false;
+      this.$store.commit('setMovingStatus', false);
     }
   }
 });
@@ -1005,25 +1038,47 @@ module.exports = Component.exports
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
-    staticClass: "menu"
+    staticClass: "menu",
+    attrs: {
+      "data-js-draggable": ""
+    }
   }, [_vm._l((_vm.items), function(item) {
     return _c('span', {
       staticClass: "item",
       class: [{
         active: item.isActive
-      }, 'item--' + item.name]
+      }, {
+        '-moving': _vm.isMoving
+      }, 'item--' + item.name],
+      attrs: {
+        "data-js-draggable": ""
+      }
     }, [_c('i', {
       staticClass: "bs-icon",
-      class: ['bs-icon-' + item.icon]
-    }), _vm._v(" "), _c('span', [_vm._v(_vm._s(item.name))])])
-  }), _vm._v(" "), _vm._m(0)], 2)
-},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('span', {
-    staticClass: "jsClose item"
+      class: ['bs-icon-' + item.icon],
+      attrs: {
+        "data-js-draggable": ""
+      }
+    }), _vm._v(" "), _c('span', {
+      attrs: {
+        "data-js-draggable": ""
+      }
+    }, [_vm._v(_vm._s(item.name))])])
+  }), _vm._v(" "), _c('span', {
+    staticClass: "jsClose item",
+    class: {
+      '-moving': _vm.isMoving
+    },
+    attrs: {
+      "data-js-draggable": ""
+    }
   }, [_c('i', {
-    staticClass: "bs-icon bs-icon-close"
-  })])
-}]}
+    staticClass: "bs-icon bs-icon-close",
+    attrs: {
+      "data-js-draggable": ""
+    }
+  })])], 2)
+},staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
@@ -1042,8 +1097,24 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     class: [{
       '-visible': _vm.isVisible
     }],
+    style: ({
+      'left': _vm.styleObject.left + 'px',
+      'top': _vm.styleObject.top + 'px',
+      'cursor': _vm.styleObject.cursor
+    }),
     attrs: {
       "id": "black-shrimp"
+    },
+    on: {
+      "mousedown": function($event) {
+        _vm.startMoving($event)
+      },
+      "mouseup": function($event) {
+        _vm.stopMoving($event)
+      },
+      "mousemove": function($event) {
+        _vm.move($event)
+      }
     }
   }, [_c('CursorComponent'), _vm._v(" "), _c('MenuComponent'), _vm._v(" "), _c('ColorComponent')], 1)
 },staticRenderFns: []}

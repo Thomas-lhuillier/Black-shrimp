@@ -6,32 +6,36 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     isVisible: true,
+    isMoving: false,
     activeTab: 'color',
     color: {
       value: {
-        hex: '',
-        r: '',
-        g: '',
-        b: '',
-        h: '',
-        s: '',
-        l: '',
+        hex : '',
+        r   : '',
+        g   : '',
+        b   : '',
+        h   : '',
+        s   : '',
+        l   : '',
       }
     },
     cursorOverlay: {
       isVisible: true,
       cursor: 'eyeDropper',
     },
-    port: chrome.runtime.connect({ name: "toolkit" }),
+    port: chrome.runtime.connect({ name: "toolkit" }), // @TODO change to black shrimp
   },
+
   getters: {
-    getVisibilityState: state => state.isVisible,
-    getActiveTab: state => state.activeTab,
-    getColorState: state => state.color,
-    getCursorVisibility: state => state.cursorOverlay.isVisible,
-    getCursorType: state => state.cursorOverlay.cursor,
-    getPort: state => state.port,
+    getVisibility       : state => state.isVisible,
+    getMovingStatus     : state => state.isMoving,
+    getActiveTab        : state => state.activeTab,
+    getColorState       : state => state.color,
+    getCursorVisibility : state => state.cursorOverlay.isVisible,
+    getCursorType       : state => state.cursorOverlay.cursor,
+    getPort             : state => state.port,
   },
+
   mutations: {
     setVisibility(state, val) {
       state.isVisible = val;
@@ -40,11 +44,13 @@ const store = new Vuex.Store({
       state.activeTab = val;
     },
     setColor(state, val) {
-      // console.log('state', state);
-      // console.log('val', val);
       state.color = val;
     },
+    setMovingStatus(state, val) {
+      state.isMoving = val;
+    },
   }
+
 });
 
 import MainComponent from './main.vue';
@@ -162,8 +168,7 @@ function displayScreenshot() {
 
   var overlay = document.getElementById('toolkit__debug');
   if (overlay) { overlay.parentNode.removeChild(overlay); }
-  
-  
+
   document.body.appendChild(canvas);
 }
 

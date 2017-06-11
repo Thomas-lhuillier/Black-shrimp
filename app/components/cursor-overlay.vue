@@ -26,18 +26,18 @@
     },
     methods: {
       mouseMove(event) {
-        if (this.activeTab == 'color') {
-          this.scrollPos.x = event.clientX;
-          this.scrollPos.y = event.clientY;
-          if (event.which == 1) { // mousedown
-            // do job
+        if (this.activeTab != 'color') { return; }
+        // if (this.activeTab == 'color') {
+        this.scrollPos.x = event.clientX;
+        this.scrollPos.y = event.clientY;
 
-            this.port.postMessage({
-              'type': 'mousePos',
-              'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
-            });
-          }
+        if (event.which == 1) { // mousedown
+          this.port.postMessage({
+            'type': 'mousePos',
+            'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
+          });
         }
+        // }
       },
       click(event) {
         if (this.activeTab == 'color' && this.scrollPos.x && this.scrollPos.y) {
