@@ -168,6 +168,10 @@ var BlackShrimp = {
             // 'zoom' : '' //@TODO
           });
         },
+        destroy() {
+          console.log('destroy app.$destroy');
+          this.$destroy();
+        },
       },
       beforeCreate() {
         var el = document.createElement('div');
@@ -183,13 +187,16 @@ var BlackShrimp = {
         window.removeEventListener('scroll', this.onViewportChange);
         window.removeEventListener('resize', this.onViewportChange);
       },
+      destroyed() {
+        console.log('app destroyed');
+        var el = document.getElementById('black-shrimp');
+        el.parentNode.removeChild(el);
+      }
     });
   },
 
   destroy: function() {
     // @TODO
-    console.log('destroy');
-    app.$destroy();
-    // this.el.parentNode.removeChild(this.el);
+    app.destroy();
   },
 }

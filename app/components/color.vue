@@ -26,7 +26,21 @@
       ]" v-on:change="changeColorMode($event)"></SelectComponent>
     </div>
 
-    <div class="colorSwatches"></div>
+    <div class="colorSwatches">
+      <div class="color-collection">
+        <template v-for="color in colors" v-if="color.type == 'color'">
+          <div class="btn-square -color" :style="{ 'background-color': color.hex }"></div>
+        </template>
+        <template v-for="color in colors" v-else-if="color.type == 'color'">
+          <div class="btn-square -folder"></div>
+        </template>
+      </div>
+      <div class="button-wrapper">
+        <button class="btn-square" @click="saveCurrentColor($event)"><i class="bs-icon bs-icon-plus"></i></button>
+        <button class="btn-square"><i class="bs-icon bs-icon-folder"></i></button>
+        <button class="btn-square"><i class="bs-icon bs-icon-trash"></i></button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -45,7 +59,8 @@
           'hex': { isActive: true  },
           'rgb': { isActive: false },
           'hsl': { isActive: false },
-        }
+        },
+        colors: [],
       }
     },
     computed: {
@@ -70,17 +85,42 @@
       l () {
         return this.$store.getters.getColorState.value.l.toString();
       },
+      colors() {
+        return [
+          {
+            type: 'color',
+            hex: '#000',
+          },
+          {
+            type: 'color',
+            hex: '#ff0',
+          },
+        ];
+      }
     },
     methods: {
-      changeColorMode: function(e) {
+      changeColorMode: function(event) {
         console.log('changeColorMode');
         console.log(this.$store.getters.getColorState.value);
         for (let text in this.color) {
-          this.color[text].isActive = text == e.text ? true : false;
+          this.color[text].isActive = text == event.text ? true : false;
         }
       },
       selectInputText: function(event) {
         event.target.select();
+      },
+      saveCurrentColor: function(event) {
+        console.log('save Color');
+        var color = {};
+        color.type = 'color';
+        color.hex = this.hex;
+        this.colors.push(color);
+      },
+      createFolder: function(event) {
+
+      },
+      deleteSelection: function(event) {
+
       },
     },
     mounted: function() {
@@ -185,6 +225,78 @@
       border: solid 1px $gray-light;
       border-radius: $border-radius-sm;
       box-sizing: border-box;
+
+      &:focus {
+        border-color: $gray-darker;
+      }
     }
-  } 
+
+    .colorSwatches {
+      position: relative;
+      display: block;
+      margin-top: $spacer;
+      margin-right: -$spacer / 2;
+      padding-top: $spacer;
+
+      &:before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: -$spacer;
+        right: -$spacer;
+        border-top: solid 1px $gray-light;
+      }
+
+      & > .button-wrapper {
+        display: block;
+        text-align: right;
+      }
+
+      .btn-square {
+        margin-right: $spacer / 2;
+        margin-bottom: $spacer / 2;
+      }
+
+    }
+
+    .btn-square {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+
+      border-radius: 2px;
+      border-width: 1px;
+      border-style: solid;
+      border-color: transparent;
+
+      background-color: $gray-light;
+
+      box-sizing: border-box;
+      vertical-align: middle;
+      cursor: pointer;
+
+      transition: all .2s ease;
+
+      > .bs-icon {
+        display: block;
+        margin-top: -1px;
+        margin-left: -1px;
+        font-size: 18px;
+      }
+
+      &:hover {
+        background-color: $gray-dark;
+        color: $soft-white;
+      }
+
+      &:focus {
+        border-color: $gray-darker;
+      }
+
+      &:active {
+        background-color: $gray-darker;
+      }
+    }
+  }
 </style>

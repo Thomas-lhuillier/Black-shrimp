@@ -319,6 +319,10 @@ var BlackShrimp = {
             'type': 'viewportChange',
             'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y }
           });
+        },
+        destroy: function destroy() {
+          console.log('destroy app.$destroy');
+          this.$destroy();
         }
       },
       beforeCreate: function beforeCreate() {
@@ -334,15 +338,18 @@ var BlackShrimp = {
       beforeDestroy: function beforeDestroy() {
         window.removeEventListener('scroll', this.onViewportChange);
         window.removeEventListener('resize', this.onViewportChange);
+      },
+      destroyed: function destroyed() {
+        console.log('app destroyed');
+        var el = document.getElementById('black-shrimp');
+        el.parentNode.removeChild(el);
       }
     });
   },
 
   destroy: function destroy() {
     // @TODO
-    console.log('destroy');
-    app.$destroy();
-    // this.el.parentNode.removeChild(this.el);
+    app.destroy();
   }
 };
 
@@ -354,6 +361,20 @@ var BlackShrimp = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__select_block_vue__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__select_block_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__select_block_vue__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -401,7 +422,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         'hex': { isActive: true },
         'rgb': { isActive: false },
         'hsl': { isActive: false }
-      }
+      },
+      colors: []
     };
   },
   computed: {
@@ -425,19 +447,37 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     l() {
       return this.$store.getters.getColorState.value.l.toString();
+    },
+    colors() {
+      return [{
+        type: 'color',
+        hex: '#000'
+      }, {
+        type: 'color',
+        hex: '#ff0'
+      }];
     }
   },
   methods: {
-    changeColorMode: function (e) {
+    changeColorMode: function (event) {
       console.log('changeColorMode');
       console.log(this.$store.getters.getColorState.value);
       for (let text in this.color) {
-        this.color[text].isActive = text == e.text ? true : false;
+        this.color[text].isActive = text == event.text ? true : false;
       }
     },
     selectInputText: function (event) {
       event.target.select();
-    }
+    },
+    saveCurrentColor: function (event) {
+      console.log('save Color');
+      var color = {};
+      color.type = 'color';
+      color.hex = this.hex;
+      this.colors.push(color);
+    },
+    createFolder: function (event) {},
+    deleteSelection: function (event) {}
   },
   mounted: function () {}
 });
@@ -1396,8 +1436,44 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   })], 1), _vm._v(" "), _c('div', {
     staticClass: "colorSwatches"
+  }, [_c('div', {
+    staticClass: "color-collection"
+  }, [_vm._l((_vm.colors), function(color) {
+    return (color.type == 'color') ? [_c('div', {
+      staticClass: "btn-square -color",
+      style: ({
+        'background-color': color.hex
+      })
+    })] : (color.type == 'color') ? _vm._l((_vm.colors), function(color) {
+      return [_c('div', {
+        staticClass: "btn-square -folder"
+      })]
+    }) : _vm._e()
+  })], 2), _vm._v(" "), _c('div', {
+    staticClass: "button-wrapper"
+  }, [_c('button', {
+    staticClass: "btn-square",
+    on: {
+      "click": function($event) {
+        _vm.saveCurrentColor($event)
+      }
+    }
+  }, [_c('i', {
+    staticClass: "bs-icon bs-icon-plus"
+  })]), _vm._v(" "), _vm._m(0), _vm._v(" "), _vm._m(1)])])])
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('button', {
+    staticClass: "btn-square"
+  }, [_c('i', {
+    staticClass: "bs-icon bs-icon-folder"
   })])
-},staticRenderFns: []}
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('button', {
+    staticClass: "btn-square"
+  }, [_c('i', {
+    staticClass: "bs-icon bs-icon-trash"
+  })])
+}]}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()

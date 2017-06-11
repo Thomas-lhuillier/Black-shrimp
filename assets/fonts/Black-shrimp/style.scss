@@ -23,6 +23,11 @@
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  &:before {
+    font-size: inherit !important;
+    color: inherit !important;
+  }
 }
 
 .bs-icon-carret-up {

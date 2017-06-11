@@ -21,6 +21,10 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+[class^="bs-icon"]:before {
+    font-size: inherit !important;
+    color: inherit !important;
+}
 .bs-icon-carret-up:before {
   content: "\E907";
 }
@@ -295,6 +299,63 @@
   border-radius: 3px;
   box-sizing: border-box;
 }
+.blackShrimp input[type="text"]:focus {
+    border-color: #333333;
+}
+.blackShrimp .colorSwatches {
+  position: relative;
+  display: block;
+  margin-top: 8px;
+  margin-right: -4px;
+  padding-top: 8px;
+}
+.blackShrimp .colorSwatches:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: -8px;
+    right: -8px;
+    border-top: solid 1px #666666;
+}
+.blackShrimp .colorSwatches > .button-wrapper {
+    display: block;
+    text-align: right;
+}
+.blackShrimp .colorSwatches .btn-square {
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+.blackShrimp .btn-square {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  background-color: #666666;
+  box-sizing: border-box;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.blackShrimp .btn-square > .bs-icon {
+    display: block;
+    margin-top: -1px;
+    margin-left: -1px;
+    font-size: 18px;
+}
+.blackShrimp .btn-square:hover {
+    background-color: #474747;
+    color: #f0f0f0;
+}
+.blackShrimp .btn-square:focus {
+    border-color: #333333;
+}
+.blackShrimp .btn-square:active {
+    background-color: #333333;
+}
 
 .blackShrimp {
   /**
@@ -347,6 +408,8 @@
 }
 .blackShrimp .select-block > .options {
       display: none;
+      position: relative;
+      z-index: 1;
 }
 .blackShrimp .select-block > .options.-opened {
         display: block;

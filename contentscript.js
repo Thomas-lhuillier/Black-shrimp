@@ -3,8 +3,10 @@ var tabs = {};
 
 function toggle(tab) {
   if (!tabs[tab.id]) {
+    console.log('addTab', tab.id);
     addTab(tab);
   } else {
+    console.log('deactivateTab', tab.id);
     deactivateTab(tab.id);
   }
 }
@@ -39,6 +41,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 
 chrome.runtime.onSuspend.addListener(function() {
   for (var tabId in tabs) {
+    console.log('tab ', tabId, ' deactive');
     tabs[tabId].deactivate(true);
   }
 });
@@ -48,7 +51,6 @@ var Toolkit = {
   canvas: document.createElement('canvas'),
 
   construct: function(tab) {
-    // console.log('construct');
     this.tab = tab;
 
     this.onBrowserDisconnectClosure = this.onBrowserDisconnect.bind(this);
@@ -81,22 +83,23 @@ var Toolkit = {
   },
 
   destroy: function(silent) {
-    console.log('destroy');
     // if(!this.port){
     //   // not yet initialized
     //   this.alive = false;
     //   return;
     // }
 
-    // if(!silent) {
-    //   this.port.postMessage({ type: 'destroy' });
-    // }
+    if(!silent) {
+      this.port.postMessage({ type: 'destroy' });
+    }
 
     // this.port.onMessage.removeListener(this.receiveBrowserMessageClosure);
-    // this.port.onDisconnect.removeListener(this.onBrowserDisconnectClosure);
+    this.port.onDisconnect.removeListener(this.onBrowserDisconnectClosure);
 
-
-    this.port.postMessage({ type: 'destroy' });
+    // this.port.postMessage({ type: 'destroy' });
+    this.worker.postMessage({
+      type: 'destroy',
+    });
 
     // Set back normal Icon
     chrome.browserAction.setIcon({
@@ -122,6 +125,7 @@ var Toolkit = {
 
     this.port.onMessage.addListener(this.receiveBrowserMessageClosure);
     this.port.onDisconnect.addListener(this.onBrowserDisconnectClosure);
+
     this.port.postMessage({
       type: 'init',
       debug: debug
@@ -129,6 +133,7 @@ var Toolkit = {
   },
 
   onBrowserDisconnect: function() {
+    console.log('onBrowserDisconnect');
     this.destroy(true);
   },
 
@@ -160,7 +165,7 @@ var Toolkit = {
 
   receiveWorkerMessage: function(event) {
     var forward = ['debug screen', 'color', 'screenshot processed' , 'mousePos'];
-    console.log('received worker message', event);
+    console.log('received worker message, forward to port :', event);
 
     if(forward.indexOf(event.data.type) > -1){
       this.port.postMessage(event.data)

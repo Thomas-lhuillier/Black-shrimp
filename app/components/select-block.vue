@@ -123,7 +123,7 @@
               margin-right: -8px;
               width: 18px;
               height: 18px;
-              
+
               line-height: 18px;
               text-align: center;
 
@@ -135,6 +135,8 @@
 
       > .options {
         display: none;
+        position: relative;
+        z-index: 1;
 
         &.-opened {
           display: block;
