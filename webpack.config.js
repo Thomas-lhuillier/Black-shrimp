@@ -10,7 +10,6 @@ module.exports = {
   context: path.join(__dirname, '/app'),
   entry: [
     './black-shrimp.js',
-    // './app/sass/injected.scss'
   ],
   output: {
     filename: 'injected.js'
@@ -28,52 +27,52 @@ module.exports = {
       test: /\.vue$/,
       loader: 'vue-loader',
       options: {
-        extractCSS: true,
+        extractCSS: false,
         cssModules: {
           localIdentName: '[path][name]---[local]---[hash:base64:5]',
           camelCase: true
         },
         fallback: "vue-style-loader",
         loaders: {
-          scss: ExtractTextPlugin.extract({
-            use: [
-              {
-                loader: "css-loader",
-                options: {
-                  sourceMap: true,
-                  // modules: true,
-                  modules: false,
-                  importLoaders: true,
-                }
-              },
-              {
-                loader: "postcss-loader",
-                options: {
-                  sourceMap: true,
-                  plugins: function () {
-                    return [
-                      require("autoprefixer")
-                    ];
-                  }
-                }
-              },
-              {
-                loader: "sass-loader",
-                options: {
-                  sourceMap: true
-                }
-              }
-            ],
-            fallback: 'vue-style-loader' // <- this is a dep of vue-loader, so no need to explicitly install if using npm3
-          }),
-          woff: {
-            use: 'url-loader',
-            options: {
-              limit: 100000
-            }
-          }
-          // scss: 'vue-style-loader!css-loader?-autoprefixer!sass-loader!postcss-loader', // <style lang="scss">
-          // sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax' // <style lang="sass">
+          // scss: ExtractTextPlugin.extract({
+          //   use: [
+          //     {
+          //       loader: "css-loader",
+          //       options: {
+          //         sourceMap: true,
+          //         // modules: true,
+          //         modules: false,
+          //         importLoaders: true,
+          //       }
+          //     },
+          //     {
+          //       loader: "postcss-loader",
+          //       options: {
+          //         sourceMap: true,
+          //         plugins: function () {
+          //           return [
+          //             require("autoprefixer")
+          //           ];
+          //         }
+          //       }
+          //     },
+          //     {
+          //       loader: "sass-loader",
+          //       options: {
+          //         sourceMap: true
+          //       }
+          //     }
+          //   ],
+          //   fallback: 'vue-style-loader' // <- this is a dep of vue-loader, so no need to explicitly install if using npm3
+          // }),
+          // woff: {
+          //   use: 'url-loader',
+          //   options: {
+          //     limit: 100000
+          //   }
+          // }
+          scss: 'vue-style-loader!css-loader?-autoprefixer!sass-loader!postcss-loader', // <style lang="scss">
+          sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax' // <style lang="sass">
         }
       }
     },
@@ -121,7 +120,7 @@ module.exports = {
     }
   },
   plugins: [
-    new ExtractTextPlugin("css/injected.css"),
+    // new ExtracstTextPlugin("css/injected.css"),
     new webpack.LoaderOptionsPlugin({
       options: { postcss: [ autoprefixer ]}
     }),

@@ -2,7 +2,7 @@
 @charset "UTF-8";
 @font-face {
   font-family: 'Black-shrimp';
-  src: url("chrome-extension://mmjjfbgmblmokgeefhlpigndfmohkchh/assets/fonts/Black-shrimp/Black-shrimp.woff") format("woff");
+  src: url("chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/Black-shrimp/Black-shrimp.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -170,7 +170,10 @@
   font-family: 'Poppins', monospace;
   z-index: 9999;
 }
-.blackShrimp * {
+.blackShrimp:before, .blackShrimp:after,
+  .blackShrimp *:before,
+  .blackShrimp *:after,
+  .blackShrimp * {
     all: unset;
     /* allowing inheritance within .black-shrimp */
 }
@@ -315,7 +318,7 @@
     position: absolute;
     top: 0;
     left: -8px;
-    right: -8px;
+    right: -4px;
     border-top: solid 1px #666666;
 }
 .blackShrimp .colorSwatches > .button-wrapper {

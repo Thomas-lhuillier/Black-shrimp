@@ -85,18 +85,6 @@
       l () {
         return this.$store.getters.getColorState.value.l.toString();
       },
-      colors() {
-        return [
-          {
-            type: 'color',
-            hex: '#000',
-          },
-          {
-            type: 'color',
-            hex: '#ff0',
-          },
-        ];
-      }
     },
     methods: {
       changeColorMode: function(event) {
@@ -244,7 +232,7 @@
         position: absolute;
         top: 0;
         left: -$spacer;
-        right: -$spacer;
+        right: -$spacer / 2;
         border-top: solid 1px $gray-light;
       }
 

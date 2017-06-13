@@ -19,16 +19,17 @@
 </template>
 
 <style lang="scss">
-  // @TODO remove this
-  @import "../assets/fonts/Black-shrimp/style.scss";
-</style>
-
-<style lang="scss">
 @import "sass/_vars.scss";
+@import "../assets/fonts/Black-shrimp/style.scss";
 
 .blackShrimp {
   // Style resets, preventing local style affecting this component.
   all: initial; /* blocking inheritance for all properties */
+
+  // &:before,
+  // &:after,
+  // *:before,
+  // *:after,
   * {
     all: unset; /* allowing inheritance within .black-shrimp */
   }

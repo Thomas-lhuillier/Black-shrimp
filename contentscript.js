@@ -61,7 +61,7 @@ var Toolkit = {
     chrome.tabs.executeScript(tabId, { file: 'vendors/jquery-3.2.1.min.js' }, function() {
       chrome.tabs.executeScript(tabId, { file: 'injected.js' });
     });
-    chrome.tabs.insertCSS(this.tab.id, { file: 'css/injected.css' });
+    // chrome.tabs.insertCSS(this.tab.id, { file: 'css/injected.css' });
 
     // Set active icon
     chrome.browserAction.setIcon({

@@ -72,7 +72,6 @@
 
 <style lang="scss">
   @import "../sass/_vars.scss";
-  // @import "../../assets/fonts/Black-shrimp/style.scss";
   .blackShrimp {
     /**
      * Select component

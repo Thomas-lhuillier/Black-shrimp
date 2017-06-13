@@ -14,7 +14,7 @@ $border-radius: 5px;
 // Fonts
 @font-face {
     font-family: 'Poppins';
-    src: url('chrome-extension://mmjjfbgmblmokgeefhlpigndfmohkchh/assets/fonts/poppins/poppins-regular.woff') format('woff');
+    src: url('chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/poppins/poppins-regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
@@ -65,7 +65,7 @@ $border-radius: 5px;
 
 		cursor: pointer;
 		transition: all, 0.3, linear;
-		
+
 		> * {
 			vertical-align: top;
 		}
