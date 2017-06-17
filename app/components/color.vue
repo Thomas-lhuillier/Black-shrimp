@@ -31,7 +31,7 @@
         <template v-for="color in colors" v-if="color.type == 'color'">
           <div class="btn-square -color" :style="{ 'background-color': color.hex }"></div>
         </template>
-        <template v-for="color in colors" v-else-if="color.type == 'color'">
+        <template v-for="color in colors" v-else-if="color.type == 'folder'">
           <div class="btn-square -folder"></div>
         </template>
       </div>
@@ -61,9 +61,36 @@
           'hsl': { isActive: false },
         },
         colors: [],
+        // colors: [{ type: 'color', hex: '#000aaa' }, { type: 'color', hex: '#eeeeee' }],
       }
     },
     computed: {
+      // colors () {
+      //   // return this.
+      //   chrome.storage.sync.get('colors', (data) => {
+      //     // let colors = JSON.parse(data.colors);
+      //     if (!data.colors) {
+      //       console.log('No colors object in storage');
+      //       return [];
+      //     };
+
+      //     if (!data.colors.length) {
+      //       console.log('colors empty');
+      //       return [];
+      //     }
+
+      //     let tempcolors = data.colors;
+      //     let colors = Object.keys(tempcolors).map(function (key) { return tempcolors[key]; });
+
+      //     for (let i = 0; i > colors.length; i++) {
+      //       colors[i].id = index;
+      //     }
+
+      //     console.log('colors:', colors);
+      //     console.log(colors.length);
+      //     return colors;
+      //   });
+      // },
       hex () {
         return this.$store.getters.getColorState.value.hex.toString();
       },
@@ -88,8 +115,6 @@
     },
     methods: {
       changeColorMode: function(event) {
-        console.log('changeColorMode');
-        console.log(this.$store.getters.getColorState.value);
         for (let text in this.color) {
           this.color[text].isActive = text == event.text ? true : false;
         }
@@ -97,12 +122,39 @@
       selectInputText: function(event) {
         event.target.select();
       },
+      getStoredColors: function() {
+       chrome.storage.sync.get('colors', storageData => {
+          console.log('get stored color:', storageData.colors);
+          this.colors = storageData.colors;
+        });
+      },
       saveCurrentColor: function(event) {
-        console.log('save Color');
-        var color = {};
+        let color = {};
         color.type = 'color';
         color.hex = this.hex;
-        this.colors.push(color);
+
+        let currentCollection = this.colors ? this.colors : [];
+        currentCollection.push(color);
+
+        // Save color collection in Chrome storage
+        chrome.storage.sync.set({'colors': currentCollection}, function() {
+          console.log('Colors saved');
+        });
+      },
+      onChromeDataChange: function(changes, namespace) {
+        for ( let key in changes) {
+          let storageChange = changes[key];
+          console.log('Storage key "%s" in namespace "%s" changed. ' +
+                      'Old value was "%s", new value is "%s".',
+                      key,
+                      namespace,
+                      storageChange.oldValue,
+                      storageChange.newValue);
+        }
+        if (changes['colors'] != undefined) {
+          this.colors = changes['colors'].newValue;
+          console.log('Storage colors changed:', this.colors);
+        }
       },
       createFolder: function(event) {
 
@@ -111,7 +163,19 @@
 
       },
     },
-    mounted: function() {
+    created: function() {
+      // Register chrome data listener
+      console.log('created, this.colors:', this.colors);
+      chrome.storage.onChanged.addListener(this.onChromeDataChange);
+      this.getStoredColors();
+    },
+    beforeMount: function() {
+    },
+    beforeDestroy: function() {
+      // Remove chrome data listener
+      chrome.storage.onChanged.removeListener(this.onChromeDataChange, () => {
+        console.log('removed listener');
+      });
     }
   }
 </script>

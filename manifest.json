@@ -31,6 +31,7 @@
     "128": "assets/img/icon128.png"
   },
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ]
 }
