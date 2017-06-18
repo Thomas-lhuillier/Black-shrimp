@@ -510,6 +510,9 @@ var store = new _vuex2.default.Store({
     },
     setMovingStatus: function setMovingStatus(state, val) {
       state.isMoving = val;
+    },
+    setHex: function setHex(state, val) {
+      state.color.value.hex = val;
     }
   }
 
@@ -710,6 +713,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
@@ -726,36 +734,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         'rgb': { isActive: false },
         'hsl': { isActive: false }
       },
-      colors: []
+      colors: [],
+      selection: []
     };
   },
   computed: {
-    // colors () {
-    //   // return this.
-    //   chrome.storage.sync.get('colors', (data) => {
-    //     // let colors = JSON.parse(data.colors);
-    //     if (!data.colors) {
-    //       console.log('No colors object in storage');
-    //       return [];
-    //     };
-
-    //     if (!data.colors.length) {
-    //       console.log('colors empty');
-    //       return [];
-    //     }
-
-    //     let tempcolors = data.colors;
-    //     let colors = Object.keys(tempcolors).map(function (key) { return tempcolors[key]; });
-
-    //     for (let i = 0; i > colors.length; i++) {
-    //       colors[i].id = index;
-    //     }
-
-    //     console.log('colors:', colors);
-    //     console.log(colors.length);
-    //     return colors;
-    //   });
-    // },
     hex() {
       return this.$store.getters.getColorState.value.hex.toString();
     },
@@ -784,19 +767,38 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.color[text].isActive = text == event.text ? true : false;
       }
     },
+
     selectInputText: function (event) {
       event.target.select();
     },
+
     getStoredColors: function () {
       chrome.storage.sync.get('colors', storageData => {
-        console.log('get stored color:', storageData.colors);
-        this.colors = storageData.colors;
+        let data = storageData.colors;
+        for (let i = 0; i < data.length; i++) {
+          data[i].id = i;
+          data[i].isSelected = false;
+        }
+        this.colors = data;
+        console.log('get stored color:', data);
       });
     },
-    saveCurrentColor: function (event) {
+
+    addCurrentColor: function (event) {
+      if (!this.hex) {
+        return;
+      }
+      // Deselect all
+      this.selection = null;
+      for (let i = 0; i < this.colors.length; i++) {
+        this.colors[i].isSelected = false;
+      }
+
       let color = {};
       color.type = 'color';
+      color.id = this.colors.length;
       color.hex = this.hex;
+      color.isSelected = false;
 
       let currentCollection = this.colors ? this.colors : [];
       currentCollection.push(color);
@@ -806,6 +808,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         console.log('Colors saved');
       });
     },
+
     onChromeDataChange: function (changes, namespace) {
       for (let key in changes) {
         let storageChange = changes[key];
@@ -816,16 +819,56 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         console.log('Storage colors changed:', this.colors);
       }
     },
+
+    selectColor: function (event, color, isMultiSelection) {
+      console.log('color id:', color.id);
+      console.log('colors:', this.colors);
+      let isSelected = this.colors[color.id].isSelected;
+
+      for (let i = 0; i < this.colors.length; i++) {
+        this.colors[i].isSelected = false;
+      }
+
+      if (isSelected) {
+        this.colors[color.id].isSelected = false;
+        this.selection = null;
+      } else {
+        this.colors[color.id].isSelected = true;
+        this.selection = color.id;
+        this.$store.commit('setHex', this.colors[color.id].hex);
+        console.log('select color:', this.selection);
+      }
+    },
+
     createFolder: function (event) {},
-    deleteSelection: function (event) {}
+
+    deleteSelection: function (event) {
+      console.log('delete color:', this.selection);
+
+      let currentCollection = this.colors ? this.colors : [];
+      currentCollection.splice(this.selection, 1);
+      for (let i = 0; i < currentCollection.length; i++) {
+        currentCollection[i].id = i;
+      }
+
+      chrome.storage.sync.set({ 'colors': currentCollection }, function () {
+        console.log('Colors saved');
+      });
+
+      // Empty selection
+      this.selection = [];
+    }
   },
-  created: function () {
+
+  mounted: function () {
     // Register chrome data listener
     console.log('created, this.colors:', this.colors);
     chrome.storage.onChanged.addListener(this.onChromeDataChange);
     this.getStoredColors();
   },
+
   beforeMount: function () {},
+
   beforeDestroy: function () {
     // Remove chrome data listener
     chrome.storage.onChanged.removeListener(this.onChromeDataChange, () => {
@@ -1103,8 +1146,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     /* Store initial position and set moving cursor before moving the main box  */
     startMoving: function (event) {
       event = event || window.event;
-      console.log(event);
-      console.log(event.srcElement);
+      // console.log(event);
+      // console.log(event.srcElement);
 
       if (event.srcElement.getAttribute('data-js-draggable') === null) {
         return;
@@ -1238,7 +1281,7 @@ exports = module.exports = __webpack_require__(0)(undefined);
 
 
 // module
-exports.push([module.i, "\n.blackShrimp .btn-square:active {\n  background-color: #333333;\n}\n.blackShrimp .btn-square:focus {\n  border-color: #333333;\n}\n.blackShrimp .colorSwatches > .button-wrapper {\n  display: block;\n  text-align: right;\n}\n.blackShrimp .panel {\n  position: relative;\n  display: block;\n  padding: 8px;\n  font-size: 10px;\n  color: #B3B3B3;\n  background-color: #535353;\n  border-bottom-left-radius: 5px;\n  border-bottom-right-radius: 5px;\n}\n.blackShrimp .colorPicker {\n  display: block;\n  font-size: 0;\n  line-height: 0;\n}\n.blackShrimp .colorPicker > * {\n    display: inline-block;\n    height: 22px;\n    vertical-align: top;\n}\n.blackShrimp .colorPicker > * + * {\n    margin-left: 8px;\n}\n.blackShrimp .colorPicker > .select-block {\n    margin-left: 0;\n    margin-right: -8px;\n}\n.blackShrimp .colorPicker > .select-block > .value > .text {\n      width: 24px;\n}\n.blackShrimp .colorViewer {\n  position: relative;\n  width: 22px;\n  height: 22px;\n  border-radius: 100%;\n  border: 1px solid #666666;\n  box-sizing: border-box;\n}\n.blackShrimp .hexWrapper, .blackShrimp .rgbWrapper, .blackShrimp .hslWrapper {\n  display: none;\n}\n.blackShrimp .hexWrapper.active, .blackShrimp .rgbWrapper.active, .blackShrimp .hslWrapper.active {\n  display: inline-block;\n}\n.blackShrimp .hexWrapper input {\n  width: 100%;\n}\n.blackShrimp .rgbWrapper input, .blackShrimp .hslWrapper input {\n  width: 44px;\n}\n.blackShrimp .rgbWrapper input + input, .blackShrimp .hslWrapper input + input {\n  margin-left: 4px;\n}\n.blackShrimp input[type=\"text\"] {\n  display: inline-block;\n  height: 22px;\n  padding: 4px;\n  font-family: 'Poppins', monospace;\n  font-size: 11px;\n  line-height: 14px;\n  text-align: center;\n  color: #f0f0f0;\n  background-color: #474747;\n  border: solid 1px #666666;\n  border-radius: 3px;\n  box-sizing: border-box;\n}\n.blackShrimp input[type=\"text\"]:focus {\n  border-color: #333333;\n}\n.blackShrimp .colorSwatches {\n  position: relative;\n  display: block;\n  margin-top: 8px;\n  margin-right: -4px;\n  padding-top: 8px;\n}\n.blackShrimp .colorSwatches .btn-square {\n    margin-right: 4px;\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches:before {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  left: -8px;\n  right: -4px;\n  border-top: solid 1px #666666;\n}\n.blackShrimp .btn-square {\n  display: inline-block;\n  width: 18px;\n  height: 18px;\n  border-radius: 2px;\n  border-width: 1px;\n  border-style: solid;\n  border-color: transparent;\n  background-color: #666666;\n  box-sizing: border-box;\n  vertical-align: middle;\n  cursor: pointer;\n  transition: all .2s ease;\n}\n.blackShrimp .btn-square > .bs-icon {\n    display: block;\n    margin-top: -1px;\n    margin-left: -1px;\n    font-size: 18px;\n}\n.blackShrimp .btn-square:hover {\n  background-color: #474747;\n  color: #f0f0f0;\n}\n", ""]);
+exports.push([module.i, "\n.blackShrimp .btn-square:active {\n  background-color: #333333;\n}\n.blackShrimp .btn-square:focus,\n.blackShrimp .btn-square.-selected {\n  border-color: #333333;\n  border-width: 2px;\n}\n.blackShrimp .colorSwatches > .button-wrapper {\n  display: block;\n  text-align: right;\n}\n.blackShrimp .panel {\n  position: relative;\n  display: block;\n  padding: 8px;\n  font-size: 10px;\n  color: #B3B3B3;\n  background-color: #535353;\n  border-bottom-left-radius: 5px;\n  border-bottom-right-radius: 5px;\n}\n.blackShrimp .colorPicker {\n  display: block;\n  font-size: 0;\n  line-height: 0;\n}\n.blackShrimp .colorPicker > * {\n    display: inline-block;\n    height: 22px;\n    vertical-align: top;\n}\n.blackShrimp .colorPicker > * + * {\n    margin-left: 8px;\n}\n.blackShrimp .colorPicker > .select-block {\n    margin-left: 0;\n    margin-right: -8px;\n}\n.blackShrimp .colorPicker > .select-block > .value > .text {\n      width: 24px;\n}\n.blackShrimp .colorViewer {\n  position: relative;\n  width: 22px;\n  height: 22px;\n  border-radius: 100%;\n  border: 1px solid #666666;\n  box-sizing: border-box;\n}\n.blackShrimp .hexWrapper, .blackShrimp .rgbWrapper, .blackShrimp .hslWrapper {\n  display: none;\n}\n.blackShrimp .hexWrapper.active, .blackShrimp .rgbWrapper.active, .blackShrimp .hslWrapper.active {\n  display: inline-block;\n}\n.blackShrimp .hexWrapper input {\n  width: 100%;\n}\n.blackShrimp .rgbWrapper input, .blackShrimp .hslWrapper input {\n  width: 44px;\n}\n.blackShrimp .rgbWrapper input + input, .blackShrimp .hslWrapper input + input {\n  margin-left: 4px;\n}\n.blackShrimp input[type=\"text\"] {\n  display: inline-block;\n  height: 22px;\n  padding: 4px;\n  font-family: 'Poppins', monospace;\n  font-size: 11px;\n  line-height: 14px;\n  text-align: center;\n  color: #f0f0f0;\n  background-color: #474747;\n  border: solid 1px #666666;\n  border-radius: 3px;\n  box-sizing: border-box;\n}\n.blackShrimp input[type=\"text\"]:focus {\n  border-color: #333333;\n}\n.blackShrimp .colorSwatches {\n  position: relative;\n  display: block;\n  margin-top: 8px;\n  margin-right: -4px;\n  padding-top: 8px;\n}\n.blackShrimp .colorSwatches .btn-square {\n    margin-right: 4px;\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches:before {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  left: -8px;\n  right: -4px;\n  border-top: solid 1px #666666;\n}\n.blackShrimp .btn-square {\n  display: inline-block;\n  width: 18px;\n  height: 18px;\n  border-radius: 2px;\n  border-width: 1px;\n  border-style: solid;\n  border-color: transparent;\n  background-color: #666666;\n  box-sizing: border-box;\n  vertical-align: middle;\n  cursor: pointer;\n  transition: all .2s ease;\n}\n.blackShrimp .btn-square > .bs-icon {\n    display: block;\n    margin-top: -1px;\n    margin-left: -1px;\n    font-size: 18px;\n}\n.blackShrimp .btn-square:hover {\n  background-color: #474747;\n  color: #f0f0f0;\n}\n", ""]);
 
 // exports
 
@@ -1836,12 +1879,20 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "colorSwatches"
   }, [_c('div', {
     staticClass: "color-collection"
-  }, [_vm._l((_vm.colors), function(color) {
+  }, [_vm._l((_vm.colors), function(color, index) {
     return (color.type == 'color') ? [_c('div', {
       staticClass: "btn-square -color",
+      class: [{
+        '-selected': color.isSelected
+      }],
       style: ({
         'background-color': color.hex
-      })
+      }),
+      on: {
+        "click": function($event) {
+          _vm.selectColor($event, color)
+        }
+      }
     })] : (color.type == 'folder') ? _vm._l((_vm.colors), function(color) {
       return [_c('div', {
         staticClass: "btn-square -folder"
@@ -1853,23 +1904,26 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "btn-square",
     on: {
       "click": function($event) {
-        _vm.saveCurrentColor($event)
+        _vm.addCurrentColor($event)
       }
     }
   }, [_c('i', {
     staticClass: "bs-icon bs-icon-plus"
-  })]), _vm._v(" "), _vm._m(0), _vm._v(" "), _vm._m(1)])])])
+  })]), _vm._v(" "), _vm._m(0), _vm._v(" "), _c('button', {
+    staticClass: "btn-square",
+    on: {
+      "click": function($event) {
+        _vm.deleteSelection($event)
+      }
+    }
+  }, [_c('i', {
+    staticClass: "bs-icon bs-icon-trash"
+  })])])])])
 },staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('button', {
     staticClass: "btn-square"
   }, [_c('i', {
     staticClass: "bs-icon bs-icon-folder"
-  })])
-},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('button', {
-    staticClass: "btn-square"
-  }, [_c('i', {
-    staticClass: "bs-icon bs-icon-trash"
   })])
 }]}
 module.exports.render._withStripped = true

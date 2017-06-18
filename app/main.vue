@@ -85,8 +85,8 @@ export default {
     /* Store initial position and set moving cursor before moving the main box  */
     startMoving : function(event) {
       event = event || window.event;
-      console.log(event);
-      console.log(event.srcElement);
+      // console.log(event);
+      // console.log(event.srcElement);
 
       if (event.srcElement.getAttribute('data-js-draggable') === null) { return }
 

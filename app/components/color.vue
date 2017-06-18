@@ -28,17 +28,22 @@
 
     <div class="colorSwatches">
       <div class="color-collection">
-        <template v-for="color in colors" v-if="color.type == 'color'">
-          <div class="btn-square -color" :style="{ 'background-color': color.hex }"></div>
+        <template v-for="(color, index) in colors" v-if="color.type == 'color'">
+          <div class="btn-square -color"
+               :class="[{ '-selected': color.isSelected }]"
+               :style="{ 'background-color': color.hex }"
+               @click="selectColor($event, color)"
+               >
+          </div>
         </template>
         <template v-for="color in colors" v-else-if="color.type == 'folder'">
           <div class="btn-square -folder"></div>
         </template>
       </div>
       <div class="button-wrapper">
-        <button class="btn-square" @click="saveCurrentColor($event)"><i class="bs-icon bs-icon-plus"></i></button>
+        <button class="btn-square" @click="addCurrentColor($event)"><i class="bs-icon bs-icon-plus"></i></button>
         <button class="btn-square"><i class="bs-icon bs-icon-folder"></i></button>
-        <button class="btn-square"><i class="bs-icon bs-icon-trash"></i></button>
+        <button class="btn-square" @click="deleteSelection($event)"><i class="bs-icon bs-icon-trash"></i></button>
       </div>
     </div>
   </div>
@@ -61,36 +66,10 @@
           'hsl': { isActive: false },
         },
         colors: [],
-        // colors: [{ type: 'color', hex: '#000aaa' }, { type: 'color', hex: '#eeeeee' }],
+        selection: [],
       }
     },
     computed: {
-      // colors () {
-      //   // return this.
-      //   chrome.storage.sync.get('colors', (data) => {
-      //     // let colors = JSON.parse(data.colors);
-      //     if (!data.colors) {
-      //       console.log('No colors object in storage');
-      //       return [];
-      //     };
-
-      //     if (!data.colors.length) {
-      //       console.log('colors empty');
-      //       return [];
-      //     }
-
-      //     let tempcolors = data.colors;
-      //     let colors = Object.keys(tempcolors).map(function (key) { return tempcolors[key]; });
-
-      //     for (let i = 0; i > colors.length; i++) {
-      //       colors[i].id = index;
-      //     }
-
-      //     console.log('colors:', colors);
-      //     console.log(colors.length);
-      //     return colors;
-      //   });
-      // },
       hex () {
         return this.$store.getters.getColorState.value.hex.toString();
       },
@@ -119,19 +98,36 @@
           this.color[text].isActive = text == event.text ? true : false;
         }
       },
+
       selectInputText: function(event) {
         event.target.select();
       },
+
       getStoredColors: function() {
        chrome.storage.sync.get('colors', storageData => {
-          console.log('get stored color:', storageData.colors);
-          this.colors = storageData.colors;
+          let data = storageData.colors;
+          for (let i = 0; i < data.length; i++) {
+            data[i].id = i;
+            data[i].isSelected = false;
+          }
+          this.colors = data;
+          console.log('get stored color:', data);
         });
       },
-      saveCurrentColor: function(event) {
+
+      addCurrentColor: function(event) {
+        if (!this.hex) { return }
+        // Deselect all
+        this.selection = null;
+        for (let i = 0; i < this.colors.length; i++) {
+          this.colors[i].isSelected = false;
+        }
+
         let color = {};
-        color.type = 'color';
-        color.hex = this.hex;
+        color.type       = 'color';
+        color.id         = this.colors.length;
+        color.hex        = this.hex;
+        color.isSelected = false;
 
         let currentCollection = this.colors ? this.colors : [];
         currentCollection.push(color);
@@ -141,6 +137,7 @@
           console.log('Colors saved');
         });
       },
+
       onChromeDataChange: function(changes, namespace) {
         for ( let key in changes) {
           let storageChange = changes[key];
@@ -156,21 +153,59 @@
           console.log('Storage colors changed:', this.colors);
         }
       },
+
+      selectColor: function(event, color, isMultiSelection) {
+        console.log('color id:', color.id);
+        console.log('colors:', this.colors);
+        let isSelected = this.colors[color.id].isSelected;
+
+        for (let i = 0; i < this.colors.length; i++) {
+          this.colors[i].isSelected = false;
+        }
+
+        if ( isSelected ) {
+          this.colors[color.id].isSelected = false;
+          this.selection = null;
+        } else {
+          this.colors[color.id].isSelected = true;
+          this.selection = color.id;
+          this.$store.commit('setHex', this.colors[color.id].hex);
+          console.log('select color:', this.selection);
+        }
+      },
+
       createFolder: function(event) {
 
       },
-      deleteSelection: function(event) {
 
+      deleteSelection: function(event) {
+        console.log('delete color:', this.selection);
+
+        let currentCollection = this.colors ? this.colors : [];
+        currentCollection.splice(this.selection, 1);
+        for (let i = 0; i < currentCollection.length; i++) {
+          currentCollection[i].id = i;
+        }
+
+        chrome.storage.sync.set({'colors': currentCollection}, function() {
+          console.log('Colors saved');
+        });
+
+        // Empty selection
+        this.selection = [];
       },
     },
-    created: function() {
+
+    mounted: function() {
       // Register chrome data listener
       console.log('created, this.colors:', this.colors);
       chrome.storage.onChanged.addListener(this.onChromeDataChange);
       this.getStoredColors();
     },
+
     beforeMount: function() {
     },
+
     beforeDestroy: function() {
       // Remove chrome data listener
       chrome.storage.onChanged.removeListener(this.onChromeDataChange, () => {
@@ -342,8 +377,10 @@
         color: $soft-white;
       }
 
-      &:focus {
+      &:focus,
+      &.-selected {
         border-color: $gray-darker;
+        border-width: 2px;
       }
 
       &:active {

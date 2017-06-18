@@ -56,6 +56,9 @@ const store = new Vuex.Store({
     setMovingStatus(state, val) {
       state.isMoving = val;
     },
+    setHex(state, val) {
+      state.color.value.hex = val;
+    },
   }
 
 });
