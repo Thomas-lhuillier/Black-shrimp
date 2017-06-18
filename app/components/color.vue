@@ -66,7 +66,7 @@
           'hsl': { isActive: false },
         },
         colors: [],
-        selection: [],
+        selection: null,
       }
     },
     computed: {
@@ -180,6 +180,8 @@
 
       deleteSelection: function(event) {
         console.log('delete color:', this.selection);
+
+        if (this.selection == null) { return }
 
         let currentCollection = this.colors ? this.colors : [];
         currentCollection.splice(this.selection, 1);

@@ -5,7 +5,12 @@
       <span data-js-draggable>{{item.name}}</span>
     </span>
 
-    <span class="jsClose item" :class="{'-moving': isMoving}" data-js-draggable><i class="bs-icon bs-icon-close" data-js-draggable></i></span>
+    <span class="jsClose item"
+          :class="{'-moving': isMoving}"
+          @click="destroy($event)"
+          data-js-draggable>
+      <i class="bs-icon bs-icon-close" data-js-draggable></i>
+    </span>
   </div>
 </template>
 
@@ -24,6 +29,16 @@
       isMoving() {
         return this.$store.getters.getMovingStatus;
       },
+      port() {
+        return this.$store.getters.getPort;
+      },
+    },
+    methods: {
+      destroy: function() {
+        this.port.postMessage({
+          'type': 'destroy'
+        });
+      }
     }
   }
 </script>

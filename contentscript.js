@@ -89,7 +89,7 @@ var Toolkit = {
     //   return;
     // }
 
-    if(!silent) {
+    if (!silent) {
       this.port.postMessage({ type: 'destroy' });
     }
 
@@ -159,6 +159,10 @@ var Toolkit = {
       case 'viewportChange':
         console.log('receiveBrowserMessage viewportChange', event.pageOffset);
         this.captureTab();
+        break;
+      case 'destroy':
+        console.log('receiveBrowserMessage destroy');
+        this.destroy();
         break;
     }
   },

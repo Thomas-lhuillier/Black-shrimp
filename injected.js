@@ -735,7 +735,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         'hsl': { isActive: false }
       },
       colors: [],
-      selection: []
+      selection: null
     };
   },
   computed: {
@@ -844,6 +844,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     deleteSelection: function (event) {
       console.log('delete color:', this.selection);
+
+      if (this.selection == null) {
+        return;
+      }
 
       let currentCollection = this.colors ? this.colors : [];
       currentCollection.splice(this.selection, 1);
@@ -955,6 +959,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data() {
@@ -965,6 +974,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   computed: {
     isMoving() {
       return this.$store.getters.getMovingStatus;
+    },
+    port() {
+      return this.$store.getters.getPort;
+    }
+  },
+  methods: {
+    destroy: function () {
+      this.port.postMessage({
+        'type': 'destroy'
+      });
     }
   }
 });
@@ -1527,6 +1546,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     },
     attrs: {
       "data-js-draggable": ""
+    },
+    on: {
+      "click": function($event) {
+        _vm.destroy($event)
+      }
     }
   }, [_c('i', {
     staticClass: "bs-icon bs-icon-close",
