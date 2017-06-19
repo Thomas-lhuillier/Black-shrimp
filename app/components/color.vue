@@ -4,57 +4,99 @@
       <div class="colorViewer" v-bind:style="{ backgroundColor: hex }"></div>
 
       <div class="valueWrapper">
+
         <div class="hexWrapper" v-bind:class="[{ active: color.hex.isActive }]">
           <input type="text" class="value_hex" v-model="hex" spellcheck="false" @click="selectInputText($event)">
         </div>
+
         <div class="rgbWrapper" v-bind:class="[{ active: color.rgb.isActive }]">
           <input type="text" class="value_r" v-model="r" spellcheck="false" @click="selectInputText($event)">
           <input type="text" class="value_g" v-model="g" spellcheck="false" @click="selectInputText($event)">
           <input type="text" class="value_b" v-model="b" spellcheck="false" @click="selectInputText($event)">
         </div>
+
         <div class="hslWrapper" v-bind:class="[{ active: color.hsl.isActive }]">
           <input type="text" class="value_h" v-model="h" spellcheck="false" @click="selectInputText($event)">
           <input type="text" class="value_s" v-model="s" spellcheck="false" @click="selectInputText($event)">
           <input type="text" class="value_l" v-model="l" spellcheck="false" @click="selectInputText($event)">
         </div>
+
       </div>
 
       <SelectComponent :options="[
         { text: 'hex', value: 1, isSelected: true  },
         { text: 'rgb', value: 2, isSelected: false },
         { text: 'hsl', value: 3, isSelected: false },
-      ]" v-on:change="changeColorMode($event)"></SelectComponent>
+      ]" v-on:change="changeColorMode($event)">
+      </SelectComponent>
     </div>
 
     <div class="colorSwatches">
-      <div class="color-collection">
+
+      <!-- <div class="color-collection">
         <template v-for="(color, index) in colors" v-if="color.type == 'color'">
           <div class="btn-square -color"
                :class="[{ '-selected': color.isSelected }]"
                :style="{ 'background-color': color.hex }"
                @click="selectColor($event, color)"
+
+               @mousedown="startMoving($event, color)"
+               @mouseup="stopMoving($event, color)"
+               @mousemove="move($event, color)"
                >
           </div>
         </template>
         <template v-for="color in colors" v-else-if="color.type == 'folder'">
           <div class="btn-square -folder"></div>
         </template>
-      </div>
+      </div> -->
+
+      <draggable v-model="colors"
+                 class="color-collection"
+                 :move="checkMove"
+                 @start="startDrag"
+                 @end="endDrag"
+                 >
+        <div v-for="(color, index) in colors"
+             v-if="color.type == 'color'"
+             class="btn-square -color"
+            :class="[{ '-selected': color.isSelected }]"
+            :style="{ 'background-color': color.hex }"
+            @click="selectColor($event, color)"
+             >
+        <!-- @mousedown="startMoving($event, color)"
+             @mouseup="stopMoving($event, color)"
+             @mousemove="move($event, color)" -->
+        </div>
+        <div v-for="(color, index) in colors"
+             v-else-if="color.type == 'folder'"
+             class="btn-square -folder"
+             >
+        </div>
+      </draggable>
+
       <div class="button-wrapper">
         <button class="btn-square" @click="addCurrentColor($event)"><i class="bs-icon bs-icon-plus"></i></button>
         <button class="btn-square"><i class="bs-icon bs-icon-folder"></i></button>
-        <button class="btn-square" @click="deleteSelection($event)"><i class="bs-icon bs-icon-trash"></i></button>
+        <button class="btn-square"
+                @click="deleteSelection($event)"
+                @click.shift="deleteAll($event)">
+          <i class="bs-icon bs-icon-trash"></i>
+        </button>
       </div>
+
     </div>
   </div>
 </template>
 
 <script>
+  import draggable from 'vuedraggable'
   import SelectComponent from './select-block.vue'
 
   export default {
     components: {
       SelectComponent,
+      draggable,
     },
     data() {
       return {
@@ -67,6 +109,10 @@
         },
         colors: [],
         selection: null,
+        dragging: false,
+        targetElement: null,
+        canDrag:null,
+        futureIndex:null,
       }
     },
     computed: {
@@ -92,17 +138,30 @@
         return this.$store.getters.getColorState.value.l.toString();
       },
     },
+    watch: {
+      hex: function(val) {
+        // this.deselectAll();
+      },
+    },
     methods: {
-      changeColorMode: function(event) {
-        for (let text in this.color) {
-          this.color[text].isActive = text == event.text ? true : false;
-        }
+      privateCheckMove: function(event) {
+        this.targetElement = event.relatedContext.element
+        return true;
       },
-
-      selectInputText: function(event) {
-        event.target.select();
+      checkMove: function(event) {
+        res = this.privateCheckMove(event)
+        this.canDra = res;
+        this.futureIndex = event.draggedContext.futureIndex;
+        return res;
       },
-
+      endDrag: function (event) {
+        this.canDrag       = null;
+        this.targetElement = null;
+        this.futureIndex   = null;
+      },
+      startDrag: function (event) {
+        console.log(event);
+      },
       getStoredColors: function() {
        chrome.storage.sync.get('colors', storageData => {
           let data = storageData.colors;
@@ -111,31 +170,17 @@
             data[i].isSelected = false;
           }
           this.colors = data;
-          console.log('get stored color:', data);
         });
       },
 
-      addCurrentColor: function(event) {
-        if (!this.hex) { return }
-        // Deselect all
-        this.selection = null;
-        for (let i = 0; i < this.colors.length; i++) {
-          this.colors[i].isSelected = false;
+      changeColorMode: function(event) {
+        for (let text in this.color) {
+          this.color[text].isActive = text == event.text ? true : false;
         }
+      },
 
-        let color = {};
-        color.type       = 'color';
-        color.id         = this.colors.length;
-        color.hex        = this.hex;
-        color.isSelected = false;
-
-        let currentCollection = this.colors ? this.colors : [];
-        currentCollection.push(color);
-
-        // Save color collection in Chrome storage
-        chrome.storage.sync.set({'colors': currentCollection}, function() {
-          console.log('Colors saved');
-        });
+      selectInputText: function(event) {
+        event.target.select();
       },
 
       onChromeDataChange: function(changes, namespace) {
@@ -150,37 +195,83 @@
         }
         if (changes['colors'] != undefined) {
           this.colors = changes['colors'].newValue;
-          console.log('Storage colors changed:', this.colors);
         }
       },
 
-      selectColor: function(event, color, isMultiSelection) {
-        console.log('color id:', color.id);
-        console.log('colors:', this.colors);
+      /**
+       *  Save current color to swatch
+       */
+      addCurrentColor: function(event) {
+        if (!this.hex) { return }
+
+        // Deselect all
+        this.deselectAll();
+
+        let color = {};
+        color.type       = 'color';
+        color.id         = this.colors.length;
+
+        color.hex        = this.hex;
+
+        color.r          = this.r;
+        color.g          = this.g;
+        color.b          = this.b;
+
+        color.h          = this.h;
+        color.s          = this.s;
+        color.l          = this.l;
+
+        color.isSelected = false;
+
+        let currentCollection = this.colors ? this.colors : [];
+        currentCollection.push(color);
+
+        // Save color collection in Chrome storage
+        chrome.storage.sync.set({'colors': currentCollection}, function() {
+        });
+      },
+
+      /**
+       * Select clicked color
+       */
+      selectColor: function(event, color) {
         let isSelected = this.colors[color.id].isSelected;
 
+        this.deselectAll();
+
+        if ( !isSelected ) {
+          this.colors[color.id].isSelected = true;
+          this.selection = color.id;
+
+          let colorToSave = {};
+          colorToSave.value = {
+            'hex' : this.colors[color.id].hex,
+            'r'   : this.colors[color.id].r,
+            'g'   : this.colors[color.id].g,
+            'b'   : this.colors[color.id].b,
+            'h'   : this.colors[color.id].h,
+            's'   : this.colors[color.id].s,
+            'l'   : this.colors[color.id].l,
+          };
+
+          this.$store.commit('setColor', colorToSave);
+        }
+      },
+
+      /**
+       * Deselect all colors
+       */
+      deselectAll: function() {
         for (let i = 0; i < this.colors.length; i++) {
           this.colors[i].isSelected = false;
         }
-
-        if ( isSelected ) {
-          this.colors[color.id].isSelected = false;
-          this.selection = null;
-        } else {
-          this.colors[color.id].isSelected = true;
-          this.selection = color.id;
-          this.$store.commit('setHex', this.colors[color.id].hex);
-          console.log('select color:', this.selection);
-        }
+        this.selection = null;
       },
 
-      createFolder: function(event) {
-
-      },
-
+      /**
+       * Delete selected color
+       */
       deleteSelection: function(event) {
-        console.log('delete color:', this.selection);
-
         if (this.selection == null) { return }
 
         let currentCollection = this.colors ? this.colors : [];
@@ -194,7 +285,40 @@
         });
 
         // Empty selection
-        this.selection = [];
+        this.selection = null;
+      },
+      deleteAll: function(event) {
+        chrome.storage.sync.set({'colors': []}, function() {
+          console.log('Colors deleted');
+        });
+      },
+
+      /**
+       * Drag and drop color
+       */
+       // startMoving: function(event, color) {
+       //  event = event || window.event;
+       //  let mouseX  = event.clientX;
+       //  let mouseY  = event.clientY;
+       //  color.isMoving = true;
+       //  console.log('start moving - color:', this.colors);
+       //  // this.isMoving = true;
+       // },
+
+       // move: function() {
+       //  if (!this.isMoving) { return; }
+       // },
+
+       // stopMoving: function(event, color) {
+       //  color.isMoving = true;
+       //  console.log('stop moving - color:', this.colors);
+       // },
+
+      /**
+       * Create an empty folder
+       */
+      createFolder: function(event) {
+
       },
     },
 
@@ -340,6 +464,18 @@
       & > .button-wrapper {
         display: block;
         text-align: right;
+
+        & > .btn-square {
+          margin-bottom: 0;
+        }
+      }
+
+      & > .color-collection {
+        display: block;
+
+        &:not(:empty) {
+          margin-bottom: $spacer / 2;
+        }
       }
 
       .btn-square {

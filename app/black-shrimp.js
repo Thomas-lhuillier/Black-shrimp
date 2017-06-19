@@ -51,7 +51,8 @@ const store = new Vuex.Store({
       state.activeTab = val;
     },
     setColor(state, val) {
-      state.color = val;
+      console.log('VALUE:', val.value);
+      state.color.value = val.value;
     },
     setMovingStatus(state, val) {
       state.isMoving = val;

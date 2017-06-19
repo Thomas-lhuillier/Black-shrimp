@@ -20,8 +20,8 @@
       return {
         items: [
           {name: 'Color', icon: 'eyeDropper', isActive: true},
-          {name: 'Ruler', icon: 'ruler', isActive: false},
-          {name: 'Info' , icon: 'binoculars', isActive: false}
+          // {name: 'Ruler', icon: 'ruler', isActive: false},
+          // {name: 'Info' , icon: 'binoculars', isActive: false}
         ],
       }
     },

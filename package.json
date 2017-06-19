@@ -29,6 +29,7 @@
     "vue-cli": "latest",
     "vue-hot-reload-api": "latest",
     "vuex": "latest",
+    "vuedraggable": "latest",
     "extract-text-webpack-plugin": "latest",
     "url-loader": "latest",
     "webpack": "latest"
