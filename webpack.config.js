@@ -14,7 +14,7 @@ module.exports = {
     './black-shrimp.js',
   ],
   output: {
-    filename: 'injected.js'
+    filename: './package/injected.js'
   },
   module: {
     loaders: [{
@@ -78,6 +78,7 @@ module.exports = {
         }
       }
     },
+    // for (s)css outside .vue
     // {
     //   test: /(\.css|\.scss)$/,
     //   use: ExtractTextPlugin.extract({

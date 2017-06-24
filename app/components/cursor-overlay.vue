@@ -70,9 +70,9 @@
         &.-eyeDropper,
         &.-eyeDropper:hover {
           // background-color: rgba(150,0,0,0.5);
-          cursor: url('~../../assets/img/cursor-eyeDropper.png') 0 22, pointer;
+          cursor: url('~../../package/assets/img/cursor-eyeDropper.png') 0 22, pointer;
           &:active {
-            cursor: url('~../../assets/img/cursor-eyeDropper-filled.png') 0 22, pointer;
+            cursor: url('~../../package/assets/img/cursor-eyeDropper-filled.png') 0 22, pointer;
           }
         }
       }

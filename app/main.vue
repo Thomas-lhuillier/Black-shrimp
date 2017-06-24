@@ -20,7 +20,7 @@
 
 <style lang="scss">
 @import "sass/_vars.scss";
-@import "../assets/fonts/Black-shrimp/style.scss";
+@import "../package/assets/fonts/Black-shrimp/style.scss";
 
 .blackShrimp {
   // Style resets, preventing local style affecting this component.

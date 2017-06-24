@@ -13,157 +13,156 @@ $border-radius: 5px;
 
 // Fonts
 @font-face {
-    font-family: 'Poppins';
-    src: url('chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/poppins/poppins-regular.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'Poppins';
+  src: url('chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/poppins/poppins-regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 
 .black-shrimp {
-	// Style resets, preventing local style affecting this component.
-	all: initial; /* blocking inheritance for all properties */
-	* {
-		all: unset; /* allowing inheritance within .black-shrimp */
-	}
+  // Style resets, preventing local style affecting this component.
+  all: initial; /* blocking inheritance for all properties */
+  * {
+    all: unset; /* allowing inheritance within .black-shrimp */
+  }
 
-	position: fixed;
-	top: 10px;
-	left: 10px;
-	box-sizing: border-box;
-	padding: 8px;
-	width: 232px;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  box-sizing: border-box;
+  padding: 8px;
+  width: 232px;
 
-	font-family: 'Poppins', monospace;
+  font-family: 'Poppins', monospace;
 
-	z-index: 9999;
+  z-index: 9999;
 }
 
 .bs-menu {
-	$height: 28px;
+  $height: 28px;
 
-	display: block;
-	margin-top: -8px;
-	margin-right: -8px;
-	margin-left: -8px;
-	height: $height;
+  display: block;
+  margin-top: -8px;
+  margin-right: -8px;
+  margin-left: -8px;
+  height: $height;
 
-	color: $gray-dark;
-	background-color: $soft-white;
-	border-top-left-radius: $border-radius;
-	border-top-right-radius: $border-radius;
+  color: $gray-dark;
+  background-color: $soft-white;
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
 
-	overflow: hidden;
+  overflow: hidden;
 
-	.bs-menu__item {
-		display: inline-block;
-		padding-left: 5px;
-		padding-right: 8px;
-		height: $height;
+  .bs-menu__item {
+    display: inline-block;
+    padding-left: 5px;
+    padding-right: 8px;
+    height: $height;
 
-		font-size: 12px;
-		line-height: $height;
+    font-size: 12px;
+    line-height: $height;
 
-		cursor: pointer;
-		transition: all, 0.3, linear;
+    cursor: pointer;
+    transition: all, 0.3, linear;
 
-		> * {
-			vertical-align: top;
-		}
-		&:hover, &:focus {
+    > * {
+      vertical-align: top;
+    }
+    &:hover, &:focus {
 
-		}
-		&.active {
-			color: $soft-white;
-			background-color: $gray-dark;
-		}
+    }
+    &.active {
+      color: $soft-white;
+      background-color: $gray-dark;
+    }
 
-		.bs-menu__name {}
+    .bs-menu__name {}
 
-		i.bs-icon {
-			font-size: 18px;
-		}
-	}
+    i.bs-icon {
+      font-size: 18px;
+    }
+  }
 }
 
 // Components
 .colorPicker {
-	position: fixed;
-	top: 10px;
-	right: 10px;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  box-sizing: border-box;
+  padding: 9px;
+  width: 240px;
+  height: 40px;
+
+  font-family: 'Poppins', monospace;
+  font-size: 0;
+  line-height: 0;
+
+  background-color: $gray;
+  border-radius: 4px;
+  z-index: 9999;
+
+  & > * {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  * {
     box-sizing: border-box;
-	padding: 9px;
-	width: 240px;
-	height: 40px;
+  }
 
-	font-family: 'Poppins', monospace;
-	font-size: 0;
-	line-height: 0;
+  .colorPicker__color {
+    position: relative;
+    margin-right: 9px;
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    border: 1px solid $gray-light;
+  }
 
-	background-color: $gray;
-	border-radius: 4px;
-	z-index: 9999;
+  .colorPicker__valueWrapper {
+    width: 134px;
 
-	& > * {
-		display: inline-block;
-		vertical-align: top;
-	}
+    input {
+      display: inline-block;
+      height: 22px;
+      text-align: center;
+      font-size: 11px;
+      font-family: 'Poppins', monospace;
+    }
 
-	* {
-		box-sizing: border-box;
-	}
+    .colorPicker__hexWrapper {
+      input {
+        width: 100%;
+      }
+    }
 
-	.colorPicker__color {
-		position: relative;
-		margin-right: 9px;
-		width: 20px;
-		height: 20px;
-		border-radius: 100%;
-		border: 1px solid $gray-light;
-	}
+    .colorPicker__rgbWrapper,
+    .colorPicker__hslWrapper {
+      input {
+        width: 43px;
+      }
+      input + input {
+        margin-left: 2px;
+      }
+    }
 
-	.colorPicker__valueWrapper {
-		width: 134px;
+    .hidden {
+      display: none !important;
+    }
+  }
 
-		input {
-			display: inline-block;
-			height: 22px;
-			text-align: center;
-			font-size: 11px;
-			font-family: 'Poppins', monospace;
-		}
+  input[type="text"] {
+    color: $soft-white;
+    background-color: $gray-dark;
+    border: solid 1px $gray-light;
+    border-radius: 3px;
+  }
 
-		.colorPicker__hexWrapper {
-			input {
-				width: 100%;
-			}
-		}
+  .colorPicker__colorType {
+  }
 
-		.colorPicker__rgbWrapper,
-		.colorPicker__hslWrapper {
-			input {
-				width: 43px;
-			}
-			input + input {
-				margin-left: 2px;
-			}
-		}
-
-		.hidden {
-			display: none !important;
-		}
-	}
-
-	input[type="text"] {
-		color: $soft-white;
-		background-color: $gray-dark;
-		border: solid 1px $gray-light;
-		border-radius: 3px;
-	}
-
-	.colorPicker__colorType {
-	}
-
-	.colorPicker__colorSwitch {
-
-	}
+  .colorPicker__colorSwitch {
+  }
 }

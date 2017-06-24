@@ -13,8 +13,8 @@ fonts_dir       = "fonts"
 
 # for debug options in chrome web developer tools
 sass_options = {
-  	:debug_info => true,
-	:sourcemap => true
+  :debug_info => true,
+  :sourcemap => true
 }
 
 # sass --watch sass:css
