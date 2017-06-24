@@ -21,6 +21,7 @@
 <style lang="scss">
 @import "sass/_vars.scss";
 @import "../package/assets/fonts/Black-shrimp/style.scss";
+@import "../package/assets/fonts/Poppins/style.scss";
 
 .blackShrimp {
   // Style resets, preventing local style affecting this component.
@@ -41,7 +42,7 @@
   width: 235px;
   box-sizing: border-box;
 
-  font-family: 'Poppins', monospace;
+  font-family: 'Poppins', monospace !important;
 
   z-index: 9999;
 

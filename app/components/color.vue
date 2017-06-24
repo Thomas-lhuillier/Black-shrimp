@@ -407,7 +407,7 @@
 
     .hexWrapper {
       input {
-        width: 100%;
+        width: 140px;
       }
 
     }
@@ -428,7 +428,7 @@
       height: 22px;
       padding: 4px;
 
-      font-family: 'Poppins', monospace;
+      font-family: 'Poppins', monospace !important;
       font-size: 11px;
       line-height: 14px;
       text-align: center;
@@ -505,7 +505,7 @@
 
       > .bs-icon {
         display: block;
-        margin-top: -1px;
+        margin-top : -1px;
         margin-left: -1px;
         font-size: 18px;
       }
@@ -519,10 +519,19 @@
       &.-selected {
         border-color: $gray-darker;
         border-width: 2px;
+
+        > .bs-icon {
+          margin-top : -2px;
+          margin-left: -2px;
+        }
       }
 
       &:active {
         background-color: $gray-darker;
+        > .bs-icon {
+          margin-top : -1px !important;
+          margin-left: -1px !important;
+        }
       }
     }
   }
