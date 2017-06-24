@@ -57,10 +57,10 @@ var Toolkit = {
     this.receiveBrowserMessageClosure = this.receiveBrowserMessage.bind(this);
 
     var tabId = this.tab.id;
-    // chrome.tabs.executeScript(this.tab.id, { file: 'injected.js' });
-    chrome.tabs.executeScript(tabId, { file: 'vendors/jquery-3.2.1.min.js' }, function() {
-      chrome.tabs.executeScript(tabId, { file: 'injected.js' });
-    });
+    chrome.tabs.executeScript(this.tab.id, { file: 'injected.js' });
+    // chrome.tabs.executeScript(tabId, { file: 'vendors/jquery-3.2.1.min.js' }, function() {
+    //   chrome.tabs.executeScript(tabId, { file: 'injected.js' });
+    // });
     // chrome.tabs.insertCSS(this.tab.id, { file: 'css/injected.css' });
 
     // Set active icon

@@ -1,5 +1,5 @@
 <template>
-  <div class="colorMode select-block">
+  <div class="colorMode select-block" v-on-clickaway="close">
     <div class="value" v-on:click="toggleDropdown">
       <div class="text">
         {{text}}
@@ -13,7 +13,10 @@
 </template>
 
 <script>
+  import { mixin as clickaway } from 'vue-clickaway';
+
   export default {
+    mixins: [ clickaway ],
     props: ['options'],
     data() {
       return {
@@ -52,6 +55,11 @@
         this.$emit('change', { 'value': val.value, 'text': val.text});
       },
 
+      close: function () {
+        if (this.isOpen) {
+          this.isOpen = false;
+        }
+      }
     },
 
     created: function() {
@@ -66,7 +74,7 @@
         index++;
       }
 
-    }
+    },
   }
 </script>
 

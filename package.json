@@ -30,6 +30,7 @@
     "vue-hot-reload-api": "latest",
     "vuex": "latest",
     "vuedraggable": "latest",
+    "vue-clickaway": "latest",
     "extract-text-webpack-plugin": "latest",
     "url-loader": "latest",
     "webpack": "latest"
