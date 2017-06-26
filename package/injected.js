@@ -10344,6 +10344,14 @@ var BlackShrimp = {
             'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y }
           });
         },
+        onKeyPressed: function onKeyPressed(event) {
+          if (event.keyCode == 27) {
+            // ESC pressed
+            port.postMessage({
+              'type': 'destroy'
+            });
+          }
+        },
         destroy: function destroy() {
           console.log('destroy app.$destroy');
           this.$destroy();
@@ -10358,10 +10366,12 @@ var BlackShrimp = {
         console.log('app mounted');
         window.addEventListener('scroll', this.delayScroll);
         window.addEventListener('resize', this.onViewportChange);
+        window.addEventListener('keyup', this.onKeyPressed);
       },
       beforeDestroy: function beforeDestroy() {
         window.removeEventListener('scroll', this.delayScroll);
         window.removeEventListener('resize', this.onViewportChange);
+        window.removeEventListener('keyup', this.onKeyPressed);
       },
       destroyed: function destroyed() {
         console.log('app destroyed');

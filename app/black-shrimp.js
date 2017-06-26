@@ -196,6 +196,13 @@ let BlackShrimp = {
             // 'zoom' : '' //@TODO
           });
         },
+        onKeyPressed(event) {
+          if (event.keyCode == 27) { // ESC pressed
+            port.postMessage({
+              'type': 'destroy'
+            });
+          }
+        },
         destroy() {
           console.log('destroy app.$destroy');
           this.$destroy();
@@ -210,10 +217,12 @@ let BlackShrimp = {
         console.log('app mounted');
         window.addEventListener('scroll', this.delayScroll);
         window.addEventListener('resize', this.onViewportChange);
+        window.addEventListener('keyup', this.onKeyPressed);
       },
       beforeDestroy() {
         window.removeEventListener('scroll', this.delayScroll);
         window.removeEventListener('resize', this.onViewportChange);
+        window.removeEventListener('keyup', this.onKeyPressed);
       },
       destroyed() {
         console.log('app destroyed');
