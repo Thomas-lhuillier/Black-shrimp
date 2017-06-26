@@ -10249,9 +10249,9 @@ port.onMessage.addListener(function (request, sender, sendResponse) {
     case 'imageData':
       console.log('request imageData');
       // Screenshot processed
-      if (debug && request.imageData) {
-        createDebugOverlay(request);
-      }
+      // if (debug && request.imageData) {
+      //   createDebugOverlay(request);
+      // }
       app.showUI();
       break;
     case 'color':
