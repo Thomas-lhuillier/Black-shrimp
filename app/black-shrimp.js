@@ -1,7 +1,14 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import Sortable from 'sortablejs'
 
 Vue.use(Vuex);
+
+Vue.directive('sortable', {
+  inserted: function (el, binding) {
+    new Sortable(el, binding.value || {})
+  }
+});
 
 import MainComponent from './main.vue';
 
@@ -28,6 +35,7 @@ const store = new Vuex.Store({
         l   : '',
       }
     },
+    colors: [],
     cursorOverlay: {
       isVisible: true,
       cursor: 'eyeDropper',
@@ -43,6 +51,7 @@ const store = new Vuex.Store({
     getCursorVisibility : state => state.cursorOverlay.isVisible,
     getCursorType       : state => state.cursorOverlay.cursor,
     getPort             : state => state.port,
+    getColors           : state => state.colors,
   },
 
   mutations: {
@@ -61,6 +70,11 @@ const store = new Vuex.Store({
     },
     setHex(state, val) {
       state.color.value.hex = val;
+    },
+    setColors(state, arr) {
+      state.colors = arr;
+      // Save colors in chrome storage.
+      chrome.storage.sync.set({'colors': arr}, function() {});
     },
   }
 
@@ -137,11 +151,12 @@ function displayScreenshot() {
 // var paused = true;
 // var altKeyWasPressed = false;
 // var colorThreshold = [0.2,0.5,0.2];
-var overlay = document.createElement('div');
+let overlay = document.createElement('div');
 overlay.className = 'toolkit__debug';
 
-var app;
-var BlackShrimp = {
+let app;
+let scrollTimer;
+let BlackShrimp = {
   create: function() {
     app = new Vue({
       store, // inject store to all children
@@ -160,14 +175,21 @@ var BlackShrimp = {
         showUI() {
           store.commit('setVisibility', true);
         },
+        delayScroll(event) {
+          app.hideUI();
+
+          let self = this;
+          clearTimeout(scrollTimer);
+          scrollTimer = setTimeout(function() {
+            self.onViewportChange(event);
+          }, 50);
+        },
         onViewportChange(event) {
+          console.log('process viewport change');
           var doc = document.documentElement;
           var pageOffset = {};
           pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
           pageOffset.y = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-
-          app.hideUI();
-
           port.postMessage({
             'type': 'viewportChange',
             'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y },
@@ -186,11 +208,11 @@ var BlackShrimp = {
       },
       mounted() {
         console.log('app mounted');
-        window.addEventListener('scroll', this.onViewportChange);
+        window.addEventListener('scroll', this.delayScroll);
         window.addEventListener('resize', this.onViewportChange);
       },
       beforeDestroy() {
-        window.removeEventListener('scroll', this.onViewportChange);
+        window.removeEventListener('scroll', this.delayScroll);
         window.removeEventListener('resize', this.onViewportChange);
       },
       destroyed() {

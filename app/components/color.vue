@@ -33,54 +33,57 @@
 
     <div class="colorSwatches">
 
-      <!-- <div class="color-collection">
-        <template v-for="(color, index) in colors" v-if="color.type == 'color'">
-          <div class="btn-square -color"
-               :class="[{ '-selected': color.isSelected }]"
-               :style="{ 'background-color': color.hex }"
-               @click="selectColor($event, color)"
+      <ul class="color-collection" v-sortable="{onEnd: reorder}">
+        <li v-for="(color, index) in colors" v-if="color.type == 'color'"
+            :key="color.id"
+            class="btn-square -color"
+            :class="[{ '-selected': color.isSelected }]"
+            :style="{ 'background-color': color.hex }"
+            @click="selectColor($event, color)"
+        >
+        </li>
+        <li v-for="color in colors" v-else-if="color.type == 'folder'" class="btn-square -folder"></li>
+      </ul>
 
-               @mousedown="startMoving($event, color)"
-               @mouseup="stopMoving($event, color)"
-               @mousemove="move($event, color)"
-               >
-          </div>
+      <!-- <ul class="color-collection" v-sortable="{onEnd: reorder}">
+        <template v-for="(color, index) in colors" v-if="color.type == 'color'">
+          <li class="btn-square -color"
+              :class="[{ '-selected': color.isSelected }]"
+              :style="{ 'background-color': color.hex }"
+              @click="selectColor($event, color)"
+          >
+          </li>
         </template>
         <template v-for="color in colors" v-else-if="color.type == 'folder'">
-          <div class="btn-square -folder"></div>
+          <li class="btn-square -folder"></li>
         </template>
-      </div> -->
+      </ul> -->
 
-      <draggable v-model="colors"
+      <!-- <draggable element="ul"
+                 v-model="colors"
                  class="color-collection"
                  :move="checkMove"
                  @start="startDrag"
                  @end="endDrag"
-                 >
-        <div v-for="(color, index) in colors"
-             v-if="color.type == 'color'"
-             class="btn-square -color"
-            :class="[{ '-selected': color.isSelected }]"
+      >
+        <li v-for="(color, index) in colors"
+            :key="index"
+            v-if="color.type == 'color'"
+            class="btn-square -color"
+            :class="[{ '-selected': color.isSelected }, {'target': color === targetElement}, {'ok': canDrag}, {'ko': !canDrag}]"
             :style="{ 'background-color': color.hex }"
             @click="selectColor($event, color)"
-             >
-        <!-- @mousedown="startMoving($event, color)"
-             @mouseup="stopMoving($event, color)"
-             @mousemove="move($event, color)" -->
-        </div>
-        <div v-for="(color, index) in colors"
-             v-else-if="color.type == 'folder'"
-             class="btn-square -folder"
-             >
-        </div>
-      </draggable>
+        >
+        </li>
+      </draggable> -->
 
       <div class="button-wrapper">
         <button class="btn-square" @click="addCurrentColor($event)"><i class="bs-icon bs-icon-plus"></i></button>
         <button class="btn-square"><i class="bs-icon bs-icon-folder"></i></button>
         <button class="btn-square"
                 @click="deleteSelection($event)"
-                @click.shift="deleteAll($event)">
+                @click.shift="deleteAll($event)"
+        >
           <i class="bs-icon bs-icon-trash"></i>
         </button>
       </div>
@@ -90,13 +93,11 @@
 </template>
 
 <script>
-  import draggable from 'vuedraggable'
   import SelectComponent from './select-block.vue'
 
   export default {
     components: {
       SelectComponent,
-      draggable,
     },
     data() {
       return {
@@ -107,12 +108,11 @@
           'rgb': { isActive: false },
           'hsl': { isActive: false },
         },
-        colors: [],
         selection: null,
         dragging: false,
         targetElement: null,
-        canDrag:null,
-        futureIndex:null,
+        canDrag: null,
+        futureIndex: null,
       }
     },
     computed: {
@@ -137,31 +137,23 @@
       l () {
         return this.$store.getters.getColorState.value.l.toString();
       },
-    },
-    watch: {
-      hex: function(val) {
-        // this.deselectAll();
+      colors: {
+        get() {
+          return this.$store.getters.getColors
+        },
+        set(data) {
+          this.$store.commit('setColors', data)
+        },
       },
     },
+
     methods: {
-      privateCheckMove: function(event) {
-        this.targetElement = event.relatedContext.element
-        return true;
+      reorder ({oldIndex, newIndex}) {
+        console.log('reorder');
+        const movedItem = this.items.splice(oldIndex, 1)[0]
+        this.items.splice(newIndex, 0, movedItem)
       },
-      checkMove: function(event) {
-        res = this.privateCheckMove(event)
-        this.canDra = res;
-        this.futureIndex = event.draggedContext.futureIndex;
-        return res;
-      },
-      endDrag: function (event) {
-        this.canDrag       = null;
-        this.targetElement = null;
-        this.futureIndex   = null;
-      },
-      startDrag: function (event) {
-        console.log(event);
-      },
+
       getStoredColors: function() {
        chrome.storage.sync.get('colors', storageData => {
           let data = storageData.colors;
@@ -169,7 +161,9 @@
             data[i].id = i;
             data[i].isSelected = false;
           }
-          this.colors = data;
+          // Save chrome data in store.
+          this.$store.commit('setColors', data);
+          console.log('coucou c\'est la data:', data);
         });
       },
 
@@ -194,7 +188,8 @@
                       storageChange.newValue);
         }
         if (changes['colors'] != undefined) {
-          this.colors = changes['colors'].newValue;
+          // Save chrome data in store.
+          this.$store.commit('setColors', changes['colors'].newValue);
         }
       },
 
