@@ -35,29 +35,16 @@
 
       <draggable class="color-collection" v-model="colors" :element="'ul'" :move="onMove">
         <li v-for="(color, index) in colors" v-if="color.type == 'color'"
-            :key="color.id"
+            :key="index"
             class="btn-square -color"
             :class="[{ '-selected': color.isSelected }]"
             :style="{ 'background-color': color.hex }"
-            @click="selectColor($event, color)"
+            @click="toggleColorSelection($event, color, index)"
         >
         </li>
         <li v-for="color in colors" v-else-if="color.type == 'folder'" class="btn-square -folder"></li>
       </draggable>
 
-      <!-- <ul class="color-collection" v-sortable="{onEnd: reorder}">
-        <template v-for="(color, index) in colors" v-if="color.type == 'color'">
-          <li class="btn-square -color"
-              :class="[{ '-selected': color.isSelected }]"
-              :style="{ 'background-color': color.hex }"
-              @click="selectColor($event, color)"
-          >
-          </li>
-        </template>
-        <template v-for="color in colors" v-else-if="color.type == 'folder'">
-          <li class="btn-square -folder"></li>
-        </template>
-      </ul> -->
 
       <div class="button-wrapper">
         <button class="btn-square" @click="addCurrentColor($event)"><i class="bs-icon bs-icon-plus"></i></button>
@@ -92,6 +79,7 @@
         'hsl': { isActive: false },
       },
       selection: null,
+      selection_origin: false,
       editable: true,
       isDragging: false,
       delayedDragging: false
@@ -197,6 +185,7 @@
        *  Save current color to swatch
        */
       addCurrentColor: function(event) {
+        console.log('addCurrentColor')
         if (!this.hex) { return }
 
         // Deselect all
@@ -229,28 +218,50 @@
       /**
        * Select clicked color
        */
-      selectColor: function(event, color) {
-        let isSelected = this.colors[color.id].isSelected;
+      toggleColorSelection: function(event, color, index = false) {
+        let isSelected = color.isSelected ? true : false;
 
-        this.deselectAll();
+        if (!event) { event = window.event; }
 
-        if ( !isSelected ) {
-          this.colors[color.id].isSelected = true;
-          this.selection = color.id;
+        if (event.ctrlKey ) {            // ctrl is down
+          console.log('ctrl selection');
+          color.isSelected = !isSelected;
+        } else if (event.shiftKey) {     // shift is down
+          console.log('shift selection');
+          if (this.selection_origin) {
+            for (let i = 0; i < this.colors.length; i++) {
+              if ( i.between(this.selection_origin, index, true) ) {
+                this.colors[i].isSelected = true;
+              } else {
+                this.colors[i].isSelected = false;
+              }
+            }
+          }
+        } else {
+          // Single selection
+          console.log('single selection');
+          this.deselectAll();
+          color.isSelected = !isSelected;
+          this.selection_origin = index;
+          // Update displayed color.
+          if ( !isSelected ) {
+            color.isSelected = true;
 
-          let colorToSave = {};
-          colorToSave.value = {
-            'hex' : this.colors[color.id].hex,
-            'r'   : this.colors[color.id].r,
-            'g'   : this.colors[color.id].g,
-            'b'   : this.colors[color.id].b,
-            'h'   : this.colors[color.id].h,
-            's'   : this.colors[color.id].s,
-            'l'   : this.colors[color.id].l,
-          };
+            let colorToSave = {};
+            colorToSave.value = {
+              'hex' : color.hex,
+              'r'   : color.r,
+              'g'   : color.g,
+              'b'   : color.b,
+              'h'   : color.h,
+              's'   : color.s,
+              'l'   : color.l,
+            };
 
-          this.$store.commit('setColor', colorToSave);
+            this.$store.commit('setColor', colorToSave);
+          }
         }
+
       },
 
       /**
@@ -267,21 +278,24 @@
        * Delete selected color
        */
       deleteSelection: function(event) {
-        if (this.selection == null) { return }
+        console.log('deleteSelection')
 
-        let currentCollection = this.colors ? this.colors : [];
-        currentCollection.splice(this.selection, 1);
-        for (let i = 0; i < currentCollection.length; i++) {
-          currentCollection[i].id = i;
+        let selectedIndexes = []
+        for ( let index in this.colors ) {
+          if ( this.colors[index].isSelected ) {
+            selectedIndexes.push(index);
+          }
         }
 
-        chrome.storage.sync.set({'colors': currentCollection}, function() {
+        for (let i = selectedIndexes.length -1; i >= 0; i--) {
+          this.colors.splice(selectedIndexes[i], 1);
+        }
+
+        chrome.storage.sync.set({'colors': this.colors}, function() {
           console.log('Colors saved');
         });
-
-        // Empty selection
-        this.selection = null;
       },
+
       deleteAll: function(event) {
         chrome.storage.sync.set({'colors': []}, function() {
           console.log('Colors deleted');
@@ -289,32 +303,21 @@
       },
 
       /**
-       * Drag and drop color
-       */
-       // startMoving: function(event, color) {
-       //  event = event || window.event;
-       //  let mouseX  = event.clientX;
-       //  let mouseY  = event.clientY;
-       //  color.isMoving = true;
-       //  console.log('start moving - color:', this.colors);
-       //  // this.isMoving = true;
-       // },
-
-       // move: function() {
-       //  if (!this.isMoving) { return; }
-       // },
-
-       // stopMoving: function(event, color) {
-       //  color.isMoving = true;
-       //  console.log('stop moving - color:', this.colors);
-       // },
-
-      /**
        * Create an empty folder
        */
-      createFolder: function(event) {
+      createFolder: function(event) {},
 
+      onKeyDown: function(event) {
+        console.log('event:', event)
+        console.log('keyup:', event.keyCode)
+        if (event.altKey && event.keyCode == 65) {
+          this.addCurrentColor();
+        }
       },
+    },
+
+    created: function () {
+      window.addEventListener('keydown', this.onKeyDown)
     },
 
     mounted: function() {

@@ -11896,6 +11896,16 @@ var BlackShrimp = {
   }
 };
 
+/**
+ * Tools
+ */
+
+Number.prototype.between = function (a, b, inclusive) {
+  var min = Math.min.apply(Math, [a, b]),
+      max = Math.max.apply(Math, [a, b]);
+  return inclusive ? this >= min && this <= max : this > min && this < max;
+};
+
 /***/ }),
 /* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -11906,19 +11916,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__select_block_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__select_block_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuedraggable__ = __webpack_require__(36);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuedraggable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vuedraggable__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -12000,6 +11997,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       'hsl': { isActive: false }
     },
     selection: null,
+    selection_origin: false,
     editable: true,
     isDragging: false,
     delayedDragging: false
@@ -12102,6 +12100,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
      *  Save current color to swatch
      */
     addCurrentColor: function (event) {
+      console.log('addCurrentColor');
       if (!this.hex) {
         return;
       }
@@ -12135,27 +12134,52 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     /**
      * Select clicked color
      */
-    selectColor: function (event, color) {
-      let isSelected = this.colors[color.id].isSelected;
+    toggleColorSelection: function (event, color, index = false) {
+      let isSelected = color.isSelected ? true : false;
 
-      this.deselectAll();
+      if (!event) {
+        event = window.event;
+      }
 
-      if (!isSelected) {
-        this.colors[color.id].isSelected = true;
-        this.selection = color.id;
+      if (event.ctrlKey) {
+        // ctrl is down
+        console.log('ctrl selection');
+        color.isSelected = !isSelected;
+      } else if (event.shiftKey) {
+        // shift is down
+        console.log('shift selection');
+        if (this.selection_origin) {
+          for (let i = 0; i < this.colors.length; i++) {
+            if (i.between(this.selection_origin, index, true)) {
+              this.colors[i].isSelected = true;
+            } else {
+              this.colors[i].isSelected = false;
+            }
+          }
+        }
+      } else {
+        // Single selection
+        console.log('single selection');
+        this.deselectAll();
+        color.isSelected = !isSelected;
+        this.selection_origin = index;
+        // Update displayed color.
+        if (!isSelected) {
+          color.isSelected = true;
 
-        let colorToSave = {};
-        colorToSave.value = {
-          'hex': this.colors[color.id].hex,
-          'r': this.colors[color.id].r,
-          'g': this.colors[color.id].g,
-          'b': this.colors[color.id].b,
-          'h': this.colors[color.id].h,
-          's': this.colors[color.id].s,
-          'l': this.colors[color.id].l
-        };
+          let colorToSave = {};
+          colorToSave.value = {
+            'hex': color.hex,
+            'r': color.r,
+            'g': color.g,
+            'b': color.b,
+            'h': color.h,
+            's': color.s,
+            'l': color.l
+          };
 
-        this.$store.commit('setColor', colorToSave);
+          this.$store.commit('setColor', colorToSave);
+        }
       }
     },
 
@@ -12173,23 +12197,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
      * Delete selected color
      */
     deleteSelection: function (event) {
-      if (this.selection == null) {
-        return;
+      console.log('deleteSelection');
+
+      let selectedIndexes = [];
+      for (let index in this.colors) {
+        if (this.colors[index].isSelected) {
+          selectedIndexes.push(index);
+        }
       }
 
-      let currentCollection = this.colors ? this.colors : [];
-      currentCollection.splice(this.selection, 1);
-      for (let i = 0; i < currentCollection.length; i++) {
-        currentCollection[i].id = i;
+      for (let i = selectedIndexes.length - 1; i >= 0; i--) {
+        this.colors.splice(selectedIndexes[i], 1);
       }
 
-      chrome.storage.sync.set({ 'colors': currentCollection }, function () {
+      chrome.storage.sync.set({ 'colors': this.colors }, function () {
         console.log('Colors saved');
       });
-
-      // Empty selection
-      this.selection = null;
     },
+
     deleteAll: function (event) {
       chrome.storage.sync.set({ 'colors': [] }, function () {
         console.log('Colors deleted');
@@ -12197,30 +12222,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
     /**
-     * Drag and drop color
-     */
-    // startMoving: function(event, color) {
-    //  event = event || window.event;
-    //  let mouseX  = event.clientX;
-    //  let mouseY  = event.clientY;
-    //  color.isMoving = true;
-    //  console.log('start moving - color:', this.colors);
-    //  // this.isMoving = true;
-    // },
-
-    // move: function() {
-    //  if (!this.isMoving) { return; }
-    // },
-
-    // stopMoving: function(event, color) {
-    //  color.isMoving = true;
-    //  console.log('stop moving - color:', this.colors);
-    // },
-
-    /**
      * Create an empty folder
      */
-    createFolder: function (event) {}
+    createFolder: function (event) {},
+
+    onKeyDown: function (event) {
+      console.log('event:', event);
+      console.log('keyup:', event.keyCode);
+      if (event.altKey && event.keyCode == 65) {
+        this.addCurrentColor();
+      }
+    }
+  },
+
+  created: function () {
+    window.addEventListener('keydown', this.onKeyDown);
   },
 
   mounted: function () {
@@ -13563,7 +13579,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, _vm._l((_vm.colors), function(color, index) {
     return (color.type == 'color') ? _c('li', {
-      key: color.id,
+      key: index,
       staticClass: "btn-square -color",
       class: [{
         '-selected': color.isSelected
@@ -13573,7 +13589,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }),
       on: {
         "click": function($event) {
-          _vm.selectColor($event, color)
+          _vm.toggleColorSelection($event, color, index)
         }
       }
     }) : (color.type == 'folder') ? _vm._l((_vm.colors), function(color) {
