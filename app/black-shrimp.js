@@ -36,6 +36,7 @@ const store = new Vuex.Store({
       }
     },
     colors: [],
+    colors2: [{id: 1}, {id: 2}, {id: 3}],
     cursorOverlay: {
       isVisible: true,
       cursor: 'eyeDropper',
@@ -52,6 +53,7 @@ const store = new Vuex.Store({
     getCursorType       : state => state.cursorOverlay.cursor,
     getPort             : state => state.port,
     getColors           : state => state.colors,
+    getColors2          : state => state.colors2,
   },
 
   mutations: {
@@ -76,6 +78,9 @@ const store = new Vuex.Store({
       // Save colors in chrome storage.
       chrome.storage.sync.set({'colors': arr}, function() {});
     },
+    setColors2(state, arr) {
+      state.colors2 = arr;
+    },
   }
 
 });
@@ -87,6 +92,7 @@ const store = new Vuex.Store({
 var debug;
 var connectionClosed = false;
 var port = store.getters.getPort;
+
 port.onMessage.addListener(function(request, sender, sendResponse) {
   console.log('request :', request);
   if (connectionClosed) { return; } // @TODO

@@ -33,7 +33,7 @@
 
     <div class="colorSwatches">
 
-      <ul class="color-collection" v-sortable="{onEnd: reorder}">
+      <draggable class="color-collection" v-model="colors" :element="'ul'" :move="onMove">
         <li v-for="(color, index) in colors" v-if="color.type == 'color'"
             :key="color.id"
             class="btn-square -color"
@@ -43,7 +43,7 @@
         >
         </li>
         <li v-for="color in colors" v-else-if="color.type == 'folder'" class="btn-square -folder"></li>
-      </ul>
+      </draggable>
 
       <!-- <ul class="color-collection" v-sortable="{onEnd: reorder}">
         <template v-for="(color, index) in colors" v-if="color.type == 'color'">
@@ -58,24 +58,6 @@
           <li class="btn-square -folder"></li>
         </template>
       </ul> -->
-
-      <!-- <draggable element="ul"
-                 v-model="colors"
-                 class="color-collection"
-                 :move="checkMove"
-                 @start="startDrag"
-                 @end="endDrag"
-      >
-        <li v-for="(color, index) in colors"
-            :key="index"
-            v-if="color.type == 'color'"
-            class="btn-square -color"
-            :class="[{ '-selected': color.isSelected }, {'target': color === targetElement}, {'ok': canDrag}, {'ko': !canDrag}]"
-            :style="{ 'background-color': color.hex }"
-            @click="selectColor($event, color)"
-        >
-        </li>
-      </draggable> -->
 
       <div class="button-wrapper">
         <button class="btn-square" @click="addCurrentColor($event)"><i class="bs-icon bs-icon-plus"></i></button>
@@ -94,27 +76,26 @@
 
 <script>
   import SelectComponent from './select-block.vue'
+  import draggable from 'vuedraggable'
 
   export default {
     components: {
       SelectComponent,
+      draggable
     },
-    data() {
-      return {
-        isActive: true,
-        currentColorType: 'hex',
-        color: {
-          'hex': { isActive: true  },
-          'rgb': { isActive: false },
-          'hsl': { isActive: false },
-        },
-        selection: null,
-        dragging: false,
-        targetElement: null,
-        canDrag: null,
-        futureIndex: null,
-      }
-    },
+    data: () => ({
+      isActive: true,
+      currentColorType: 'hex',
+      color: {
+        'hex': { isActive: true  },
+        'rgb': { isActive: false },
+        'hsl': { isActive: false },
+      },
+      selection: null,
+      editable: true,
+      isDragging: false,
+      delayedDragging: false
+    }),
     computed: {
       hex () {
         return this.$store.getters.getColorState.value.hex.toString();
@@ -145,15 +126,34 @@
           this.$store.commit('setColors', data)
         },
       },
+      colors2: {
+        get() {
+          return this.$store.getters.getColors2
+        },
+        set(data) {
+          this.$store.commit('setColors2', data)
+        },
+      },
+      dragOptions() {
+        return  {
+          animation: 0,
+          group: 'description',
+          disabled: !this.editable,
+          ghostClass: 'ghost'
+        };
+      },
     },
 
     methods: {
-      reorder ({oldIndex, newIndex}) {
-        console.log('reorder');
-        const movedItem = this.items.splice(oldIndex, 1)[0]
-        this.items.splice(newIndex, 0, movedItem)
+      orderList () {
+        this.list = this.list.sort((one,two) =>{return one.order-two.order; })
       },
-
+      onMove ({relatedContext, draggedContext}) {
+        console.log('onMove', {relatedContext, draggedContext});
+        const relatedElement = relatedContext.element;
+        const draggedElement = draggedContext.element;
+        return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
+      },
       getStoredColors: function() {
        chrome.storage.sync.get('colors', storageData => {
           let data = storageData.colors;
@@ -496,6 +496,9 @@
       vertical-align: middle;
       cursor: pointer;
 
+      -webkit-user-drag: element;
+      user-select: none;
+
       transition: all .2s ease;
 
       > .bs-icon {
@@ -503,6 +506,11 @@
         margin-top : -1px;
         margin-left: -1px;
         font-size: 18px;
+      }
+
+      &.-big {
+        width: 36px;
+        height: 36px;
       }
 
       &:hover {
