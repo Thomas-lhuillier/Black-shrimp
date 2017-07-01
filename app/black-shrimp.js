@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import store from './vuex/store'
 import Sortable from 'sortablejs'
 
 Vue.use(Vuex);
@@ -11,79 +12,6 @@ Vue.directive('sortable', {
 });
 
 import MainComponent from './main.vue';
-
-
-/**
- * Store
- *
- * Contains the state of the application,
- * to be shared with application components.
- */
-const store = new Vuex.Store({
-  state: {
-    isVisible: true,
-    isMoving: false,
-    activeTab: 'color',
-    color: {
-      value: {
-        hex : '',
-        r   : '',
-        g   : '',
-        b   : '',
-        h   : '',
-        s   : '',
-        l   : '',
-      }
-    },
-    colors: [],
-    colors2: [{id: 1}, {id: 2}, {id: 3}],
-    cursorOverlay: {
-      isVisible: true,
-      cursor: 'eyeDropper',
-    },
-    port: chrome.runtime.connect({ name: "toolkit" }), // @TODO change to black shrimp
-  },
-
-  getters: {
-    getVisibility       : state => state.isVisible,
-    getMovingStatus     : state => state.isMoving,
-    getActiveTab        : state => state.activeTab,
-    getColorState       : state => state.color,
-    getCursorVisibility : state => state.cursorOverlay.isVisible,
-    getCursorType       : state => state.cursorOverlay.cursor,
-    getPort             : state => state.port,
-    getColors           : state => state.colors,
-    getColors2          : state => state.colors2,
-  },
-
-  mutations: {
-    setVisibility(state, val) {
-      state.isVisible = val;
-    },
-    setActiveTab(state, val) {
-      state.activeTab = val;
-    },
-    setColor(state, val) {
-      console.log('VALUE:', val.value);
-      state.color.value = val.value;
-    },
-    setMovingStatus(state, val) {
-      state.isMoving = val;
-    },
-    setHex(state, val) {
-      state.color.value.hex = val;
-    },
-    setColors(state, arr) {
-      state.colors = arr;
-      // Save colors in chrome storage.
-      chrome.storage.sync.set({'colors': arr}, function() {});
-    },
-    setColors2(state, arr) {
-      state.colors2 = arr;
-    },
-  }
-
-});
 
 
 /**

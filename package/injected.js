@@ -11629,6 +11629,10 @@ var _vuex = __webpack_require__(37);
 
 var _vuex2 = _interopRequireDefault(_vuex);
 
+var _store = __webpack_require__(40);
+
+var _store2 = _interopRequireDefault(_store);
+
 var _sortablejs = __webpack_require__(3);
 
 var _sortablejs2 = _interopRequireDefault(_sortablejs);
@@ -11648,100 +11652,11 @@ _vue2.default.directive('sortable', {
 });
 
 /**
- * Store
- *
- * Contains the state of the application,
- * to be shared with application components.
- */
-var store = new _vuex2.default.Store({
-  state: {
-    isVisible: true,
-    isMoving: false,
-    activeTab: 'color',
-    color: {
-      value: {
-        hex: '',
-        r: '',
-        g: '',
-        b: '',
-        h: '',
-        s: '',
-        l: ''
-      }
-    },
-    colors: [],
-    colors2: [{ id: 1 }, { id: 2 }, { id: 3 }],
-    cursorOverlay: {
-      isVisible: true,
-      cursor: 'eyeDropper'
-    },
-    port: chrome.runtime.connect({ name: "toolkit" }) },
-
-  getters: {
-    getVisibility: function getVisibility(state) {
-      return state.isVisible;
-    },
-    getMovingStatus: function getMovingStatus(state) {
-      return state.isMoving;
-    },
-    getActiveTab: function getActiveTab(state) {
-      return state.activeTab;
-    },
-    getColorState: function getColorState(state) {
-      return state.color;
-    },
-    getCursorVisibility: function getCursorVisibility(state) {
-      return state.cursorOverlay.isVisible;
-    },
-    getCursorType: function getCursorType(state) {
-      return state.cursorOverlay.cursor;
-    },
-    getPort: function getPort(state) {
-      return state.port;
-    },
-    getColors: function getColors(state) {
-      return state.colors;
-    },
-    getColors2: function getColors2(state) {
-      return state.colors2;
-    }
-  },
-
-  mutations: {
-    setVisibility: function setVisibility(state, val) {
-      state.isVisible = val;
-    },
-    setActiveTab: function setActiveTab(state, val) {
-      state.activeTab = val;
-    },
-    setColor: function setColor(state, val) {
-      console.log('VALUE:', val.value);
-      state.color.value = val.value;
-    },
-    setMovingStatus: function setMovingStatus(state, val) {
-      state.isMoving = val;
-    },
-    setHex: function setHex(state, val) {
-      state.color.value.hex = val;
-    },
-    setColors: function setColors(state, arr) {
-      state.colors = arr;
-      // Save colors in chrome storage.
-      chrome.storage.sync.set({ 'colors': arr }, function () {});
-    },
-    setColors2: function setColors2(state, arr) {
-      state.colors2 = arr;
-    }
-  }
-
-});
-
-/**
  * Dispatch Chrome port messages
  */
 var debug;
 var connectionClosed = false;
-var port = store.getters.getPort;
+var port = _store2.default.getters.getPort;
 
 port.onMessage.addListener(function (request, sender, sendResponse) {
   console.log('request :', request);
@@ -11817,7 +11732,7 @@ var scrollTimer = void 0;
 var BlackShrimp = {
   create: function create() {
     app = new _vue2.default({
-      store: store, // inject store to all children
+      store: _store2.default, // inject store to all children
       el: '#black-shrimp',
       template: '<MainComponent/>',
       components: {
@@ -11825,13 +11740,13 @@ var BlackShrimp = {
       },
       methods: {
         setColor: function setColor(val) {
-          store.commit('setColor', val);
+          _store2.default.commit('setColor', val);
         },
         hideUI: function hideUI() {
-          store.commit('setVisibility', false);
+          _store2.default.commit('setVisibility', false);
         },
         showUI: function showUI() {
-          store.commit('setVisibility', true);
+          _store2.default.commit('setVisibility', true);
         },
         delayScroll: function delayScroll(event) {
           app.hideUI();
@@ -15011,6 +14926,137 @@ module.exports = g;
 
 module.exports = __webpack_require__(5);
 
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _vue = __webpack_require__(4);
+
+var _vue2 = _interopRequireDefault(_vue);
+
+var _vuex = __webpack_require__(37);
+
+var _vuex2 = _interopRequireDefault(_vuex);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Store
+ *
+ * Contains the state of the application,
+ * to be shared with application components.
+ */
+
+_vue2.default.use(_vuex2.default);
+
+// root state object.
+// each Vuex instance is just a single state tree.
+var state = {
+  isVisible: true,
+  isMoving: false,
+  activeTab: 'color',
+  color: {
+    value: {
+      hex: '',
+      r: '',
+      g: '',
+      b: '',
+      h: '',
+      s: '',
+      l: ''
+    }
+  },
+  colors: [],
+  colors2: [{ id: 1 }, { id: 2 }, { id: 3 }],
+  cursorOverlay: {
+    isVisible: true,
+    cursor: 'eyeDropper'
+  },
+  port: chrome.runtime.connect({ name: "toolkit" }) };
+
+// mutations are operations that actually mutates the state.
+// each mutation handler gets the entire state tree as the
+// first argument, followed by additional payload arguments.
+// mutations must be synchronous and can be recorded by plugins
+// for debugging purposes.
+var mutations = {
+  setVisibility: function setVisibility(state, val) {
+    state.isVisible = val;
+  },
+  setActiveTab: function setActiveTab(state, val) {
+    state.activeTab = val;
+  },
+  setColor: function setColor(state, val) {
+    console.log('VALUE:', val.value);
+    state.color.value = val.value;
+  },
+  setMovingStatus: function setMovingStatus(state, val) {
+    state.isMoving = val;
+  },
+  setHex: function setHex(state, val) {
+    state.color.value.hex = val;
+  },
+  setColors: function setColors(state, arr) {
+    state.colors = arr;
+    // Save colors in chrome storage.
+    chrome.storage.sync.set({ 'colors': arr }, function () {});
+  },
+  setColors2: function setColors2(state, arr) {
+    state.colors2 = arr;
+  }
+};
+
+// actions are functions that causes side effects and can involve
+// asynchronous operations.
+var actions = {};
+
+// getters are functions
+var getters = {
+  getVisibility: function getVisibility(state) {
+    return state.isVisible;
+  },
+  getMovingStatus: function getMovingStatus(state) {
+    return state.isMoving;
+  },
+  getActiveTab: function getActiveTab(state) {
+    return state.activeTab;
+  },
+  getColorState: function getColorState(state) {
+    return state.color;
+  },
+  getCursorVisibility: function getCursorVisibility(state) {
+    return state.cursorOverlay.isVisible;
+  },
+  getCursorType: function getCursorType(state) {
+    return state.cursorOverlay.cursor;
+  },
+  getPort: function getPort(state) {
+    return state.port;
+  },
+  getColors: function getColors(state) {
+    return state.colors;
+  },
+  getColors2: function getColors2(state) {
+    return state.colors2;
+  }
+};
+
+// A Vuex instance is created by combining the state, mutations, actions,
+// and getters.
+exports.default = new _vuex2.default.Store({
+  state: state,
+  getters: getters,
+  actions: actions,
+  mutations: mutations
+});
 
 /***/ })
 /******/ ]);
