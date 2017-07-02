@@ -28,7 +28,7 @@ const state = {
     }
   },
   colors: [],
-  colors2: [{id: 1}, {id: 2}, {id: 3}],
+  colorFolders: [],
   cursorOverlay: {
     isVisible: true,
     cursor: 'eyeDropper',
@@ -63,8 +63,10 @@ const mutations = {
     // Save colors in chrome storage.
     chrome.storage.sync.set({'colors': arr}, function() {});
   },
-  setColors2(state, arr) {
-    state.colors2 = arr;
+  setColorFolders(state, arr) {
+    state.colorFolders = arr;
+    // Save color folders in chrome storage.
+    chrome.storage.sync.set({'colorFolders': arr}, function() {});
   },
 }
 
@@ -83,7 +85,7 @@ const getters = {
   getCursorType       : state => state.cursorOverlay.cursor,
   getPort             : state => state.port,
   getColors           : state => state.colors,
-  getColors2          : state => state.colors2,
+  getColorFolders     : state => state.colorFolders,
 }
 
 // A Vuex instance is created by combining the state, mutations, actions,

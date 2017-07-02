@@ -33,22 +33,44 @@
 
     <div class="colorSwatches">
 
-      <draggable class="color-collection" v-model="colors" :element="'ul'" :move="onMove">
-        <li v-for="(color, index) in colors" v-if="color.type == 'color'"
+      <draggable class="color-collection" v-model="colors" :element="'ul'" :move="onMove" :options="{group:'colors'}">
+        <li v-for="(color, index) in colors"
             :key="index"
             class="btn-square -color"
             :class="[{ '-selected': color.isSelected }]"
             :style="{ 'background-color': color.hex }"
-            @click="toggleColorSelection($event, color, index)"
+            @click="toggleColorSelection($event, color, index, colors)"
         >
         </li>
-        <li v-for="color in colors" v-else-if="color.type == 'folder'" class="btn-square -folder"></li>
+      </draggable>
+
+      <draggable class="folder-collection" v-model="colorFolders" :element="'ul'" :move="onMove">
+        <draggable v-for="(folder, index) in colorFolders"
+                   :element="'ul'"
+                   class="folder"
+                   :class="[{ '-selected': folder.isSelected }]"
+                   v-model="colorFolders[index].content"
+                   :key="index"
+                   :options="{group:'colors'}"
+                   :move="onMove"
+                   @click.self.native="toggleFolderSelection($event, folder, index)"
+                   @click="console.log(folder)"
+        >
+          <li v-for="(color, subIndex) in folder.content"
+              :key="subIndex"
+              class="btn-square -color"
+              :class="[{ '-selected': color.isSelected }]"
+              :style="{ 'background-color': color.hex }"
+              @click="toggleColorSelection($event, color, subIndex, folder.content)"
+          >
+          </li>
+        </draggable>
       </draggable>
 
 
       <div class="button-wrapper">
         <button class="btn-square" @click="addCurrentColor($event)"><i class="bs-icon bs-icon-plus"></i></button>
-        <button class="btn-square"><i class="bs-icon bs-icon-folder"></i></button>
+        <button class="btn-square" @click="addFolder($event)"><i class="bs-icon bs-icon-folder"></i></button>
         <button class="btn-square"
                 @click="deleteSelection($event)"
                 @click.shift="deleteAll($event)"
@@ -114,34 +136,41 @@
           this.$store.commit('setColors', data)
         },
       },
-      colors2: {
+      colorFolders: {
         get() {
-          return this.$store.getters.getColors2
+          return this.$store.getters.getColorFolders
         },
         set(data) {
-          this.$store.commit('setColors2', data)
+          this.$store.commit('setColorFolders', data)
         },
       },
-      dragOptions() {
-        return  {
-          animation: 0,
-          group: 'description',
-          disabled: !this.editable,
-          ghostClass: 'ghost'
-        };
+    },
+
+    watch: {
+      colorFolders: {
+        handler: function (val, oldVal) {
+          console.log('sync color folders:', this.colorFolders);
+          chrome.storage.sync.set({'colorFolders': this.colorFolders}, function() {});
+        },
+        deep: true
+      },
+
+      colors: {
+        handler: function (val, oldVal) {
+          console.log('sync colors:', this.colors);
+          chrome.storage.sync.set({'colors': this.colors}, function() {});
+        },
+        deep: true
       },
     },
 
     methods: {
-      orderList () {
-        this.list = this.list.sort((one,two) =>{return one.order-two.order; })
-      },
       onMove ({relatedContext, draggedContext}) {
-        console.log('onMove', {relatedContext, draggedContext});
         const relatedElement = relatedContext.element;
         const draggedElement = draggedContext.element;
         return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
       },
+
       getStoredColors: function() {
        chrome.storage.sync.get('colors', storageData => {
           let data = storageData.colors;
@@ -151,7 +180,19 @@
           }
           // Save chrome data in store.
           this.$store.commit('setColors', data);
-          console.log('coucou c\'est la data:', data);
+          console.log('Store colors:', data);
+        });
+
+        chrome.storage.sync.get('colorFolders', storageData => {
+          let data = storageData.colorFolders;
+          for (let i = 0; i < data.length; i++) {
+            data[i].id = i;
+            data[i].isSelected = false;
+          }
+          console.log(data);
+          // Save chrome data in store.
+          this.$store.commit('setColorFolders', data);
+          console.log('Store folders:', data);
         });
       },
 
@@ -178,6 +219,9 @@
         if (changes['colors'] != undefined) {
           // Save chrome data in store.
           this.$store.commit('setColors', changes['colors'].newValue);
+        }
+        if (changes['colorFolders'] != undefined) {
+          this.$store.commit('setColorFolders', changes['colorFolders'].newValue);
         }
       },
 
@@ -209,16 +253,12 @@
 
         let currentCollection = this.colors ? this.colors : [];
         currentCollection.push(color);
-
-        // Save color collection in Chrome storage
-        chrome.storage.sync.set({'colors': currentCollection}, function() {
-        });
       },
 
       /**
        * Select clicked color
        */
-      toggleColorSelection: function(event, color, index = false) {
+      toggleColorSelection: function(event, color, index = false, array = false) {
         let isSelected = color.isSelected ? true : false;
 
         if (!event) { event = window.event; }
@@ -228,13 +268,18 @@
           color.isSelected = !isSelected;
         } else if (event.shiftKey) {     // shift is down
           console.log('shift selection');
-          if (this.selection_origin) {
-            for (let i = 0; i < this.colors.length; i++) {
-              if ( i.between(this.selection_origin, index, true) ) {
-                this.colors[i].isSelected = true;
-              } else {
-                this.colors[i].isSelected = false;
-              }
+          if (!this.selection_origin) { return }
+          if (!this.selection_origin.array === array) { return }
+
+          console.log('array:', array);
+          console.log('this.selection_origin.array:', this.selection_origin.array);
+
+          for (let i = 0; i < array.length; i++) {
+            if ( i.between(this.selection_origin.index, index, true) ) {
+              console.log('between true');
+              array[i].isSelected = true;
+            } else {
+              array[i].isSelected = false;
             }
           }
         } else {
@@ -242,7 +287,10 @@
           console.log('single selection');
           this.deselectAll();
           color.isSelected = !isSelected;
-          this.selection_origin = index;
+          this.selection_origin = {
+            'index': index,
+            'array': array
+          };
           // Update displayed color.
           if ( !isSelected ) {
             color.isSelected = true;
@@ -265,13 +313,19 @@
       },
 
       /**
-       * Deselect all colors
+       * Deselect all colors and folders
        */
       deselectAll: function() {
         for (let i = 0; i < this.colors.length; i++) {
           this.colors[i].isSelected = false;
         }
-        this.selection = null;
+
+        for (let i = 0; i < this.colorFolders.length; i++) {
+          this.colorFolders[i].isSelected = false;
+          for (let j = 0; j < this.colorFolders[i].content.length; j++) {
+            this.colorFolders[i].content[j].isSelected = false;
+          }
+        }
       },
 
       /**
@@ -280,32 +334,73 @@
       deleteSelection: function(event) {
         console.log('deleteSelection')
 
-        let selectedIndexes = []
-        for ( let index in this.colors ) {
-          if ( this.colors[index].isSelected ) {
-            selectedIndexes.push(index);
+        let arrays = [this.colors, this.colorFolders];
+
+        for ( let h in this.colorFolders ) {
+          arrays.push(this.colorFolders[h].content);
+        }
+
+        for ( let i in arrays ) {
+          let array = arrays[i];
+
+          // Build array of selected element indexes.
+          let selectedIndexes = []
+          for ( let j in array ) {
+            if ( array[j].isSelected ) {
+              selectedIndexes.push(j);
+            }
           }
-        }
 
-        for (let i = selectedIndexes.length -1; i >= 0; i--) {
-          this.colors.splice(selectedIndexes[i], 1);
-        }
+          // Splice origin array.
+          for (let k = selectedIndexes.length -1; k >= 0; k--) {
+            array.splice(selectedIndexes[k], 1);
+          }
 
-        chrome.storage.sync.set({'colors': this.colors}, function() {
-          console.log('Colors saved');
-        });
+        }
       },
 
       deleteAll: function(event) {
-        chrome.storage.sync.set({'colors': []}, function() {
-          console.log('Colors deleted');
-        });
+        let ask = confirm("You are about to delete all your colors and folders. Are you sure you wan't delete everything ?");
+        if (!ask) { return }
+
+        // Reset user colors and folders
+        this.colors = []
+        this.colorFolders = []
       },
 
       /**
        * Create an empty folder
        */
-      createFolder: function(event) {},
+      addFolder: function(event) {
+        let item = {
+          content: [],
+          isSelected: false,
+        }
+        this.colorFolders.push(item);
+      },
+
+      toggleFolderSelection: function(event, folder, index = false) {
+        console.log('toggleFolderSelection');
+        let isSelected = folder.isSelected ? true : false;
+
+        if (!event) { event = window.event; }
+
+        if (event.ctrlKey ) {            // ctrl is down
+          console.log('ctrl selection');
+          folder.isSelected = !isSelected;
+        } else if (event.shiftKey) {     // shift is down
+          console.log('shift selection');
+        } else {
+          // Single selection
+          console.log('single selection');
+          this.deselectAll();
+
+          folder.isSelected = !isSelected;
+          this.colorFolders[index].isSelected = !isSelected;
+
+          this.$store.commit('setColorFolders', this.colorFolders);
+        }
+      },
 
       onKeyDown: function(event) {
         console.log('event:', event)
@@ -322,7 +417,6 @@
 
     mounted: function() {
       // Register chrome data listener
-      console.log('created, this.colors:', this.colors);
       chrome.storage.onChanged.addListener(this.onChromeDataChange);
       this.getStoredColors();
     },
@@ -464,15 +558,60 @@
         text-align: right;
 
         & > .btn-square {
+          border: none;
           margin-bottom: 0;
         }
+
       }
 
       & > .color-collection {
         display: block;
+        margin-left: -($spacer / 2);
+        padding-left: $spacer / 2;
 
         &:not(:empty) {
           margin-bottom: $spacer / 2;
+        }
+      }
+
+      & > .folder-collection {
+        display: block;
+
+        &:not(:empty) {
+          margin-bottom: $spacer / 2;
+        }
+
+        & > .folder {
+          display: block;
+          position: relative;
+          margin-top: -($spacer / 2);
+          margin-bottom: $spacer / 2;
+          margin-left: -($spacer / 2);
+          padding-top: $spacer / 2;
+          padding-left: $spacer / 2;
+
+          -webkit-user-drag: element;
+          user-select: none;
+
+          &:before {
+            @extend .btn-square;
+            display: block;
+            content: '\e902';
+            font-size: 18px;
+            font-family: 'Black-shrimp';
+            border-width: 0 !important;
+          }
+
+          &.-selected {
+            outline-style: dotted;
+            outline-width: 1px;
+            outline-color: $gray-lighter;
+
+            &:before {
+              background-color: $gray-darker;
+              color: $soft-white;
+            }
+          }
         }
       }
 
@@ -488,12 +627,13 @@
       width: 18px;
       height: 18px;
 
+      font-size: 18px;
+      background-color: $gray-light;
+
       border-radius: 2px;
       border-width: 1px;
       border-style: solid;
       border-color: transparent;
-
-      background-color: $gray-light;
 
       box-sizing: border-box;
       vertical-align: middle;
@@ -504,16 +644,13 @@
 
       transition: all .2s ease;
 
-      > .bs-icon {
+      > .bs-icon:before {
         display: block;
-        margin-top : -1px;
-        margin-left: -1px;
+        color: red ;
+        margin-top : -2px;
+        margin-left: -2px;
         font-size: 18px;
-      }
-
-      &.-big {
-        width: 36px;
-        height: 36px;
+        font-size: 32px;
       }
 
       &:hover {

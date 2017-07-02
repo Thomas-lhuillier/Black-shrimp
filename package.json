@@ -31,8 +31,6 @@
     "vuex": "latest",
     "vuedraggable": "latest",
     "vue-clickaway": "latest",
-    "sortablejs": "latest",
-    "vue-sortable": "latest",
     "extract-text-webpack-plugin": "latest",
     "url-loader": "latest",
     "webpack": "latest"
