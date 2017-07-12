@@ -46,11 +46,11 @@
 
       <draggable class="folder-collection" v-model="colorFolders" :element="'ul'" :move="onMove">
         <draggable v-for="(folder, index) in colorFolders"
+                   :key="index"
+                   v-model="colorFolders[index].content"
                    :element="'ul'"
                    class="folder"
                    :class="[{ '-selected': folder.isSelected }]"
-                   v-model="colorFolders[index].content"
-                   :key="index"
                    :options="{group:'colors'}"
                    :move="onMove"
                    @click.self.native="toggleFolderSelection($event, folder, index)"
@@ -599,11 +599,12 @@
             content: '\e902';
             font-size: 18px;
             font-family: 'Black-shrimp';
+            outline-width: 0 !important;
             border-width: 0 !important;
           }
 
           &.-selected {
-            outline-style: dotted;
+            outline-style: dashed;
             outline-width: 1px;
             outline-color: $gray-lighter;
 
@@ -642,16 +643,7 @@
       -webkit-user-drag: element;
       user-select: none;
 
-      transition: all .2s ease;
-
-      > .bs-icon:before {
-        display: block;
-        color: red ;
-        margin-top : -2px;
-        margin-left: -2px;
-        font-size: 18px;
-        font-size: 32px;
-      }
+      transition: background-color .2s ease;
 
       &:hover {
         background-color: $gray-dark;
@@ -660,8 +652,11 @@
 
       &:focus,
       &.-selected {
-        border-color: $gray-darker;
-        border-width: 2px;
+        // border-color: $gray-darker;
+        // border-width: 2px;
+        outline-style: dashed;
+        outline-width: 1px;
+        outline-color: $soft-white;
 
         > .bs-icon {
           margin-top : -2px;
