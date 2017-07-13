@@ -1,5 +1,3 @@
-/design
-
-.sass-cache
-bourbon
+design/
 node_modules/
+.sass-cache/
