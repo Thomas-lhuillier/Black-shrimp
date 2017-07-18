@@ -10,11 +10,13 @@ module.exports = {
     poll: true
   },
   context: path.join(__dirname, '/app'),
-  entry: [
-    './black-shrimp.js',
-  ],
+  entry: {
+    injected: './injected.js',
+    contentscript: './contentscript.js',
+    worker: './worker.js'
+  },
   output: {
-    filename: './package/injected.js'
+    filename: './package/[name].js'
   },
   module: {
     loaders: [{
@@ -119,7 +121,9 @@ module.exports = {
   },
   resolve: {
     alias: {
-      vue: 'vue/dist/vue.js',
+      'vue':        'vue/dist/vue.js',
+      'Long':       'long/dist/Long.js',
+      'bytebuffer': 'bytebuffer/dist/ByteBufferAB.js',
     }
   },
   plugins: [

@@ -86,6 +86,8 @@
 <script>
   import SelectComponent from './select-block.vue'
   import draggable from 'vuedraggable'
+  import save from 'save-file'
+  import ase from 'ase-utils'
 
   export default {
     components: {
@@ -107,6 +109,9 @@
       delayedDragging: false
     }),
     computed: {
+      port() {
+        return this.$store.getters.getPort;
+      },
       hex () {
         return this.$store.getters.getColorState.value.hex.toString();
       },
@@ -406,8 +411,76 @@
         console.log('event:', event)
         console.log('keyup:', event.keyCode)
         if (event.altKey && event.keyCode == 65) {
+          // Alt + A
+          // Add current color shortcut
           this.addCurrentColor();
+        } else if (event.altKey && event.keyCode == 83) {
+          // Alt + S
+          // Save colors to .ase
+          this.exportColors();
         }
+      },
+
+      // Export colors to .ase
+      // see npm ase-utils
+      exportColors: function(event) {
+        let input = {
+          "version": "1.0",
+          "groups": [],
+          "colors": []
+        }
+
+        for ( let i in this.colors ) {
+          let color = this.colors[i]
+          let formattedColor = this.formatColor(color)
+          input.colors.push(formattedColor)
+        }
+
+        for ( let j in this.colorFolders ) {
+          let folder = this.colorFolders[j]
+
+          for ( let k in folder.content ) {
+            let color = folder.content[k]
+            let formattedColor = this.formatColor(color)
+            input.colors.push(formattedColor)
+          }
+        }
+
+        console.log('formatted data :', input)
+        this.convertToASE(input)
+      },
+
+      formatColor: function(color) {
+        if (!color) return null
+        let formattedColor = {
+          "name": "R=" + color.r + "G=" + color.g + "B=" + color.b,
+          "model": "RGB",
+          "color": [],
+          "type": "global"
+        }
+
+        formattedColor.color.push(color.r / 255);
+        formattedColor.color.push(color.g / 255);
+        formattedColor.color.push(color.b / 255);
+
+        return formattedColor
+      },
+
+      convertToASE: function(data) {
+        let encodedData = ase.encode(data);
+        console.log('ASE encodedData:', encodedData);
+
+        this.saveFile(encodedData);
+      },
+
+      saveFile: function(fileEntry) {
+        save(fileEntry, 'swatches.ase', (err, data) => {
+          if (err) throw err;
+          console.log('File saved');
+        })
+        .then(() => {
+          console.log('saveFile then')
+        })
       },
     },
 
