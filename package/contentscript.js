@@ -63,12 +63,12 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ 	return __webpack_require__(__webpack_require__.s = 22);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 12:
+/***/ 22:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -88,7 +88,7 @@ function toggle(tab) {
 }
 
 function addTab(tab) {
-  tabs[tab.id] = Object.create(Toolkit);
+  tabs[tab.id] = Object.create(Blackshrimp);
   tabs[tab.id].construct(tab);
 }
 
@@ -124,7 +124,7 @@ chrome.runtime.onSuspend.addListener(function () {
   }
 });
 
-var Toolkit = {
+var Blackshrimp = {
   image: new Image(),
   canvas: document.createElement('canvas'),
 
@@ -145,7 +145,7 @@ var Toolkit = {
     chrome.browserAction.setIcon({
       tabId: this.tab.id,
       path: {
-        16: 'assets/img/icon16.png',
+        16: 'assets/img/icon16_alt.png',
         32: 'assets/img/icon16@2x.png'
       }
     });

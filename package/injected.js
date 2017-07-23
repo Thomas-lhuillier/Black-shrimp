@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 13);
+/******/ 	return __webpack_require__(__webpack_require__.s = 23);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -221,7 +221,7 @@ if (typeof DEBUG !== 'undefined' && DEBUG) {
   ) }
 }
 
-var listToStyles = __webpack_require__(32)
+var listToStyles = __webpack_require__(63)
 
 /*
 type StyleObject = {
@@ -424,6 +424,33 @@ function applyToTag (styleElement, obj) {
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/*!
@@ -10111,957 +10138,10 @@ return Vue$3;
 
 })));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33)))
-
-/***/ }),
-/* 4 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Store", function() { return Store; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapState", function() { return mapState; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapMutations", function() { return mapMutations; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapGetters", function() { return mapGetters; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapActions", function() { return mapActions; });
-/**
- * vuex v2.3.0
- * (c) 2017 Evan You
- * @license MIT
- */
-var applyMixin = function (Vue) {
-  var version = Number(Vue.version.split('.')[0]);
-
-  if (version >= 2) {
-    var usesInit = Vue.config._lifecycleHooks.indexOf('init') > -1;
-    Vue.mixin(usesInit ? { init: vuexInit } : { beforeCreate: vuexInit });
-  } else {
-    // override init and inject vuex init procedure
-    // for 1.x backwards compatibility.
-    var _init = Vue.prototype._init;
-    Vue.prototype._init = function (options) {
-      if ( options === void 0 ) options = {};
-
-      options.init = options.init
-        ? [vuexInit].concat(options.init)
-        : vuexInit;
-      _init.call(this, options);
-    };
-  }
-
-  /**
-   * Vuex init hook, injected into each instances init hooks list.
-   */
-
-  function vuexInit () {
-    var options = this.$options;
-    // store injection
-    if (options.store) {
-      this.$store = options.store;
-    } else if (options.parent && options.parent.$store) {
-      this.$store = options.parent.$store;
-    }
-  }
-};
-
-var devtoolHook =
-  typeof window !== 'undefined' &&
-  window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
-
-function devtoolPlugin (store) {
-  if (!devtoolHook) { return }
-
-  store._devtoolHook = devtoolHook;
-
-  devtoolHook.emit('vuex:init', store);
-
-  devtoolHook.on('vuex:travel-to-state', function (targetState) {
-    store.replaceState(targetState);
-  });
-
-  store.subscribe(function (mutation, state) {
-    devtoolHook.emit('vuex:mutation', mutation, state);
-  });
-}
-
-/**
- * Get the first item that pass the test
- * by second argument function
- *
- * @param {Array} list
- * @param {Function} f
- * @return {*}
- */
-/**
- * Deep copy the given object considering circular structure.
- * This function caches all nested objects and its copies.
- * If it detects circular structure, use cached copy to avoid infinite loop.
- *
- * @param {*} obj
- * @param {Array<Object>} cache
- * @return {*}
- */
-
-
-/**
- * forEach for object
- */
-function forEachValue (obj, fn) {
-  Object.keys(obj).forEach(function (key) { return fn(obj[key], key); });
-}
-
-function isObject (obj) {
-  return obj !== null && typeof obj === 'object'
-}
-
-function isPromise (val) {
-  return val && typeof val.then === 'function'
-}
-
-function assert (condition, msg) {
-  if (!condition) { throw new Error(("[vuex] " + msg)) }
-}
-
-var Module = function Module (rawModule, runtime) {
-  this.runtime = runtime;
-  this._children = Object.create(null);
-  this._rawModule = rawModule;
-  var rawState = rawModule.state;
-  this.state = (typeof rawState === 'function' ? rawState() : rawState) || {};
-};
-
-var prototypeAccessors$1 = { namespaced: {} };
-
-prototypeAccessors$1.namespaced.get = function () {
-  return !!this._rawModule.namespaced
-};
-
-Module.prototype.addChild = function addChild (key, module) {
-  this._children[key] = module;
-};
-
-Module.prototype.removeChild = function removeChild (key) {
-  delete this._children[key];
-};
-
-Module.prototype.getChild = function getChild (key) {
-  return this._children[key]
-};
-
-Module.prototype.update = function update (rawModule) {
-  this._rawModule.namespaced = rawModule.namespaced;
-  if (rawModule.actions) {
-    this._rawModule.actions = rawModule.actions;
-  }
-  if (rawModule.mutations) {
-    this._rawModule.mutations = rawModule.mutations;
-  }
-  if (rawModule.getters) {
-    this._rawModule.getters = rawModule.getters;
-  }
-};
-
-Module.prototype.forEachChild = function forEachChild (fn) {
-  forEachValue(this._children, fn);
-};
-
-Module.prototype.forEachGetter = function forEachGetter (fn) {
-  if (this._rawModule.getters) {
-    forEachValue(this._rawModule.getters, fn);
-  }
-};
-
-Module.prototype.forEachAction = function forEachAction (fn) {
-  if (this._rawModule.actions) {
-    forEachValue(this._rawModule.actions, fn);
-  }
-};
-
-Module.prototype.forEachMutation = function forEachMutation (fn) {
-  if (this._rawModule.mutations) {
-    forEachValue(this._rawModule.mutations, fn);
-  }
-};
-
-Object.defineProperties( Module.prototype, prototypeAccessors$1 );
-
-var ModuleCollection = function ModuleCollection (rawRootModule) {
-  var this$1 = this;
-
-  // register root module (Vuex.Store options)
-  this.root = new Module(rawRootModule, false);
-
-  // register all nested modules
-  if (rawRootModule.modules) {
-    forEachValue(rawRootModule.modules, function (rawModule, key) {
-      this$1.register([key], rawModule, false);
-    });
-  }
-};
-
-ModuleCollection.prototype.get = function get (path) {
-  return path.reduce(function (module, key) {
-    return module.getChild(key)
-  }, this.root)
-};
-
-ModuleCollection.prototype.getNamespace = function getNamespace (path) {
-  var module = this.root;
-  return path.reduce(function (namespace, key) {
-    module = module.getChild(key);
-    return namespace + (module.namespaced ? key + '/' : '')
-  }, '')
-};
-
-ModuleCollection.prototype.update = function update$1 (rawRootModule) {
-  update(this.root, rawRootModule);
-};
-
-ModuleCollection.prototype.register = function register (path, rawModule, runtime) {
-    var this$1 = this;
-    if ( runtime === void 0 ) runtime = true;
-
-  var parent = this.get(path.slice(0, -1));
-  var newModule = new Module(rawModule, runtime);
-  parent.addChild(path[path.length - 1], newModule);
-
-  // register nested modules
-  if (rawModule.modules) {
-    forEachValue(rawModule.modules, function (rawChildModule, key) {
-      this$1.register(path.concat(key), rawChildModule, runtime);
-    });
-  }
-};
-
-ModuleCollection.prototype.unregister = function unregister (path) {
-  var parent = this.get(path.slice(0, -1));
-  var key = path[path.length - 1];
-  if (!parent.getChild(key).runtime) { return }
-
-  parent.removeChild(key);
-};
-
-function update (targetModule, newModule) {
-  // update target module
-  targetModule.update(newModule);
-
-  // update nested modules
-  if (newModule.modules) {
-    for (var key in newModule.modules) {
-      if (!targetModule.getChild(key)) {
-        console.warn(
-          "[vuex] trying to add a new module '" + key + "' on hot reloading, " +
-          'manual reload is needed'
-        );
-        return
-      }
-      update(targetModule.getChild(key), newModule.modules[key]);
-    }
-  }
-}
-
-var Vue; // bind on install
-
-var Store = function Store (options) {
-  var this$1 = this;
-  if ( options === void 0 ) options = {};
-
-  assert(Vue, "must call Vue.use(Vuex) before creating a store instance.");
-  assert(typeof Promise !== 'undefined', "vuex requires a Promise polyfill in this browser.");
-
-  var state = options.state; if ( state === void 0 ) state = {};
-  var plugins = options.plugins; if ( plugins === void 0 ) plugins = [];
-  var strict = options.strict; if ( strict === void 0 ) strict = false;
-
-  // store internal state
-  this._committing = false;
-  this._actions = Object.create(null);
-  this._mutations = Object.create(null);
-  this._wrappedGetters = Object.create(null);
-  this._modules = new ModuleCollection(options);
-  this._modulesNamespaceMap = Object.create(null);
-  this._subscribers = [];
-  this._watcherVM = new Vue();
-
-  // bind commit and dispatch to self
-  var store = this;
-  var ref = this;
-  var dispatch = ref.dispatch;
-  var commit = ref.commit;
-  this.dispatch = function boundDispatch (type, payload) {
-    return dispatch.call(store, type, payload)
-  };
-  this.commit = function boundCommit (type, payload, options) {
-    return commit.call(store, type, payload, options)
-  };
-
-  // strict mode
-  this.strict = strict;
-
-  // init root module.
-  // this also recursively registers all sub-modules
-  // and collects all module getters inside this._wrappedGetters
-  installModule(this, state, [], this._modules.root);
-
-  // initialize the store vm, which is responsible for the reactivity
-  // (also registers _wrappedGetters as computed properties)
-  resetStoreVM(this, state);
-
-  // apply plugins
-  plugins.concat(devtoolPlugin).forEach(function (plugin) { return plugin(this$1); });
-};
-
-var prototypeAccessors = { state: {} };
-
-prototypeAccessors.state.get = function () {
-  return this._vm._data.$$state
-};
-
-prototypeAccessors.state.set = function (v) {
-  assert(false, "Use store.replaceState() to explicit replace store state.");
-};
-
-Store.prototype.commit = function commit (_type, _payload, _options) {
-    var this$1 = this;
-
-  // check object-style commit
-  var ref = unifyObjectStyle(_type, _payload, _options);
-    var type = ref.type;
-    var payload = ref.payload;
-    var options = ref.options;
-
-  var mutation = { type: type, payload: payload };
-  var entry = this._mutations[type];
-  if (!entry) {
-    console.error(("[vuex] unknown mutation type: " + type));
-    return
-  }
-  this._withCommit(function () {
-    entry.forEach(function commitIterator (handler) {
-      handler(payload);
-    });
-  });
-  this._subscribers.forEach(function (sub) { return sub(mutation, this$1.state); });
-
-  if (options && options.silent) {
-    console.warn(
-      "[vuex] mutation type: " + type + ". Silent option has been removed. " +
-      'Use the filter functionality in the vue-devtools'
-    );
-  }
-};
-
-Store.prototype.dispatch = function dispatch (_type, _payload) {
-  // check object-style dispatch
-  var ref = unifyObjectStyle(_type, _payload);
-    var type = ref.type;
-    var payload = ref.payload;
-
-  var entry = this._actions[type];
-  if (!entry) {
-    console.error(("[vuex] unknown action type: " + type));
-    return
-  }
-  return entry.length > 1
-    ? Promise.all(entry.map(function (handler) { return handler(payload); }))
-    : entry[0](payload)
-};
-
-Store.prototype.subscribe = function subscribe (fn) {
-  var subs = this._subscribers;
-  if (subs.indexOf(fn) < 0) {
-    subs.push(fn);
-  }
-  return function () {
-    var i = subs.indexOf(fn);
-    if (i > -1) {
-      subs.splice(i, 1);
-    }
-  }
-};
-
-Store.prototype.watch = function watch (getter, cb, options) {
-    var this$1 = this;
-
-  assert(typeof getter === 'function', "store.watch only accepts a function.");
-  return this._watcherVM.$watch(function () { return getter(this$1.state, this$1.getters); }, cb, options)
-};
-
-Store.prototype.replaceState = function replaceState (state) {
-    var this$1 = this;
-
-  this._withCommit(function () {
-    this$1._vm._data.$$state = state;
-  });
-};
-
-Store.prototype.registerModule = function registerModule (path, rawModule) {
-  if (typeof path === 'string') { path = [path]; }
-  assert(Array.isArray(path), "module path must be a string or an Array.");
-  this._modules.register(path, rawModule);
-  installModule(this, this.state, path, this._modules.get(path));
-  // reset store to update getters...
-  resetStoreVM(this, this.state);
-};
-
-Store.prototype.unregisterModule = function unregisterModule (path) {
-    var this$1 = this;
-
-  if (typeof path === 'string') { path = [path]; }
-  assert(Array.isArray(path), "module path must be a string or an Array.");
-  this._modules.unregister(path);
-  this._withCommit(function () {
-    var parentState = getNestedState(this$1.state, path.slice(0, -1));
-    Vue.delete(parentState, path[path.length - 1]);
-  });
-  resetStore(this);
-};
-
-Store.prototype.hotUpdate = function hotUpdate (newOptions) {
-  this._modules.update(newOptions);
-  resetStore(this, true);
-};
-
-Store.prototype._withCommit = function _withCommit (fn) {
-  var committing = this._committing;
-  this._committing = true;
-  fn();
-  this._committing = committing;
-};
-
-Object.defineProperties( Store.prototype, prototypeAccessors );
-
-function resetStore (store, hot) {
-  store._actions = Object.create(null);
-  store._mutations = Object.create(null);
-  store._wrappedGetters = Object.create(null);
-  store._modulesNamespaceMap = Object.create(null);
-  var state = store.state;
-  // init all modules
-  installModule(store, state, [], store._modules.root, true);
-  // reset vm
-  resetStoreVM(store, state, hot);
-}
-
-function resetStoreVM (store, state, hot) {
-  var oldVm = store._vm;
-
-  // bind store public getters
-  store.getters = {};
-  var wrappedGetters = store._wrappedGetters;
-  var computed = {};
-  forEachValue(wrappedGetters, function (fn, key) {
-    // use computed to leverage its lazy-caching mechanism
-    computed[key] = function () { return fn(store); };
-    Object.defineProperty(store.getters, key, {
-      get: function () { return store._vm[key]; },
-      enumerable: true // for local getters
-    });
-  });
-
-  // use a Vue instance to store the state tree
-  // suppress warnings just in case the user has added
-  // some funky global mixins
-  var silent = Vue.config.silent;
-  Vue.config.silent = true;
-  store._vm = new Vue({
-    data: {
-      $$state: state
-    },
-    computed: computed
-  });
-  Vue.config.silent = silent;
-
-  // enable strict mode for new vm
-  if (store.strict) {
-    enableStrictMode(store);
-  }
-
-  if (oldVm) {
-    if (hot) {
-      // dispatch changes in all subscribed watchers
-      // to force getter re-evaluation for hot reloading.
-      store._withCommit(function () {
-        oldVm._data.$$state = null;
-      });
-    }
-    Vue.nextTick(function () { return oldVm.$destroy(); });
-  }
-}
-
-function installModule (store, rootState, path, module, hot) {
-  var isRoot = !path.length;
-  var namespace = store._modules.getNamespace(path);
-
-  // register in namespace map
-  if (module.namespaced) {
-    store._modulesNamespaceMap[namespace] = module;
-  }
-
-  // set state
-  if (!isRoot && !hot) {
-    var parentState = getNestedState(rootState, path.slice(0, -1));
-    var moduleName = path[path.length - 1];
-    store._withCommit(function () {
-      Vue.set(parentState, moduleName, module.state);
-    });
-  }
-
-  var local = module.context = makeLocalContext(store, namespace, path);
-
-  module.forEachMutation(function (mutation, key) {
-    var namespacedType = namespace + key;
-    registerMutation(store, namespacedType, mutation, local);
-  });
-
-  module.forEachAction(function (action, key) {
-    var namespacedType = namespace + key;
-    registerAction(store, namespacedType, action, local);
-  });
-
-  module.forEachGetter(function (getter, key) {
-    var namespacedType = namespace + key;
-    registerGetter(store, namespacedType, getter, local);
-  });
-
-  module.forEachChild(function (child, key) {
-    installModule(store, rootState, path.concat(key), child, hot);
-  });
-}
-
-/**
- * make localized dispatch, commit, getters and state
- * if there is no namespace, just use root ones
- */
-function makeLocalContext (store, namespace, path) {
-  var noNamespace = namespace === '';
-
-  var local = {
-    dispatch: noNamespace ? store.dispatch : function (_type, _payload, _options) {
-      var args = unifyObjectStyle(_type, _payload, _options);
-      var payload = args.payload;
-      var options = args.options;
-      var type = args.type;
-
-      if (!options || !options.root) {
-        type = namespace + type;
-        if (!store._actions[type]) {
-          console.error(("[vuex] unknown local action type: " + (args.type) + ", global type: " + type));
-          return
-        }
-      }
-
-      return store.dispatch(type, payload)
-    },
-
-    commit: noNamespace ? store.commit : function (_type, _payload, _options) {
-      var args = unifyObjectStyle(_type, _payload, _options);
-      var payload = args.payload;
-      var options = args.options;
-      var type = args.type;
-
-      if (!options || !options.root) {
-        type = namespace + type;
-        if (!store._mutations[type]) {
-          console.error(("[vuex] unknown local mutation type: " + (args.type) + ", global type: " + type));
-          return
-        }
-      }
-
-      store.commit(type, payload, options);
-    }
-  };
-
-  // getters and state object must be gotten lazily
-  // because they will be changed by vm update
-  Object.defineProperties(local, {
-    getters: {
-      get: noNamespace
-        ? function () { return store.getters; }
-        : function () { return makeLocalGetters(store, namespace); }
-    },
-    state: {
-      get: function () { return getNestedState(store.state, path); }
-    }
-  });
-
-  return local
-}
-
-function makeLocalGetters (store, namespace) {
-  var gettersProxy = {};
-
-  var splitPos = namespace.length;
-  Object.keys(store.getters).forEach(function (type) {
-    // skip if the target getter is not match this namespace
-    if (type.slice(0, splitPos) !== namespace) { return }
-
-    // extract local getter type
-    var localType = type.slice(splitPos);
-
-    // Add a port to the getters proxy.
-    // Define as getter property because
-    // we do not want to evaluate the getters in this time.
-    Object.defineProperty(gettersProxy, localType, {
-      get: function () { return store.getters[type]; },
-      enumerable: true
-    });
-  });
-
-  return gettersProxy
-}
-
-function registerMutation (store, type, handler, local) {
-  var entry = store._mutations[type] || (store._mutations[type] = []);
-  entry.push(function wrappedMutationHandler (payload) {
-    handler(local.state, payload);
-  });
-}
-
-function registerAction (store, type, handler, local) {
-  var entry = store._actions[type] || (store._actions[type] = []);
-  entry.push(function wrappedActionHandler (payload, cb) {
-    var res = handler({
-      dispatch: local.dispatch,
-      commit: local.commit,
-      getters: local.getters,
-      state: local.state,
-      rootGetters: store.getters,
-      rootState: store.state
-    }, payload, cb);
-    if (!isPromise(res)) {
-      res = Promise.resolve(res);
-    }
-    if (store._devtoolHook) {
-      return res.catch(function (err) {
-        store._devtoolHook.emit('vuex:error', err);
-        throw err
-      })
-    } else {
-      return res
-    }
-  });
-}
-
-function registerGetter (store, type, rawGetter, local) {
-  if (store._wrappedGetters[type]) {
-    console.error(("[vuex] duplicate getter key: " + type));
-    return
-  }
-  store._wrappedGetters[type] = function wrappedGetter (store) {
-    return rawGetter(
-      local.state, // local state
-      local.getters, // local getters
-      store.state, // root state
-      store.getters // root getters
-    )
-  };
-}
-
-function enableStrictMode (store) {
-  store._vm.$watch(function () { return this._data.$$state }, function () {
-    assert(store._committing, "Do not mutate vuex store state outside mutation handlers.");
-  }, { deep: true, sync: true });
-}
-
-function getNestedState (state, path) {
-  return path.length
-    ? path.reduce(function (state, key) { return state[key]; }, state)
-    : state
-}
-
-function unifyObjectStyle (type, payload, options) {
-  if (isObject(type) && type.type) {
-    options = payload;
-    payload = type;
-    type = type.type;
-  }
-
-  assert(typeof type === 'string', ("Expects string as the type, but found " + (typeof type) + "."));
-
-  return { type: type, payload: payload, options: options }
-}
-
-function install (_Vue) {
-  if (Vue) {
-    console.error(
-      '[vuex] already installed. Vue.use(Vuex) should be called only once.'
-    );
-    return
-  }
-  Vue = _Vue;
-  applyMixin(Vue);
-}
-
-// auto install in dist mode
-if (typeof window !== 'undefined' && window.Vue) {
-  install(window.Vue);
-}
-
-var mapState = normalizeNamespace(function (namespace, states) {
-  var res = {};
-  normalizeMap(states).forEach(function (ref) {
-    var key = ref.key;
-    var val = ref.val;
-
-    res[key] = function mappedState () {
-      var state = this.$store.state;
-      var getters = this.$store.getters;
-      if (namespace) {
-        var module = getModuleByNamespace(this.$store, 'mapState', namespace);
-        if (!module) {
-          return
-        }
-        state = module.context.state;
-        getters = module.context.getters;
-      }
-      return typeof val === 'function'
-        ? val.call(this, state, getters)
-        : state[val]
-    };
-    // mark vuex getter for devtools
-    res[key].vuex = true;
-  });
-  return res
-});
-
-var mapMutations = normalizeNamespace(function (namespace, mutations) {
-  var res = {};
-  normalizeMap(mutations).forEach(function (ref) {
-    var key = ref.key;
-    var val = ref.val;
-
-    val = namespace + val;
-    res[key] = function mappedMutation () {
-      var args = [], len = arguments.length;
-      while ( len-- ) args[ len ] = arguments[ len ];
-
-      if (namespace && !getModuleByNamespace(this.$store, 'mapMutations', namespace)) {
-        return
-      }
-      return this.$store.commit.apply(this.$store, [val].concat(args))
-    };
-  });
-  return res
-});
-
-var mapGetters = normalizeNamespace(function (namespace, getters) {
-  var res = {};
-  normalizeMap(getters).forEach(function (ref) {
-    var key = ref.key;
-    var val = ref.val;
-
-    val = namespace + val;
-    res[key] = function mappedGetter () {
-      if (namespace && !getModuleByNamespace(this.$store, 'mapGetters', namespace)) {
-        return
-      }
-      if (!(val in this.$store.getters)) {
-        console.error(("[vuex] unknown getter: " + val));
-        return
-      }
-      return this.$store.getters[val]
-    };
-    // mark vuex getter for devtools
-    res[key].vuex = true;
-  });
-  return res
-});
-
-var mapActions = normalizeNamespace(function (namespace, actions) {
-  var res = {};
-  normalizeMap(actions).forEach(function (ref) {
-    var key = ref.key;
-    var val = ref.val;
-
-    val = namespace + val;
-    res[key] = function mappedAction () {
-      var args = [], len = arguments.length;
-      while ( len-- ) args[ len ] = arguments[ len ];
-
-      if (namespace && !getModuleByNamespace(this.$store, 'mapActions', namespace)) {
-        return
-      }
-      return this.$store.dispatch.apply(this.$store, [val].concat(args))
-    };
-  });
-  return res
-});
-
-function normalizeMap (map) {
-  return Array.isArray(map)
-    ? map.map(function (key) { return ({ key: key, val: key }); })
-    : Object.keys(map).map(function (key) { return ({ key: key, val: map[key] }); })
-}
-
-function normalizeNamespace (fn) {
-  return function (namespace, map) {
-    if (typeof namespace !== 'string') {
-      map = namespace;
-      namespace = '';
-    } else if (namespace.charAt(namespace.length - 1) !== '/') {
-      namespace += '/';
-    }
-    return fn(namespace, map)
-  }
-}
-
-function getModuleByNamespace (store, helper, namespace) {
-  var module = store._modulesNamespaceMap[namespace];
-  if (!module) {
-    console.error(("[vuex] module namespace not found in " + helper + "(): " + namespace));
-  }
-  return module
-}
-
-var index_esm = {
-  Store: Store,
-  install: install,
-  version: '2.3.0',
-  mapState: mapState,
-  mapMutations: mapMutations,
-  mapGetters: mapGetters,
-  mapActions: mapActions
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (index_esm);
-
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
 /* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _vue = __webpack_require__(3);
-
-var _vue2 = _interopRequireDefault(_vue);
-
-var _vuex = __webpack_require__(4);
-
-var _vuex2 = _interopRequireDefault(_vuex);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Store
- *
- * Contains the state of the application,
- * to be shared with application components.
- */
-
-_vue2.default.use(_vuex2.default);
-
-// root state object.
-// each Vuex instance is just a single state tree.
-var state = {
-  isVisible: true,
-  isMoving: false,
-  activeTab: 'color',
-  color: {
-    value: {
-      hex: '',
-      r: '',
-      g: '',
-      b: '',
-      h: '',
-      s: '',
-      l: ''
-    }
-  },
-  colors: [],
-  colorFolders: [],
-  cursorOverlay: {
-    isVisible: true,
-    cursor: 'eyeDropper'
-  },
-  port: chrome.runtime.connect({ name: "toolkit" }) };
-
-// mutations are operations that actually mutates the state.
-// each mutation handler gets the entire state tree as the
-// first argument, followed by additional payload arguments.
-// mutations must be synchronous and can be recorded by plugins
-// for debugging purposes.
-var mutations = {
-  setVisibility: function setVisibility(state, val) {
-    state.isVisible = val;
-  },
-  setActiveTab: function setActiveTab(state, val) {
-    state.activeTab = val;
-  },
-  setColor: function setColor(state, val) {
-    console.log('VALUE:', val.value);
-    state.color.value = val.value;
-  },
-  setMovingStatus: function setMovingStatus(state, val) {
-    state.isMoving = val;
-  },
-  setHex: function setHex(state, val) {
-    state.color.value.hex = val;
-  },
-  setColors: function setColors(state, arr) {
-    state.colors = arr;
-    // Save colors in chrome storage.
-    chrome.storage.sync.set({ 'colors': arr }, function () {});
-  },
-  setColorFolders: function setColorFolders(state, arr) {
-    state.colorFolders = arr;
-    // Save color folders in chrome storage.
-    chrome.storage.sync.set({ 'colorFolders': arr }, function () {});
-  }
-};
-
-// actions are functions that causes side effects and can involve
-// asynchronous operations.
-var actions = {};
-
-// getters are functions
-var getters = {
-  getVisibility: function getVisibility(state) {
-    return state.isVisible;
-  },
-  getMovingStatus: function getMovingStatus(state) {
-    return state.isMoving;
-  },
-  getActiveTab: function getActiveTab(state) {
-    return state.activeTab;
-  },
-  getColorState: function getColorState(state) {
-    return state.color;
-  },
-  getCursorVisibility: function getCursorVisibility(state) {
-    return state.cursorOverlay.isVisible;
-  },
-  getCursorType: function getCursorType(state) {
-    return state.cursorOverlay.cursor;
-  },
-  getPort: function getPort(state) {
-    return state.port;
-  },
-  getColors: function getColors(state) {
-    return state.colors;
-  },
-  getColorFolders: function getColorFolders(state) {
-    return state.colorFolders;
-  }
-};
-
-// A Vuex instance is created by combining the state, mutations, actions,
-// and getters.
-exports.default = new _vuex2.default.Store({
-  state: state,
-  getters: getters,
-  actions: actions,
-  mutations: mutations
-});
-
-/***/ }),
-/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/**!
@@ -12562,1889 +11642,821 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/**!
 
 
 /***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 6 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Store", function() { return Store; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapState", function() { return mapState; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapMutations", function() { return mapMutations; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapGetters", function() { return mapGetters; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapActions", function() { return mapActions; });
+/**
+ * vuex v2.3.0
+ * (c) 2017 Evan You
+ * @license MIT
+ */
+var applyMixin = function (Vue) {
+  var version = Number(Vue.version.split('.')[0]);
 
-/* styles */
-__webpack_require__(29)
-
-var Component = __webpack_require__(1)(
-  /* script */
-  __webpack_require__(11),
-  /* template */
-  __webpack_require__(25),
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-Component.options.__file = "/mnt/c/Users/thomas/Desktop/Black-shrimp/app/main.vue"
-if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] main.vue: functional components are not supported with templates, they should use render functions.")}
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-20d78a16", Component.options)
+  if (version >= 2) {
+    var usesInit = Vue.config._lifecycleHooks.indexOf('init') > -1;
+    Vue.mixin(usesInit ? { init: vuexInit } : { beforeCreate: vuexInit });
   } else {
-    hotAPI.reload("data-v-20d78a16", Component.options)
-  }
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__select_block_vue__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__select_block_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__select_block_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuedraggable__ = __webpack_require__(64);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuedraggable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vuedraggable__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_save_file__ = __webpack_require__(52);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_save_file___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_save_file__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ase_utils__ = __webpack_require__(40);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ase_utils___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_ase_utils__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  components: {
-    SelectComponent: __WEBPACK_IMPORTED_MODULE_0__select_block_vue___default.a,
-    draggable: __WEBPACK_IMPORTED_MODULE_1_vuedraggable___default.a
-  },
-  data: () => ({
-    isActive: true,
-    currentColorType: 'hex',
-    color: {
-      'hex': { isActive: true },
-      'rgb': { isActive: false },
-      'hsl': { isActive: false }
-    },
-    selection: null,
-    selection_origin: false,
-    editable: true,
-    isDragging: false,
-    delayedDragging: false
-  }),
-  computed: {
-    port() {
-      return this.$store.getters.getPort;
-    },
-    hex() {
-      return this.$store.getters.getColorState.value.hex.toString();
-    },
-    r() {
-      return this.$store.getters.getColorState.value.r.toString();
-    },
-    g() {
-      return this.$store.getters.getColorState.value.g.toString();
-    },
-    b() {
-      return this.$store.getters.getColorState.value.b.toString();
-    },
-    h() {
-      return this.$store.getters.getColorState.value.h.toString();
-    },
-    s() {
-      return this.$store.getters.getColorState.value.s.toString();
-    },
-    l() {
-      return this.$store.getters.getColorState.value.l.toString();
-    },
-    colors: {
-      get() {
-        return this.$store.getters.getColors;
-      },
-      set(data) {
-        this.$store.commit('setColors', data);
-      }
-    },
-    colorFolders: {
-      get() {
-        return this.$store.getters.getColorFolders;
-      },
-      set(data) {
-        this.$store.commit('setColorFolders', data);
-      }
-    }
-  },
-
-  watch: {
-    colorFolders: {
-      handler: function (val, oldVal) {
-        console.log('sync color folders:', this.colorFolders);
-        chrome.storage.sync.set({ 'colorFolders': this.colorFolders }, function () {});
-      },
-      deep: true
-    },
-
-    colors: {
-      handler: function (val, oldVal) {
-        console.log('sync colors:', this.colors);
-        chrome.storage.sync.set({ 'colors': this.colors }, function () {});
-      },
-      deep: true
-    }
-  },
-
-  methods: {
-    onMove({ relatedContext, draggedContext }) {
-      const relatedElement = relatedContext.element;
-      const draggedElement = draggedContext.element;
-      return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed;
-    },
-
-    getStoredColors: function () {
-      chrome.storage.sync.get('colors', storageData => {
-        let data = storageData.colors;
-        for (let i = 0; i < data.length; i++) {
-          data[i].id = i;
-          data[i].isSelected = false;
-        }
-        // Save chrome data in store.
-        this.$store.commit('setColors', data);
-        console.log('Store colors:', data);
-      });
-
-      chrome.storage.sync.get('colorFolders', storageData => {
-        let data = storageData.colorFolders;
-        for (let i = 0; i < data.length; i++) {
-          data[i].id = i;
-          data[i].isSelected = false;
-        }
-        console.log(data);
-        // Save chrome data in store.
-        this.$store.commit('setColorFolders', data);
-        console.log('Store folders:', data);
-      });
-    },
-
-    changeColorMode: function (event) {
-      for (let text in this.color) {
-        this.color[text].isActive = text == event.text ? true : false;
-      }
-    },
-
-    selectInputText: function (event) {
-      event.target.select();
-    },
-
-    onChromeDataChange: function (changes, namespace) {
-      for (let key in changes) {
-        let storageChange = changes[key];
-        console.log('Storage key "%s" in namespace "%s" changed. ' + 'Old value was "%s", new value is "%s".', key, namespace, storageChange.oldValue, storageChange.newValue);
-      }
-      if (changes['colors'] != undefined) {
-        // Save chrome data in store.
-        this.$store.commit('setColors', changes['colors'].newValue);
-      }
-      if (changes['colorFolders'] != undefined) {
-        this.$store.commit('setColorFolders', changes['colorFolders'].newValue);
-      }
-    },
-
-    /**
-     *  Save current color to swatch
-     */
-    addCurrentColor: function (event) {
-      console.log('addCurrentColor');
-      if (!this.hex) {
-        return;
-      }
-
-      // Deselect all
-      this.deselectAll();
-
-      let color = {};
-      color.type = 'color';
-      color.id = this.colors.length;
-
-      color.hex = this.hex;
-
-      color.r = this.r;
-      color.g = this.g;
-      color.b = this.b;
-
-      color.h = this.h;
-      color.s = this.s;
-      color.l = this.l;
-
-      color.isSelected = false;
-
-      let currentCollection = this.colors ? this.colors : [];
-      currentCollection.push(color);
-    },
-
-    /**
-     * Select clicked color
-     */
-    toggleColorSelection: function (event, color, index = false, array = false) {
-      let isSelected = color.isSelected ? true : false;
-
-      if (!event) {
-        event = window.event;
-      }
-
-      if (event.ctrlKey) {
-        // ctrl is down
-        console.log('ctrl selection');
-        color.isSelected = !isSelected;
-      } else if (event.shiftKey) {
-        // shift is down
-        console.log('shift selection');
-        if (!this.selection_origin) {
-          return;
-        }
-        if (!this.selection_origin.array === array) {
-          return;
-        }
-
-        console.log('array:', array);
-        console.log('this.selection_origin.array:', this.selection_origin.array);
-
-        for (let i = 0; i < array.length; i++) {
-          if (i.between(this.selection_origin.index, index, true)) {
-            console.log('between true');
-            array[i].isSelected = true;
-          } else {
-            array[i].isSelected = false;
-          }
-        }
-      } else {
-        // Single selection
-        console.log('single selection');
-        this.deselectAll();
-        color.isSelected = !isSelected;
-        this.selection_origin = {
-          'index': index,
-          'array': array
-        };
-        // Update displayed color.
-        if (!isSelected) {
-          color.isSelected = true;
-
-          let colorToSave = {};
-          colorToSave.value = {
-            'hex': color.hex,
-            'r': color.r,
-            'g': color.g,
-            'b': color.b,
-            'h': color.h,
-            's': color.s,
-            'l': color.l
-          };
-
-          this.$store.commit('setColor', colorToSave);
-        }
-      }
-    },
-
-    /**
-     * Deselect all colors and folders
-     */
-    deselectAll: function () {
-      for (let i = 0; i < this.colors.length; i++) {
-        this.colors[i].isSelected = false;
-      }
-
-      for (let i = 0; i < this.colorFolders.length; i++) {
-        this.colorFolders[i].isSelected = false;
-        for (let j = 0; j < this.colorFolders[i].content.length; j++) {
-          this.colorFolders[i].content[j].isSelected = false;
-        }
-      }
-    },
-
-    /**
-     * Delete selected color
-     */
-    deleteSelection: function (event) {
-      console.log('deleteSelection');
-
-      let arrays = [this.colors, this.colorFolders];
-
-      for (let h in this.colorFolders) {
-        arrays.push(this.colorFolders[h].content);
-      }
-
-      for (let i in arrays) {
-        let array = arrays[i];
-
-        // Build array of selected element indexes.
-        let selectedIndexes = [];
-        for (let j in array) {
-          if (array[j].isSelected) {
-            selectedIndexes.push(j);
-          }
-        }
-
-        // Splice origin array.
-        for (let k = selectedIndexes.length - 1; k >= 0; k--) {
-          array.splice(selectedIndexes[k], 1);
-        }
-      }
-    },
-
-    deleteAll: function (event) {
-      let ask = confirm("You are about to delete all your colors and folders. Are you sure you wan't delete everything ?");
-      if (!ask) {
-        return;
-      }
-
-      // Reset user colors and folders
-      this.colors = [];
-      this.colorFolders = [];
-    },
-
-    /**
-     * Create an empty folder
-     */
-    addFolder: function (event) {
-      let item = {
-        content: [],
-        isSelected: false
-      };
-      this.colorFolders.push(item);
-    },
-
-    toggleFolderSelection: function (event, folder, index = false) {
-      console.log('toggleFolderSelection');
-      let isSelected = folder.isSelected ? true : false;
-
-      if (!event) {
-        event = window.event;
-      }
-
-      if (event.ctrlKey) {
-        // ctrl is down
-        console.log('ctrl selection');
-        folder.isSelected = !isSelected;
-      } else if (event.shiftKey) {
-        // shift is down
-        console.log('shift selection');
-      } else {
-        // Single selection
-        console.log('single selection');
-        this.deselectAll();
-
-        folder.isSelected = !isSelected;
-        this.colorFolders[index].isSelected = !isSelected;
-
-        this.$store.commit('setColorFolders', this.colorFolders);
-      }
-    },
-
-    onKeyDown: function (event) {
-      console.log('event:', event);
-      console.log('keyup:', event.keyCode);
-      if (event.altKey && event.keyCode == 65) {
-        // Alt + A
-        // Add current color shortcut
-        this.addCurrentColor();
-      } else if (event.altKey && event.keyCode == 83) {
-        // Alt + S
-        // Save colors to .ase
-        this.exportColors();
-      }
-    },
-
-    // Export colors to .ase
-    // see npm ase-utils
-    exportColors: function (event) {
-      let input = {
-        "version": "1.0",
-        "groups": [],
-        "colors": []
-      };
-
-      for (let i in this.colors) {
-        let color = this.colors[i];
-        let formattedColor = this.formatColor(color);
-        input.colors.push(formattedColor);
-      }
-
-      for (let j in this.colorFolders) {
-        let folder = this.colorFolders[j];
-
-        for (let k in folder.content) {
-          let color = folder.content[k];
-          let formattedColor = this.formatColor(color);
-          input.colors.push(formattedColor);
-        }
-      }
-
-      console.log('formatted data :', input);
-      this.convertToASE(input);
-    },
-
-    formatColor: function (color) {
-      if (!color) return null;
-      let formattedColor = {
-        "name": "R=" + color.r + "G=" + color.g + "B=" + color.b,
-        "model": "RGB",
-        "color": [],
-        "type": "global"
-      };
-
-      formattedColor.color.push(color.r / 255);
-      formattedColor.color.push(color.g / 255);
-      formattedColor.color.push(color.b / 255);
-
-      return formattedColor;
-    },
-
-    convertToASE: function (data) {
-      let encodedData = __WEBPACK_IMPORTED_MODULE_3_ase_utils___default.a.encode(data);
-      console.log('ASE encodedData:', encodedData);
-
-      this.saveFile(encodedData);
-    },
-
-    saveFile: function (fileEntry) {
-      __WEBPACK_IMPORTED_MODULE_2_save_file___default()(fileEntry, 'swatches.ase', (err, data) => {
-        if (err) throw err;
-        console.log('File saved');
-      }).then(() => {
-        console.log('saveFile then');
-      });
-    }
-  },
-
-  created: function () {
-    window.addEventListener('keydown', this.onKeyDown);
-  },
-
-  mounted: function () {
-    // Register chrome data listener
-    chrome.storage.onChanged.addListener(this.onChromeDataChange);
-    this.getStoredColors();
-  },
-
-  beforeMount: function () {},
-
-  beforeDestroy: function () {
-    // Remove chrome data listener
-    chrome.storage.onChanged.removeListener(this.onChromeDataChange, () => {
-      console.log('removed listener');
-    });
-  }
-});
-
-/***/ }),
-/* 9 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  data() {
-    return {
-      scrollPos: {}
+    // override init and inject vuex init procedure
+    // for 1.x backwards compatibility.
+    var _init = Vue.prototype._init;
+    Vue.prototype._init = function (options) {
+      if ( options === void 0 ) options = {};
+
+      options.init = options.init
+        ? [vuexInit].concat(options.init)
+        : vuexInit;
+      _init.call(this, options);
     };
-  },
-  computed: {
-    isVisible() {
-      return this.$store.getters.getCursorVisibility;
-    },
-    activeTab() {
-      return this.$store.getters.getActiveTab;
-    },
-    cursor() {
-      return this.$store.getters.getCursorType;
-    },
-    port() {
-      return this.$store.getters.getPort;
-    }
-  },
-  methods: {
-    mouseMove(event) {
-      if (this.activeTab != 'color') {
-        return;
-      }
-      // if (this.activeTab == 'color') {
-      this.scrollPos.x = event.clientX;
-      this.scrollPos.y = event.clientY;
-
-      if (event.which == 1) {
-        // mousedown
-        this.port.postMessage({
-          'type': 'mousePos',
-          'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
-        });
-      }
-      // }
-    },
-    click(event) {
-      if (this.activeTab == 'color' && this.scrollPos.x && this.scrollPos.y) {
-        this.port.postMessage({
-          'type': 'mousePos',
-          'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
-        });
-      }
-    }
-  }
-});
-
-/***/ }),
-/* 10 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  data() {
-    return {
-      items: [{ name: 'Color', icon: 'eyeDropper', isActive: true }]
-    };
-  },
-  computed: {
-    isMoving() {
-      return this.$store.getters.getMovingStatus;
-    },
-    port() {
-      return this.$store.getters.getPort;
-    }
-  },
-  methods: {
-    destroy: function () {
-      this.port.postMessage({
-        'type': 'destroy'
-      });
-    }
-  }
-});
-
-/***/ }),
-/* 11 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_menu_vue__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_menu_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_menu_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_color_vue__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_color_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__components_color_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_cursor_overlay_vue__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_cursor_overlay_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_cursor_overlay_vue__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  components: {
-    MenuComponent: __WEBPACK_IMPORTED_MODULE_0__components_menu_vue___default.a,
-    ColorComponent: __WEBPACK_IMPORTED_MODULE_1__components_color_vue___default.a,
-    CursorComponent: __WEBPACK_IMPORTED_MODULE_2__components_cursor_overlay_vue___default.a
-  },
-  data() {
-    return {
-      debug: true,
-      styleObject: {
-        left: 10,
-        top: 10,
-        cursor: 'default'
-      },
-      tempPos: {}
-    };
-  },
-  computed: {
-    isVisible() {
-      return this.$store.getters.getVisibility;
-    },
-    isMoving() {
-      return this.$store.getters.getMovingStatus;
-    }
-  },
-  methods: {
-    /* Store initial position and set moving cursor before moving the main box  */
-    startMoving: function (event) {
-      event = event || window.event;
-      if (event.srcElement.getAttribute('data-js-draggable') === null) {
-        return;
-      }
-
-      this.styleObject.cursor = 'move';
-
-      this.tempPos.left = this.styleObject.left;
-      this.tempPos.top = this.styleObject.top;
-      this.tempPos.mouseX = event.clientX;
-      this.tempPos.mouseY = event.clientY;
-
-      this.isMoving = true;
-      this.$store.commit('setMovingStatus', true);
-    },
-
-    /* Moves the main box when dragged */
-    move: function (event) {
-      if (!this.isMoving) {
-        return;
-      }
-
-      event = event || window.event;
-
-      var mouseX = event.clientX;
-      var mouseY = event.clientY;
-
-      var diffX = mouseX - this.tempPos.mouseX;
-      var diffY = mouseY - this.tempPos.mouseY;
-
-      var posX = this.tempPos.left + diffX;
-      var posY = this.tempPos.top + diffY;
-
-      this.styleObject.left = posX;
-      this.styleObject.top = posY;
-
-      this.fitBounds();
-    },
-
-    /* Prevents the main box from getting past window inner border */
-    fitBounds: function (posX, posY) {
-      var el = document.getElementById('black-shrimp');
-      var width = el.clientWidth;
-      var height = el.clientHeight;
-
-      if (this.styleObject.left + width > window.innerWidth) {
-        this.styleObject.left = window.innerWidth - width;
-      }
-      if (this.styleObject.top + height > window.innerHeight) {
-        this.styleObject.top = window.innerHeight - height;
-      }
-      if (this.styleObject.left < 0) {
-        this.styleObject.left = 0;
-      }
-      if (this.styleObject.top < 0) {
-        this.styleObject.top = 0;
-      }
-    },
-
-    /* Set back normal cursor, and moving status after moving the main box */
-    stopMoving: function (event) {
-      this.styleObject.cursor = 'default';
-      this.isMoving = false;
-      this.$store.commit('setMovingStatus', false);
-    }
-  }
-});
-
-/***/ }),
-/* 12 */,
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _vue = __webpack_require__(3);
-
-var _vue2 = _interopRequireDefault(_vue);
-
-var _vuex = __webpack_require__(4);
-
-var _vuex2 = _interopRequireDefault(_vuex);
-
-var _store = __webpack_require__(5);
-
-var _store2 = _interopRequireDefault(_store);
-
-var _sortablejs = __webpack_require__(6);
-
-var _sortablejs2 = _interopRequireDefault(_sortablejs);
-
-var _main = __webpack_require__(7);
-
-var _main2 = _interopRequireDefault(_main);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-_vue2.default.use(_vuex2.default);
-
-_vue2.default.directive('sortable', {
-  inserted: function inserted(el, binding) {
-    new _sortablejs2.default(el, binding.value || {});
-  }
-});
-
-/**
- * Dispatch Chrome port messages
- */
-var debug;
-var connectionClosed = false;
-var port = _store2.default.getters.getPort;
-
-port.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log('request :', request);
-  if (connectionClosed) {
-    return;
-  } // @TODO
-
-  switch (request.type) {
-    case 'init':
-      console.log('request init');
-      debug = request.debug;
-      BlackShrimp.create();
-      break;
-    case 'imageData':
-      console.log('request imageData');
-      // Screenshot processed
-      // if (debug && request.imageData) {
-      //   createDebugOverlay(request);
-      // }
-      app.showUI();
-      break;
-    case 'color':
-      console.log('request color');
-      app.setColor({ 'value': request.data });
-      break;
-    case 'destroy':
-      BlackShrimp.destroy();
-      break;
-  }
-});
-
-/**
- * Display debug screen
- */
-var canvas = document.createElement('canvas');
-canvas.id = 'toolkit__debug';
-var context = canvas.getContext('2d');
-
-function createDebugOverlay(request) {
-  var img;
-  img = new Image();
-  img.src = request.imageData;
-  img.onload = displayScreenshot.bind(img);
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-
-function displayScreenshot() {
-  context.drawImage(this, 0, 0, canvas.width, canvas.height);
-
-  var overlay = document.getElementById('toolkit__debug');
-  if (overlay) {
-    overlay.parentNode.removeChild(overlay);
   }
 
-  document.body.appendChild(canvas);
-}
+  /**
+   * Vuex init hook, injected into each instances init hooks list.
+   */
 
-/**
- * Vue app
- */
-// var changeDelay = 300;
-// var changeTimeout;
-// var paused = true;
-// var altKeyWasPressed = false;
-// var colorThreshold = [0.2,0.5,0.2];
-var overlay = document.createElement('div');
-overlay.className = 'toolkit__debug';
-
-var app = void 0;
-var scrollTimer = void 0;
-var BlackShrimp = {
-  create: function create() {
-    app = new _vue2.default({
-      store: _store2.default, // inject store to all children
-      el: '#black-shrimp',
-      template: '<MainComponent/>',
-      components: {
-        MainComponent: _main2.default
-      },
-      methods: {
-        setColor: function setColor(val) {
-          _store2.default.commit('setColor', val);
-        },
-        hideUI: function hideUI() {
-          _store2.default.commit('setVisibility', false);
-        },
-        showUI: function showUI() {
-          _store2.default.commit('setVisibility', true);
-        },
-        delayScroll: function delayScroll(event) {
-          app.hideUI();
-
-          var self = this;
-          clearTimeout(scrollTimer);
-          scrollTimer = setTimeout(function () {
-            self.onViewportChange(event);
-          }, 50);
-        },
-        onViewportChange: function onViewportChange(event) {
-          console.log('process viewport change');
-          var doc = document.documentElement;
-          var pageOffset = {};
-          pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-          pageOffset.y = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
-          port.postMessage({
-            'type': 'viewportChange',
-            'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y }
-          });
-        },
-        onKeyPressed: function onKeyPressed(event) {
-          if (event.keyCode == 27) {
-            // ESC pressed
-            port.postMessage({
-              'type': 'destroy'
-            });
-          }
-        },
-        destroy: function destroy() {
-          console.log('destroy app.$destroy');
-          this.$destroy();
-        }
-      },
-      beforeCreate: function beforeCreate() {
-        var el = document.createElement('div');
-        el.id = 'black-shrimp';
-        document.body.appendChild(el);
-      },
-      mounted: function mounted() {
-        console.log('app mounted');
-        window.addEventListener('scroll', this.delayScroll);
-        window.addEventListener('resize', this.onViewportChange);
-        window.addEventListener('keyup', this.onKeyPressed);
-      },
-      beforeDestroy: function beforeDestroy() {
-        window.removeEventListener('scroll', this.delayScroll);
-        window.removeEventListener('resize', this.onViewportChange);
-        window.removeEventListener('keyup', this.onKeyPressed);
-      },
-      destroyed: function destroyed() {
-        console.log('app destroyed');
-        var el = document.getElementById('black-shrimp');
-        el.parentNode.removeChild(el);
-      }
-    });
-  },
-
-  destroy: function destroy() {
-    // @TODO
-    app.destroy();
+  function vuexInit () {
+    var options = this.$options;
+    // store injection
+    if (options.store) {
+      this.$store = options.store;
+    } else if (options.parent && options.parent.$store) {
+      this.$store = options.parent.$store;
+    }
   }
 };
 
+var devtoolHook =
+  typeof window !== 'undefined' &&
+  window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
+
+function devtoolPlugin (store) {
+  if (!devtoolHook) { return }
+
+  store._devtoolHook = devtoolHook;
+
+  devtoolHook.emit('vuex:init', store);
+
+  devtoolHook.on('vuex:travel-to-state', function (targetState) {
+    store.replaceState(targetState);
+  });
+
+  store.subscribe(function (mutation, state) {
+    devtoolHook.emit('vuex:mutation', mutation, state);
+  });
+}
+
 /**
- * Tools
+ * Get the first item that pass the test
+ * by second argument function
+ *
+ * @param {Array} list
+ * @param {Function} f
+ * @return {*}
+ */
+/**
+ * Deep copy the given object considering circular structure.
+ * This function caches all nested objects and its copies.
+ * If it detects circular structure, use cached copy to avoid infinite loop.
+ *
+ * @param {*} obj
+ * @param {Array<Object>} cache
+ * @return {*}
  */
 
-Number.prototype.between = function (a, b, inclusive) {
-  var min = Math.min.apply(Math, [a, b]),
-      max = Math.max.apply(Math, [a, b]);
-  return inclusive ? this >= min && this <= max : this > min && this < max;
+
+/**
+ * forEach for object
+ */
+function forEachValue (obj, fn) {
+  Object.keys(obj).forEach(function (key) { return fn(obj[key], key); });
+}
+
+function isObject (obj) {
+  return obj !== null && typeof obj === 'object'
+}
+
+function isPromise (val) {
+  return val && typeof val.then === 'function'
+}
+
+function assert (condition, msg) {
+  if (!condition) { throw new Error(("[vuex] " + msg)) }
+}
+
+var Module = function Module (rawModule, runtime) {
+  this.runtime = runtime;
+  this._children = Object.create(null);
+  this._rawModule = rawModule;
+  var rawState = rawModule.state;
+  this.state = (typeof rawState === 'function' ? rawState() : rawState) || {};
 };
 
-/***/ }),
-/* 14 */,
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
+var prototypeAccessors$1 = { namespaced: {} };
 
-exports = module.exports = __webpack_require__(0)(undefined);
-// imports
+prototypeAccessors$1.namespaced.get = function () {
+  return !!this._rawModule.namespaced
+};
 
+Module.prototype.addChild = function addChild (key, module) {
+  this._children[key] = module;
+};
 
-// module
-exports.push([module.i, "\n.blackShrimp .menu {\n  position: relative;\n  display: block;\n  height: 28px;\n  color: #474747;\n  background-color: #f0f0f0;\n  border-top-left-radius: 5px;\n  border-top-right-radius: 5px;\n  overflow: hidden;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.blackShrimp .menu .item.active {\n    color: #f0f0f0;\n    background-color: #535353;\n}\n.blackShrimp .menu .item.-moving {\n    cursor: move;\n}\n.blackShrimp .menu .item {\n    display: inline-block;\n    padding-left: 5px;\n    padding-right: 8px;\n    height: 28px;\n    font-size: 12px;\n    line-height: 28px;\n    vertical-align: top;\n    cursor: pointer;\n    transition: all 0.3s linear;\n}\n.blackShrimp .menu .item > * {\n      display: inline-block;\n      vertical-align: top;\n      line-height: inherit;\n}\n.blackShrimp .menu .item .bs-icon {\n      font-size: 18px;\n}\n.blackShrimp .menu .item:hover, .blackShrimp .menu .item:focus {\n    background: #474747;\n    color: #f0f0f0;\n}\n.blackShrimp .menu .jsClose {\n    float: right;\n    padding: 0;\n    width: 28px;\n    text-align: center;\n}\n.blackShrimp .menu .jsClose.-moving {\n    cursor: move;\n}\n", ""]);
+Module.prototype.removeChild = function removeChild (key) {
+  delete this._children[key];
+};
 
-// exports
+Module.prototype.getChild = function getChild (key) {
+  return this._children[key]
+};
 
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, "\n@charset \"UTF-8\";\n@font-face {\n  font-family: 'Black-shrimp';\n  src: url(\"chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/Black-shrimp/Black-shrimp.woff\") format(\"woff\");\n  font-weight: normal;\n  font-style: normal;\n}\n[class^=\"bs-icon\"] {\n  /* use !important to prevent issues with browser extensions that change fonts */\n  font-family: 'Black-shrimp' !important;\n  speak: none;\n  font-style: normal;\n  font-weight: normal;\n  -webkit-font-feature-settings: normal;\n  font-feature-settings: normal;\n  font-variant: normal;\n  text-transform: none;\n  line-height: 1;\n  /* Better Font Rendering =========== */\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n[class^=\"bs-icon\"]:before {\n  font-size: inherit !important;\n  color: inherit !important;\n}\n.bs-icon-carret-up:before {\n  content: \"\\E907\";\n}\n.bs-icon-carret-down:before {\n  content: \"\\E908\";\n}\n.bs-icon-carret-left:before {\n  content: \"\\E909\";\n}\n.bs-icon-carret-right:before {\n  content: \"\\E90A\";\n}\n.bs-icon-close:before {\n  content: \"\\E906\";\n}\n.bs-icon-binoculars:before {\n  content: \"\\E900\";\n}\n.bs-icon-eyeDropper:before {\n  content: \"\\E901\";\n}\n.bs-icon-folder:before {\n  content: \"\\E902\";\n}\n.bs-icon-plus:before {\n  content: \"\\E903\";\n}\n.bs-icon-ruler:before {\n  content: \"\\E904\";\n}\n.bs-icon-trash:before {\n  content: \"\\E905\";\n}\n@font-face {\n  font-family: 'Poppins';\n  src: url(\"chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/Poppins/poppins-regular.woff\") format(\"woff\");\n  font-weight: normal;\n  font-style: normal;\n}\n.blackShrimp {\n  all: initial;\n  /* blocking inheritance for all properties */\n  display: none;\n  position: fixed;\n  top: 10px;\n  left: 10px;\n  width: 235px;\n  box-sizing: border-box;\n  font-family: 'Poppins', monospace !important;\n  z-index: 9999;\n}\n.blackShrimp * {\n    all: unset;\n    /* allowing inheritance within .black-shrimp */\n}\n.blackShrimp.-visible {\n  display: block;\n}\n", ""]);
-
-// exports
-
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, "\n.blackShrimp .cursor-overlay {\n  display: none;\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.blackShrimp .cursor-overlay.-visible {\n  display: block;\n}\n.blackShrimp .cursor-overlay.-visible.-eyeDropper,\n.blackShrimp .cursor-overlay.-visible.-eyeDropper:hover {\n  cursor: url(" + __webpack_require__(20) + ") 0 22, pointer;\n}\n.blackShrimp .cursor-overlay.-visible.-eyeDropper:active, .blackShrimp .cursor-overlay.-visible.-eyeDropper:hover:active {\n  cursor: url(" + __webpack_require__(19) + ") 0 22, pointer;\n}\n", ""]);
-
-// exports
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, "\n.blackShrimp .btn-square:active, .blackShrimp .colorSwatches > .folder-collection > .folder:active:before {\n  background-color: #333333;\n}\n.blackShrimp .btn-square:active > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .folder:active:before > .bs-icon {\n    margin-top: -1px !important;\n    margin-left: -1px !important;\n}\n.blackShrimp .btn-square:focus, .blackShrimp .colorSwatches > .folder-collection > .folder:focus:before,\n.blackShrimp .btn-square.-selected, .blackShrimp .colorSwatches > .folder-collection > .-selected.folder:before {\n  outline-style: dashed;\n  outline-width: 1px;\n  outline-color: #f0f0f0;\n}\n.blackShrimp .btn-square:focus > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .folder:focus:before > .bs-icon,\n  .blackShrimp .btn-square.-selected > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .-selected.folder:before > .bs-icon {\n    margin-top: -2px;\n    margin-left: -2px;\n}\n.blackShrimp .colorSwatches > .folder-collection {\n  display: block;\n}\n.blackShrimp .colorSwatches > .folder-collection:not(:empty) {\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder {\n    display: block;\n    position: relative;\n    margin-top: -4px;\n    margin-bottom: 4px;\n    margin-left: -4px;\n    padding-top: 4px;\n    padding-left: 4px;\n    -webkit-user-drag: element;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    user-select: none;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder:before {\n      display: block;\n      content: '\\E902';\n      font-size: 18px;\n      font-family: 'Black-shrimp';\n      outline-width: 0 !important;\n      border-width: 0 !important;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder.-selected {\n      outline-style: dashed;\n      outline-width: 1px;\n      outline-color: #B3B3B3;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder.-selected:before {\n        background-color: #333333;\n        color: #f0f0f0;\n}\n.blackShrimp .colorSwatches > .color-collection {\n  display: block;\n  margin-left: -4px;\n  padding-left: 4px;\n}\n.blackShrimp .colorSwatches > .color-collection:not(:empty) {\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches > .button-wrapper {\n  display: block;\n  text-align: right;\n}\n.blackShrimp .colorSwatches > .button-wrapper > .btn-square, .blackShrimp .colorSwatches > .folder-collection.button-wrapper > .folder:before {\n    border: none;\n    margin-bottom: 0;\n}\n.blackShrimp .panel {\n  position: relative;\n  display: block;\n  padding: 8px;\n  font-size: 10px;\n  color: #B3B3B3;\n  background-color: #535353;\n  border-bottom-left-radius: 5px;\n  border-bottom-right-radius: 5px;\n}\n.blackShrimp .colorPicker {\n  display: block;\n  font-size: 0;\n  line-height: 0;\n}\n.blackShrimp .colorPicker > * {\n    display: inline-block;\n    height: 22px;\n    vertical-align: top;\n}\n.blackShrimp .colorPicker > * + * {\n    margin-left: 8px;\n}\n.blackShrimp .colorPicker > .select-block {\n    margin-left: 0;\n    margin-right: -8px;\n}\n.blackShrimp .colorPicker > .select-block > .value > .text {\n      width: 24px;\n}\n.blackShrimp .colorViewer {\n  position: relative;\n  width: 22px;\n  height: 22px;\n  border-radius: 100%;\n  border: 1px solid #666666;\n  box-sizing: border-box;\n}\n.blackShrimp .hexWrapper, .blackShrimp .rgbWrapper, .blackShrimp .hslWrapper {\n  display: none;\n}\n.blackShrimp .hexWrapper.active, .blackShrimp .rgbWrapper.active, .blackShrimp .hslWrapper.active {\n  display: inline-block;\n}\n.blackShrimp .hexWrapper input {\n  width: 140px;\n}\n.blackShrimp .rgbWrapper input, .blackShrimp .hslWrapper input {\n  width: 44px;\n}\n.blackShrimp .rgbWrapper input + input, .blackShrimp .hslWrapper input + input {\n  margin-left: 4px;\n}\n.blackShrimp input[type=\"text\"] {\n  display: inline-block;\n  height: 22px;\n  padding: 4px;\n  font-family: 'Poppins', monospace !important;\n  font-size: 11px;\n  line-height: 14px;\n  text-align: center;\n  color: #f0f0f0;\n  background-color: #474747;\n  border: solid 1px #666666;\n  border-radius: 3px;\n  box-sizing: border-box;\n}\n.blackShrimp input[type=\"text\"]:focus {\n  border-color: #333333;\n}\n.blackShrimp .colorSwatches {\n  position: relative;\n  display: block;\n  margin-top: 8px;\n  margin-right: -4px;\n  padding-top: 8px;\n}\n.blackShrimp .colorSwatches .btn-square, .blackShrimp .colorSwatches > .folder-collection > .folder:before {\n    margin-right: 4px;\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches:before {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  left: -8px;\n  right: -4px;\n  border-top: solid 1px #666666;\n}\n.blackShrimp .btn-square, .blackShrimp .colorSwatches > .folder-collection > .folder:before {\n  display: inline-block;\n  width: 18px;\n  height: 18px;\n  font-size: 18px;\n  background-color: #666666;\n  border-radius: 2px;\n  border-width: 1px;\n  border-style: solid;\n  border-color: transparent;\n  box-sizing: border-box;\n  vertical-align: middle;\n  cursor: pointer;\n  -webkit-user-drag: element;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  transition: background-color .2s ease;\n}\n.blackShrimp .btn-square:hover, .blackShrimp .colorSwatches > .folder-collection > .folder:hover:before {\n  background-color: #474747;\n  color: #f0f0f0;\n}\n", ""]);
-
-// exports
-
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports) {
-
-module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAACXBIWXMAAAsSAAALEgHS3X78AAABaUlEQVQ4y63VMWrDQBAF0CG1iyld6gh7ABc+go+wR3CRA4jgKupTb+EDBNylSGW70sKCECrkQiwRGIZAwEVQ9VNJyLJlO7YGfrMMD3YYGAJADySw1q7yPC92u91L/X4XBICttavtdvs7m80QBAHCMISIeAD8H4yzLPtM07Qqy7IyxoCIjhKGIeI4NjeDIuK11idQO8yMPM+LwcA2+kQD1mKxqEaj0est6E9Zll4pdbFJa02TySQej8dvV7/vnFsbY8DMcM6hbwxZln3dtFJdsK5zcBRF71fRPhAAnHNHoNYam83m4yJag0R0FmRmaK2bFEXxDYB70TZIRDDGnAWdc2sR8d57aYMnaBdsw12w3uEueIT2gd3ZtcDeEABKkuR5KLBBnXProcAG3e/3pVJqELBGw+VyWQ0F1mjBzA00nU5BRJjP53eBDaqUAjPDGAPvvYjIIY5jc++ZIQAqTdNERA7W2ujBm0UA6A8Wihn3FKuIMAAAAABJRU5ErkJggg=="
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports) {
-
-module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAACXBIWXMAAAsSAAALEgHS3X78AAABhElEQVQ4y63Vu4rCQBQG4GFriyktfYR5AAsfwXLLeQQfISxWa7/1FLKVxYKVW2ylVhkIhDGEWMQhweIgLARdrP6tEuIlXqIDfzMMH5zhHA4DwB5IS2s9jqIoXi6Xb/l9LQgA11qP5/P5X7fbRavVguM4ICILgN+D8SAIfowx+zRN90opMMYO4jgOXNdVN4NEZKWUJ1A5nHNEURQ/DSyjL+yJp9/v7xuNxvst6G+aplYIcfGRlJK122232Wx+XC3f87ypUgqcc/i+j6pvCIIguamljsEkSbDZbM7Cg8Hg6yp6DK5WKwDAbrfDYrE4AKWUmM1m3xfRKnC73SIMQ3DOIaUsEsfxBgCvRG8FPc+bEpG11lIZPEHvAfMePgYP0BpgZRgANplMXvNZVkphvV7XBgt0NBp9lkctDENkWVYLLFBjjC+EOJjh/CvuBXPUGQ6H+3NTUgfM0ZhzXkCdTgeMMfR6vVpggQohipKttUREmeu6qu6aYQCEMcYnokxrPXhwZzEA7B90uUovodIxjgAAAABJRU5ErkJggg=="
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(31)
-
-var Component = __webpack_require__(1)(
-  /* script */
-  __webpack_require__(8),
-  /* template */
-  __webpack_require__(27),
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-Component.options.__file = "/mnt/c/Users/thomas/Desktop/Black-shrimp/app/components/color.vue"
-if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] color.vue: functional components are not supported with templates, they should use render functions.")}
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-75b1cde6", Component.options)
-  } else {
-    hotAPI.reload("data-v-75b1cde6", Component.options)
+Module.prototype.update = function update (rawModule) {
+  this._rawModule.namespaced = rawModule.namespaced;
+  if (rawModule.actions) {
+    this._rawModule.actions = rawModule.actions;
   }
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(30)
-
-var Component = __webpack_require__(1)(
-  /* script */
-  __webpack_require__(9),
-  /* template */
-  __webpack_require__(26),
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-Component.options.__file = "/mnt/c/Users/thomas/Desktop/Black-shrimp/app/components/cursor-overlay.vue"
-if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] cursor-overlay.vue: functional components are not supported with templates, they should use render functions.")}
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-3d91b5e6", Component.options)
-  } else {
-    hotAPI.reload("data-v-3d91b5e6", Component.options)
+  if (rawModule.mutations) {
+    this._rawModule.mutations = rawModule.mutations;
   }
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(28)
-
-var Component = __webpack_require__(1)(
-  /* script */
-  __webpack_require__(10),
-  /* template */
-  __webpack_require__(24),
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-Component.options.__file = "/mnt/c/Users/thomas/Desktop/Black-shrimp/app/components/menu.vue"
-if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] menu.vue: functional components are not supported with templates, they should use render functions.")}
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-0d7bd1ac", Component.options)
-  } else {
-    hotAPI.reload("data-v-0d7bd1ac", Component.options)
+  if (rawModule.getters) {
+    this._rawModule.getters = rawModule.getters;
   }
-})()}
+};
 
-module.exports = Component.exports
+Module.prototype.forEachChild = function forEachChild (fn) {
+  forEachValue(this._children, fn);
+};
 
+Module.prototype.forEachGetter = function forEachGetter (fn) {
+  if (this._rawModule.getters) {
+    forEachValue(this._rawModule.getters, fn);
+  }
+};
 
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
+Module.prototype.forEachAction = function forEachAction (fn) {
+  if (this._rawModule.actions) {
+    forEachValue(this._rawModule.actions, fn);
+  }
+};
 
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "menu",
-    attrs: {
-      "data-js-draggable": ""
+Module.prototype.forEachMutation = function forEachMutation (fn) {
+  if (this._rawModule.mutations) {
+    forEachValue(this._rawModule.mutations, fn);
+  }
+};
+
+Object.defineProperties( Module.prototype, prototypeAccessors$1 );
+
+var ModuleCollection = function ModuleCollection (rawRootModule) {
+  var this$1 = this;
+
+  // register root module (Vuex.Store options)
+  this.root = new Module(rawRootModule, false);
+
+  // register all nested modules
+  if (rawRootModule.modules) {
+    forEachValue(rawRootModule.modules, function (rawModule, key) {
+      this$1.register([key], rawModule, false);
+    });
+  }
+};
+
+ModuleCollection.prototype.get = function get (path) {
+  return path.reduce(function (module, key) {
+    return module.getChild(key)
+  }, this.root)
+};
+
+ModuleCollection.prototype.getNamespace = function getNamespace (path) {
+  var module = this.root;
+  return path.reduce(function (namespace, key) {
+    module = module.getChild(key);
+    return namespace + (module.namespaced ? key + '/' : '')
+  }, '')
+};
+
+ModuleCollection.prototype.update = function update$1 (rawRootModule) {
+  update(this.root, rawRootModule);
+};
+
+ModuleCollection.prototype.register = function register (path, rawModule, runtime) {
+    var this$1 = this;
+    if ( runtime === void 0 ) runtime = true;
+
+  var parent = this.get(path.slice(0, -1));
+  var newModule = new Module(rawModule, runtime);
+  parent.addChild(path[path.length - 1], newModule);
+
+  // register nested modules
+  if (rawModule.modules) {
+    forEachValue(rawModule.modules, function (rawChildModule, key) {
+      this$1.register(path.concat(key), rawChildModule, runtime);
+    });
+  }
+};
+
+ModuleCollection.prototype.unregister = function unregister (path) {
+  var parent = this.get(path.slice(0, -1));
+  var key = path[path.length - 1];
+  if (!parent.getChild(key).runtime) { return }
+
+  parent.removeChild(key);
+};
+
+function update (targetModule, newModule) {
+  // update target module
+  targetModule.update(newModule);
+
+  // update nested modules
+  if (newModule.modules) {
+    for (var key in newModule.modules) {
+      if (!targetModule.getChild(key)) {
+        console.warn(
+          "[vuex] trying to add a new module '" + key + "' on hot reloading, " +
+          'manual reload is needed'
+        );
+        return
+      }
+      update(targetModule.getChild(key), newModule.modules[key]);
     }
-  }, [_vm._l((_vm.items), function(item) {
-    return _c('span', {
-      staticClass: "item",
-      class: [{
-        active: item.isActive
-      }, {
-        '-moving': _vm.isMoving
-      }, 'item--' + item.name],
-      attrs: {
-        "data-js-draggable": ""
-      }
-    }, [_c('i', {
-      staticClass: "bs-icon",
-      class: ['bs-icon-' + item.icon],
-      attrs: {
-        "data-js-draggable": ""
-      }
-    }), _vm._v(" "), _c('span', {
-      attrs: {
-        "data-js-draggable": ""
-      }
-    }, [_vm._v(_vm._s(item.name))])])
-  }), _vm._v(" "), _c('span', {
-    staticClass: "jsClose item",
-    class: {
-      '-moving': _vm.isMoving
-    },
-    attrs: {
-      "data-js-draggable": ""
-    },
-    on: {
-      "click": function($event) {
-        _vm.destroy($event)
-      }
-    }
-  }, [_c('i', {
-    staticClass: "bs-icon bs-icon-close",
-    attrs: {
-      "data-js-draggable": ""
-    }
-  })])], 2)
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-0d7bd1ac", module.exports)
   }
 }
 
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
+var Vue; // bind on install
 
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "blackShrimp",
-    class: [{
-      '-visible': _vm.isVisible
-    }],
-    style: ({
-      'left': _vm.styleObject.left + 'px',
-      'top': _vm.styleObject.top + 'px',
-      'cursor': _vm.styleObject.cursor
-    }),
-    attrs: {
-      "id": "black-shrimp"
-    },
-    on: {
-      "mousedown": function($event) {
-        _vm.startMoving($event)
-      },
-      "mouseup": function($event) {
-        _vm.stopMoving($event)
-      },
-      "mousemove": function($event) {
-        _vm.move($event)
-      }
+var Store = function Store (options) {
+  var this$1 = this;
+  if ( options === void 0 ) options = {};
+
+  assert(Vue, "must call Vue.use(Vuex) before creating a store instance.");
+  assert(typeof Promise !== 'undefined', "vuex requires a Promise polyfill in this browser.");
+
+  var state = options.state; if ( state === void 0 ) state = {};
+  var plugins = options.plugins; if ( plugins === void 0 ) plugins = [];
+  var strict = options.strict; if ( strict === void 0 ) strict = false;
+
+  // store internal state
+  this._committing = false;
+  this._actions = Object.create(null);
+  this._mutations = Object.create(null);
+  this._wrappedGetters = Object.create(null);
+  this._modules = new ModuleCollection(options);
+  this._modulesNamespaceMap = Object.create(null);
+  this._subscribers = [];
+  this._watcherVM = new Vue();
+
+  // bind commit and dispatch to self
+  var store = this;
+  var ref = this;
+  var dispatch = ref.dispatch;
+  var commit = ref.commit;
+  this.dispatch = function boundDispatch (type, payload) {
+    return dispatch.call(store, type, payload)
+  };
+  this.commit = function boundCommit (type, payload, options) {
+    return commit.call(store, type, payload, options)
+  };
+
+  // strict mode
+  this.strict = strict;
+
+  // init root module.
+  // this also recursively registers all sub-modules
+  // and collects all module getters inside this._wrappedGetters
+  installModule(this, state, [], this._modules.root);
+
+  // initialize the store vm, which is responsible for the reactivity
+  // (also registers _wrappedGetters as computed properties)
+  resetStoreVM(this, state);
+
+  // apply plugins
+  plugins.concat(devtoolPlugin).forEach(function (plugin) { return plugin(this$1); });
+};
+
+var prototypeAccessors = { state: {} };
+
+prototypeAccessors.state.get = function () {
+  return this._vm._data.$$state
+};
+
+prototypeAccessors.state.set = function (v) {
+  assert(false, "Use store.replaceState() to explicit replace store state.");
+};
+
+Store.prototype.commit = function commit (_type, _payload, _options) {
+    var this$1 = this;
+
+  // check object-style commit
+  var ref = unifyObjectStyle(_type, _payload, _options);
+    var type = ref.type;
+    var payload = ref.payload;
+    var options = ref.options;
+
+  var mutation = { type: type, payload: payload };
+  var entry = this._mutations[type];
+  if (!entry) {
+    console.error(("[vuex] unknown mutation type: " + type));
+    return
+  }
+  this._withCommit(function () {
+    entry.forEach(function commitIterator (handler) {
+      handler(payload);
+    });
+  });
+  this._subscribers.forEach(function (sub) { return sub(mutation, this$1.state); });
+
+  if (options && options.silent) {
+    console.warn(
+      "[vuex] mutation type: " + type + ". Silent option has been removed. " +
+      'Use the filter functionality in the vue-devtools'
+    );
+  }
+};
+
+Store.prototype.dispatch = function dispatch (_type, _payload) {
+  // check object-style dispatch
+  var ref = unifyObjectStyle(_type, _payload);
+    var type = ref.type;
+    var payload = ref.payload;
+
+  var entry = this._actions[type];
+  if (!entry) {
+    console.error(("[vuex] unknown action type: " + type));
+    return
+  }
+  return entry.length > 1
+    ? Promise.all(entry.map(function (handler) { return handler(payload); }))
+    : entry[0](payload)
+};
+
+Store.prototype.subscribe = function subscribe (fn) {
+  var subs = this._subscribers;
+  if (subs.indexOf(fn) < 0) {
+    subs.push(fn);
+  }
+  return function () {
+    var i = subs.indexOf(fn);
+    if (i > -1) {
+      subs.splice(i, 1);
     }
-  }, [_c('CursorComponent'), _vm._v(" "), _c('MenuComponent'), _vm._v(" "), _c('ColorComponent')], 1)
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-20d78a16", module.exports)
+  }
+};
+
+Store.prototype.watch = function watch (getter, cb, options) {
+    var this$1 = this;
+
+  assert(typeof getter === 'function', "store.watch only accepts a function.");
+  return this._watcherVM.$watch(function () { return getter(this$1.state, this$1.getters); }, cb, options)
+};
+
+Store.prototype.replaceState = function replaceState (state) {
+    var this$1 = this;
+
+  this._withCommit(function () {
+    this$1._vm._data.$$state = state;
+  });
+};
+
+Store.prototype.registerModule = function registerModule (path, rawModule) {
+  if (typeof path === 'string') { path = [path]; }
+  assert(Array.isArray(path), "module path must be a string or an Array.");
+  this._modules.register(path, rawModule);
+  installModule(this, this.state, path, this._modules.get(path));
+  // reset store to update getters...
+  resetStoreVM(this, this.state);
+};
+
+Store.prototype.unregisterModule = function unregisterModule (path) {
+    var this$1 = this;
+
+  if (typeof path === 'string') { path = [path]; }
+  assert(Array.isArray(path), "module path must be a string or an Array.");
+  this._modules.unregister(path);
+  this._withCommit(function () {
+    var parentState = getNestedState(this$1.state, path.slice(0, -1));
+    Vue.delete(parentState, path[path.length - 1]);
+  });
+  resetStore(this);
+};
+
+Store.prototype.hotUpdate = function hotUpdate (newOptions) {
+  this._modules.update(newOptions);
+  resetStore(this, true);
+};
+
+Store.prototype._withCommit = function _withCommit (fn) {
+  var committing = this._committing;
+  this._committing = true;
+  fn();
+  this._committing = committing;
+};
+
+Object.defineProperties( Store.prototype, prototypeAccessors );
+
+function resetStore (store, hot) {
+  store._actions = Object.create(null);
+  store._mutations = Object.create(null);
+  store._wrappedGetters = Object.create(null);
+  store._modulesNamespaceMap = Object.create(null);
+  var state = store.state;
+  // init all modules
+  installModule(store, state, [], store._modules.root, true);
+  // reset vm
+  resetStoreVM(store, state, hot);
+}
+
+function resetStoreVM (store, state, hot) {
+  var oldVm = store._vm;
+
+  // bind store public getters
+  store.getters = {};
+  var wrappedGetters = store._wrappedGetters;
+  var computed = {};
+  forEachValue(wrappedGetters, function (fn, key) {
+    // use computed to leverage its lazy-caching mechanism
+    computed[key] = function () { return fn(store); };
+    Object.defineProperty(store.getters, key, {
+      get: function () { return store._vm[key]; },
+      enumerable: true // for local getters
+    });
+  });
+
+  // use a Vue instance to store the state tree
+  // suppress warnings just in case the user has added
+  // some funky global mixins
+  var silent = Vue.config.silent;
+  Vue.config.silent = true;
+  store._vm = new Vue({
+    data: {
+      $$state: state
+    },
+    computed: computed
+  });
+  Vue.config.silent = silent;
+
+  // enable strict mode for new vm
+  if (store.strict) {
+    enableStrictMode(store);
+  }
+
+  if (oldVm) {
+    if (hot) {
+      // dispatch changes in all subscribed watchers
+      // to force getter re-evaluation for hot reloading.
+      store._withCommit(function () {
+        oldVm._data.$$state = null;
+      });
+    }
+    Vue.nextTick(function () { return oldVm.$destroy(); });
   }
 }
 
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
+function installModule (store, rootState, path, module, hot) {
+  var isRoot = !path.length;
+  var namespace = store._modules.getNamespace(path);
 
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "cursor-overlay",
-    class: [{
-      '-visible': _vm.isVisible
-    }, '-' + _vm.cursor],
-    on: {
-      "mousemove": function($event) {
-        _vm.mouseMove($event)
-      },
-      "mousedown": function($event) {
-        _vm.click($event)
-      }
-    }
-  })
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-3d91b5e6", module.exports)
+  // register in namespace map
+  if (module.namespaced) {
+    store._modulesNamespaceMap[namespace] = module;
   }
+
+  // set state
+  if (!isRoot && !hot) {
+    var parentState = getNestedState(rootState, path.slice(0, -1));
+    var moduleName = path[path.length - 1];
+    store._withCommit(function () {
+      Vue.set(parentState, moduleName, module.state);
+    });
+  }
+
+  var local = module.context = makeLocalContext(store, namespace, path);
+
+  module.forEachMutation(function (mutation, key) {
+    var namespacedType = namespace + key;
+    registerMutation(store, namespacedType, mutation, local);
+  });
+
+  module.forEachAction(function (action, key) {
+    var namespacedType = namespace + key;
+    registerAction(store, namespacedType, action, local);
+  });
+
+  module.forEachGetter(function (getter, key) {
+    var namespacedType = namespace + key;
+    registerGetter(store, namespacedType, getter, local);
+  });
+
+  module.forEachChild(function (child, key) {
+    installModule(store, rootState, path.concat(key), child, hot);
+  });
 }
 
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
+/**
+ * make localized dispatch, commit, getters and state
+ * if there is no namespace, just use root ones
+ */
+function makeLocalContext (store, namespace, path) {
+  var noNamespace = namespace === '';
 
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "panel panel--color"
-  }, [_c('div', {
-    staticClass: "colorPicker"
-  }, [_c('div', {
-    staticClass: "colorViewer",
-    style: ({
-      backgroundColor: _vm.hex
-    })
-  }), _vm._v(" "), _c('div', {
-    staticClass: "valueWrapper"
-  }, [_c('div', {
-    staticClass: "hexWrapper",
-    class: [{
-      active: _vm.color.hex.isActive
-    }]
-  }, [_c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.hex),
-      expression: "hex"
-    }],
-    staticClass: "value_hex",
-    attrs: {
-      "type": "text",
-      "spellcheck": "false"
-    },
-    domProps: {
-      "value": (_vm.hex)
-    },
-    on: {
-      "click": function($event) {
-        _vm.selectInputText($event)
-      },
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        _vm.hex = $event.target.value
-      }
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "rgbWrapper",
-    class: [{
-      active: _vm.color.rgb.isActive
-    }]
-  }, [_c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.r),
-      expression: "r"
-    }],
-    staticClass: "value_r",
-    attrs: {
-      "type": "text",
-      "spellcheck": "false"
-    },
-    domProps: {
-      "value": (_vm.r)
-    },
-    on: {
-      "click": function($event) {
-        _vm.selectInputText($event)
-      },
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        _vm.r = $event.target.value
-      }
-    }
-  }), _vm._v(" "), _c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.g),
-      expression: "g"
-    }],
-    staticClass: "value_g",
-    attrs: {
-      "type": "text",
-      "spellcheck": "false"
-    },
-    domProps: {
-      "value": (_vm.g)
-    },
-    on: {
-      "click": function($event) {
-        _vm.selectInputText($event)
-      },
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        _vm.g = $event.target.value
-      }
-    }
-  }), _vm._v(" "), _c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.b),
-      expression: "b"
-    }],
-    staticClass: "value_b",
-    attrs: {
-      "type": "text",
-      "spellcheck": "false"
-    },
-    domProps: {
-      "value": (_vm.b)
-    },
-    on: {
-      "click": function($event) {
-        _vm.selectInputText($event)
-      },
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        _vm.b = $event.target.value
-      }
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "hslWrapper",
-    class: [{
-      active: _vm.color.hsl.isActive
-    }]
-  }, [_c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.h),
-      expression: "h"
-    }],
-    staticClass: "value_h",
-    attrs: {
-      "type": "text",
-      "spellcheck": "false"
-    },
-    domProps: {
-      "value": (_vm.h)
-    },
-    on: {
-      "click": function($event) {
-        _vm.selectInputText($event)
-      },
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        _vm.h = $event.target.value
-      }
-    }
-  }), _vm._v(" "), _c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.s),
-      expression: "s"
-    }],
-    staticClass: "value_s",
-    attrs: {
-      "type": "text",
-      "spellcheck": "false"
-    },
-    domProps: {
-      "value": (_vm.s)
-    },
-    on: {
-      "click": function($event) {
-        _vm.selectInputText($event)
-      },
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        _vm.s = $event.target.value
-      }
-    }
-  }), _vm._v(" "), _c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.l),
-      expression: "l"
-    }],
-    staticClass: "value_l",
-    attrs: {
-      "type": "text",
-      "spellcheck": "false"
-    },
-    domProps: {
-      "value": (_vm.l)
-    },
-    on: {
-      "click": function($event) {
-        _vm.selectInputText($event)
-      },
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        _vm.l = $event.target.value
-      }
-    }
-  })])]), _vm._v(" "), _c('SelectComponent', {
-    attrs: {
-      "options": [{
-          text: 'hex',
-          value: 1,
-          isSelected: true
-        },
-        {
-          text: 'rgb',
-          value: 2,
-          isSelected: false
-        },
-        {
-          text: 'hsl',
-          value: 3,
-          isSelected: false
-        } ]
-    },
-    on: {
-      "change": function($event) {
-        _vm.changeColorMode($event)
-      }
-    }
-  })], 1), _vm._v(" "), _c('div', {
-    staticClass: "colorSwatches"
-  }, [_c('draggable', {
-    staticClass: "color-collection",
-    attrs: {
-      "element": 'ul',
-      "move": _vm.onMove,
-      "options": {
-        group: 'colors'
-      }
-    },
-    model: {
-      value: (_vm.colors),
-      callback: function($$v) {
-        _vm.colors = $$v
-      },
-      expression: "colors"
-    }
-  }, _vm._l((_vm.colors), function(color, index) {
-    return _c('li', {
-      key: index,
-      staticClass: "btn-square -color",
-      class: [{
-        '-selected': color.isSelected
-      }],
-      style: ({
-        'background-color': color.hex
-      }),
-      on: {
-        "click": function($event) {
-          _vm.toggleColorSelection($event, color, index, _vm.colors)
+  var local = {
+    dispatch: noNamespace ? store.dispatch : function (_type, _payload, _options) {
+      var args = unifyObjectStyle(_type, _payload, _options);
+      var payload = args.payload;
+      var options = args.options;
+      var type = args.type;
+
+      if (!options || !options.root) {
+        type = namespace + type;
+        if (!store._actions[type]) {
+          console.error(("[vuex] unknown local action type: " + (args.type) + ", global type: " + type));
+          return
         }
       }
-    })
-  })), _vm._v(" "), _c('draggable', {
-    staticClass: "folder-collection",
-    attrs: {
-      "element": 'ul',
-      "move": _vm.onMove
+
+      return store.dispatch(type, payload)
     },
-    model: {
-      value: (_vm.colorFolders),
-      callback: function($$v) {
-        _vm.colorFolders = $$v
-      },
-      expression: "colorFolders"
-    }
-  }, _vm._l((_vm.colorFolders), function(folder, index) {
-    return _c('draggable', {
-      key: index,
-      staticClass: "folder",
-      class: [{
-        '-selected': folder.isSelected
-      }],
-      attrs: {
-        "element": 'ul',
-        "options": {
-          group: 'colors'
-        },
-        "move": _vm.onMove
-      },
-      on: {
-        "click": function($event) {
-          _vm.console.log(folder)
+
+    commit: noNamespace ? store.commit : function (_type, _payload, _options) {
+      var args = unifyObjectStyle(_type, _payload, _options);
+      var payload = args.payload;
+      var options = args.options;
+      var type = args.type;
+
+      if (!options || !options.root) {
+        type = namespace + type;
+        if (!store._mutations[type]) {
+          console.error(("[vuex] unknown local mutation type: " + (args.type) + ", global type: " + type));
+          return
         }
-      },
-      nativeOn: {
-        "click": function($event) {
-          if ($event.target !== $event.currentTarget) { return null; }
-          _vm.toggleFolderSelection($event, folder, index)
-        }
-      },
-      model: {
-        value: (_vm.colorFolders[index].content),
-        callback: function($$v) {
-          _vm.colorFolders[index].content = $$v
-        },
-        expression: "colorFolders[index].content"
       }
-    }, _vm._l((folder.content), function(color, subIndex) {
-      return _c('li', {
-        key: subIndex,
-        staticClass: "btn-square -color",
-        class: [{
-          '-selected': color.isSelected
-        }],
-        style: ({
-          'background-color': color.hex
-        }),
-        on: {
-          "click": function($event) {
-            _vm.toggleColorSelection($event, color, subIndex, folder.content)
-          }
-        }
+
+      store.commit(type, payload, options);
+    }
+  };
+
+  // getters and state object must be gotten lazily
+  // because they will be changed by vm update
+  Object.defineProperties(local, {
+    getters: {
+      get: noNamespace
+        ? function () { return store.getters; }
+        : function () { return makeLocalGetters(store, namespace); }
+    },
+    state: {
+      get: function () { return getNestedState(store.state, path); }
+    }
+  });
+
+  return local
+}
+
+function makeLocalGetters (store, namespace) {
+  var gettersProxy = {};
+
+  var splitPos = namespace.length;
+  Object.keys(store.getters).forEach(function (type) {
+    // skip if the target getter is not match this namespace
+    if (type.slice(0, splitPos) !== namespace) { return }
+
+    // extract local getter type
+    var localType = type.slice(splitPos);
+
+    // Add a port to the getters proxy.
+    // Define as getter property because
+    // we do not want to evaluate the getters in this time.
+    Object.defineProperty(gettersProxy, localType, {
+      get: function () { return store.getters[type]; },
+      enumerable: true
+    });
+  });
+
+  return gettersProxy
+}
+
+function registerMutation (store, type, handler, local) {
+  var entry = store._mutations[type] || (store._mutations[type] = []);
+  entry.push(function wrappedMutationHandler (payload) {
+    handler(local.state, payload);
+  });
+}
+
+function registerAction (store, type, handler, local) {
+  var entry = store._actions[type] || (store._actions[type] = []);
+  entry.push(function wrappedActionHandler (payload, cb) {
+    var res = handler({
+      dispatch: local.dispatch,
+      commit: local.commit,
+      getters: local.getters,
+      state: local.state,
+      rootGetters: store.getters,
+      rootState: store.state
+    }, payload, cb);
+    if (!isPromise(res)) {
+      res = Promise.resolve(res);
+    }
+    if (store._devtoolHook) {
+      return res.catch(function (err) {
+        store._devtoolHook.emit('vuex:error', err);
+        throw err
       })
-    }))
-  })), _vm._v(" "), _c('div', {
-    staticClass: "button-wrapper"
-  }, [_c('button', {
-    staticClass: "btn-square",
-    on: {
-      "click": function($event) {
-        _vm.addCurrentColor($event)
-      }
-    }
-  }, [_c('i', {
-    staticClass: "bs-icon bs-icon-plus"
-  })]), _vm._v(" "), _c('button', {
-    staticClass: "btn-square",
-    on: {
-      "click": function($event) {
-        _vm.addFolder($event)
-      }
-    }
-  }, [_c('i', {
-    staticClass: "bs-icon bs-icon-folder"
-  })]), _vm._v(" "), _c('button', {
-    staticClass: "btn-square",
-    on: {
-      "click": [function($event) {
-        _vm.deleteSelection($event)
-      }, function($event) {
-        if (!$event.shiftKey) { return null; }
-        _vm.deleteAll($event)
-      }]
-    }
-  }, [_c('i', {
-    staticClass: "bs-icon bs-icon-trash"
-  })])])], 1)])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-75b1cde6", module.exports)
-  }
-}
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(15);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(2)("4571b040", content, false);
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-0d7bd1ac!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./menu.vue", function() {
-     var newContent = require("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-0d7bd1ac!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./menu.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(16);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(2)("84e0d78c", content, false);
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../node_modules/css-loader/index.js?-autoprefixer!../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-20d78a16!../node_modules/sass-loader/lib/loader.js!../node_modules/postcss-loader/lib/index.js!../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./main.vue", function() {
-     var newContent = require("!!../node_modules/css-loader/index.js?-autoprefixer!../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-20d78a16!../node_modules/sass-loader/lib/loader.js!../node_modules/postcss-loader/lib/index.js!../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./main.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(17);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(2)("30435c05", content, false);
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-3d91b5e6!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./cursor-overlay.vue", function() {
-     var newContent = require("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-3d91b5e6!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./cursor-overlay.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(18);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(2)("2aba03c1", content, false);
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-75b1cde6!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./color.vue", function() {
-     var newContent = require("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-75b1cde6!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./color.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports) {
-
-/**
- * Translates the list format produced by css-loader into something
- * easier to manipulate.
- */
-module.exports = function listToStyles (parentId, list) {
-  var styles = []
-  var newStyles = {}
-  for (var i = 0; i < list.length; i++) {
-    var item = list[i]
-    var id = item[0]
-    var css = item[1]
-    var media = item[2]
-    var sourceMap = item[3]
-    var part = {
-      id: parentId + ':' + i,
-      css: css,
-      media: media,
-      sourceMap: sourceMap
-    }
-    if (!newStyles[id]) {
-      styles.push(newStyles[id] = { id: id, parts: [part] })
     } else {
-      newStyles[id].parts.push(part)
+      return res
     }
+  });
+}
+
+function registerGetter (store, type, rawGetter, local) {
+  if (store._wrappedGetters[type]) {
+    console.error(("[vuex] duplicate getter key: " + type));
+    return
   }
-  return styles
+  store._wrappedGetters[type] = function wrappedGetter (store) {
+    return rawGetter(
+      local.state, // local state
+      local.getters, // local getters
+      store.state, // root state
+      store.getters // root getters
+    )
+  };
 }
+
+function enableStrictMode (store) {
+  store._vm.$watch(function () { return this._data.$$state }, function () {
+    assert(store._committing, "Do not mutate vuex store state outside mutation handlers.");
+  }, { deep: true, sync: true });
+}
+
+function getNestedState (state, path) {
+  return path.length
+    ? path.reduce(function (state, key) { return state[key]; }, state)
+    : state
+}
+
+function unifyObjectStyle (type, payload, options) {
+  if (isObject(type) && type.type) {
+    options = payload;
+    payload = type;
+    type = type.type;
+  }
+
+  assert(typeof type === 'string', ("Expects string as the type, but found " + (typeof type) + "."));
+
+  return { type: type, payload: payload, options: options }
+}
+
+function install (_Vue) {
+  if (Vue) {
+    console.error(
+      '[vuex] already installed. Vue.use(Vuex) should be called only once.'
+    );
+    return
+  }
+  Vue = _Vue;
+  applyMixin(Vue);
+}
+
+// auto install in dist mode
+if (typeof window !== 'undefined' && window.Vue) {
+  install(window.Vue);
+}
+
+var mapState = normalizeNamespace(function (namespace, states) {
+  var res = {};
+  normalizeMap(states).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    res[key] = function mappedState () {
+      var state = this.$store.state;
+      var getters = this.$store.getters;
+      if (namespace) {
+        var module = getModuleByNamespace(this.$store, 'mapState', namespace);
+        if (!module) {
+          return
+        }
+        state = module.context.state;
+        getters = module.context.getters;
+      }
+      return typeof val === 'function'
+        ? val.call(this, state, getters)
+        : state[val]
+    };
+    // mark vuex getter for devtools
+    res[key].vuex = true;
+  });
+  return res
+});
+
+var mapMutations = normalizeNamespace(function (namespace, mutations) {
+  var res = {};
+  normalizeMap(mutations).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    val = namespace + val;
+    res[key] = function mappedMutation () {
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+      if (namespace && !getModuleByNamespace(this.$store, 'mapMutations', namespace)) {
+        return
+      }
+      return this.$store.commit.apply(this.$store, [val].concat(args))
+    };
+  });
+  return res
+});
+
+var mapGetters = normalizeNamespace(function (namespace, getters) {
+  var res = {};
+  normalizeMap(getters).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    val = namespace + val;
+    res[key] = function mappedGetter () {
+      if (namespace && !getModuleByNamespace(this.$store, 'mapGetters', namespace)) {
+        return
+      }
+      if (!(val in this.$store.getters)) {
+        console.error(("[vuex] unknown getter: " + val));
+        return
+      }
+      return this.$store.getters[val]
+    };
+    // mark vuex getter for devtools
+    res[key].vuex = true;
+  });
+  return res
+});
+
+var mapActions = normalizeNamespace(function (namespace, actions) {
+  var res = {};
+  normalizeMap(actions).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    val = namespace + val;
+    res[key] = function mappedAction () {
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+      if (namespace && !getModuleByNamespace(this.$store, 'mapActions', namespace)) {
+        return
+      }
+      return this.$store.dispatch.apply(this.$store, [val].concat(args))
+    };
+  });
+  return res
+});
+
+function normalizeMap (map) {
+  return Array.isArray(map)
+    ? map.map(function (key) { return ({ key: key, val: key }); })
+    : Object.keys(map).map(function (key) { return ({ key: key, val: map[key] }); })
+}
+
+function normalizeNamespace (fn) {
+  return function (namespace, map) {
+    if (typeof namespace !== 'string') {
+      map = namespace;
+      namespace = '';
+    } else if (namespace.charAt(namespace.length - 1) !== '/') {
+      namespace += '/';
+    }
+    return fn(namespace, map)
+  }
+}
+
+function getModuleByNamespace (store, helper, namespace) {
+  var module = store._modulesNamespaceMap[namespace];
+  if (!module) {
+    console.error(("[vuex] module namespace not found in " + helper + "(): " + namespace));
+  }
+  return module
+}
+
+var index_esm = {
+  Store: Store,
+  install: install,
+  version: '2.3.0',
+  mapState: mapState,
+  mapMutations: mapMutations,
+  mapGetters: mapGetters,
+  mapActions: mapActions
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (index_esm);
 
 
 /***/ }),
-/* 33 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 34 */
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -14487,7 +12499,7 @@ module.exports = {
 
 
 /***/ }),
-/* 35 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14559,7 +12571,7 @@ function isBuffer(b) {
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var util = __webpack_require__(59);
+var util = __webpack_require__(47);
 var hasOwn = Object.prototype.hasOwnProperty;
 var pSlice = Array.prototype.slice;
 var functionsHaveNames = (function () {
@@ -14982,10 +12994,10 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 36 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -16073,7 +14085,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 
 /***/ }),
-/* 37 */
+/* 10 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -16263,11 +14275,182 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 38 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var assert = __webpack_require__(35);
-var constants = __webpack_require__(34);
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _vue = __webpack_require__(4);
+
+var _vue2 = _interopRequireDefault(_vue);
+
+var _vuex = __webpack_require__(6);
+
+var _vuex2 = _interopRequireDefault(_vuex);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Store
+ *
+ * Contains the state of the application,
+ * to be shared with application components.
+ */
+
+_vue2.default.use(_vuex2.default);
+
+// root state object.
+// each Vuex instance is just a single state tree.
+var state = {
+  isVisible: true,
+  isMoving: false,
+  activeTab: 'color',
+  color: {
+    value: {
+      hex: '',
+      r: '',
+      g: '',
+      b: '',
+      h: '',
+      s: '',
+      l: ''
+    }
+  },
+  colors: [],
+  colorFolders: [],
+  cursorOverlay: {
+    isVisible: true,
+    cursor: 'eyeDropper'
+  },
+  port: chrome.runtime.connect({ name: "toolkit" }) };
+
+// mutations are operations that actually mutates the state.
+// each mutation handler gets the entire state tree as the
+// first argument, followed by additional payload arguments.
+// mutations must be synchronous and can be recorded by plugins
+// for debugging purposes.
+var mutations = {
+  setVisibility: function setVisibility(state, val) {
+    state.isVisible = val;
+  },
+  setActiveTab: function setActiveTab(state, val) {
+    state.activeTab = val;
+  },
+  setColor: function setColor(state, val) {
+    console.log('VALUE:', val.value);
+    state.color.value = val.value;
+  },
+  setMovingStatus: function setMovingStatus(state, val) {
+    state.isMoving = val;
+  },
+  setHex: function setHex(state, val) {
+    state.color.value.hex = val;
+  },
+  setColors: function setColors(state, arr) {
+    state.colors = arr;
+    // Save colors in chrome storage.
+    chrome.storage.sync.set({ 'colors': arr }, function () {});
+  },
+  setColorFolders: function setColorFolders(state, arr) {
+    state.colorFolders = arr;
+    // Save color folders in chrome storage.
+    chrome.storage.sync.set({ 'colorFolders': arr }, function () {});
+  }
+};
+
+// actions are functions that causes side effects and can involve
+// asynchronous operations.
+var actions = {};
+
+// getters are functions
+var getters = {
+  getVisibility: function getVisibility(state) {
+    return state.isVisible;
+  },
+  getMovingStatus: function getMovingStatus(state) {
+    return state.isMoving;
+  },
+  getActiveTab: function getActiveTab(state) {
+    return state.activeTab;
+  },
+  getColorState: function getColorState(state) {
+    return state.color;
+  },
+  getCursorVisibility: function getCursorVisibility(state) {
+    return state.cursorOverlay.isVisible;
+  },
+  getCursorType: function getCursorType(state) {
+    return state.cursorOverlay.cursor;
+  },
+  getPort: function getPort(state) {
+    return state.port;
+  },
+  getColors: function getColors(state) {
+    return state.colors;
+  },
+  getColorFolders: function getColorFolders(state) {
+    return state.colorFolders;
+  }
+};
+
+// A Vuex instance is created by combining the state, mutations, actions,
+// and getters.
+exports.default = new _vuex2.default.Store({
+  state: state,
+  getters: getters,
+  actions: actions,
+  mutations: mutations
+});
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(59)
+
+var Component = __webpack_require__(1)(
+  /* script */
+  __webpack_require__(21),
+  /* template */
+  __webpack_require__(54),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "/mnt/c/Users/thomas/Desktop/Black-shrimp/app/main.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] main.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-20d78a16", Component.options)
+  } else {
+    hotAPI.reload("data-v-20d78a16", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(Buffer) {var assert = __webpack_require__(8);
+var constants = __webpack_require__(7);
 
 var errors = {
   header: 'Not a valid .ASE file',
@@ -16407,14 +14590,14 @@ function decode(buffer) {
 
 module.exports = decode;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(44).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26).Buffer))
 
 /***/ }),
-/* 39 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ByteBuffer = __webpack_require__(45);
-var constants = __webpack_require__(34);
+var ByteBuffer = __webpack_require__(27);
+var constants = __webpack_require__(7);
 
 function encode(data) {
 
@@ -16474,17 +14657,17 @@ module.exports = encode;
 
 
 /***/ }),
-/* 40 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = {
-  encode: __webpack_require__(39),
-  decode: __webpack_require__(38)
+  encode: __webpack_require__(14),
+  decode: __webpack_require__(13)
 }
 
 
 /***/ }),
-/* 41 */
+/* 16 */
 /***/ (function(module, exports) {
 
 module.exports = function _atob(str) {
@@ -16493,12 +14676,647 @@ module.exports = function _atob(str) {
 
 
 /***/ }),
-/* 42 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_clickaway__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__select_block_vue__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__select_block_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__select_block_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuedraggable__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuedraggable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vuedraggable__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_save_file__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_save_file___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_save_file__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ase_utils__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ase_utils___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_ase_utils__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  components: {
+    SelectComponent: __WEBPACK_IMPORTED_MODULE_0__select_block_vue___default.a,
+    draggable: __WEBPACK_IMPORTED_MODULE_1_vuedraggable___default.a
+  },
+  data: () => ({
+    isActive: true,
+    currentColorType: 'hex',
+    color: {
+      'hex': { isActive: true },
+      'rgb': { isActive: false },
+      'hsl': { isActive: false }
+    },
+    selection: null,
+    selection_origin: false,
+    editable: true,
+    isDragging: false,
+    delayedDragging: false
+  }),
+  computed: {
+    port() {
+      return this.$store.getters.getPort;
+    },
+    hex() {
+      return this.$store.getters.getColorState.value.hex.toString();
+    },
+    r() {
+      return this.$store.getters.getColorState.value.r.toString();
+    },
+    g() {
+      return this.$store.getters.getColorState.value.g.toString();
+    },
+    b() {
+      return this.$store.getters.getColorState.value.b.toString();
+    },
+    h() {
+      return this.$store.getters.getColorState.value.h.toString();
+    },
+    s() {
+      return this.$store.getters.getColorState.value.s.toString();
+    },
+    l() {
+      return this.$store.getters.getColorState.value.l.toString();
+    },
+    colors: {
+      get() {
+        return this.$store.getters.getColors;
+      },
+      set(data) {
+        this.$store.commit('setColors', data);
+      }
+    },
+    colorFolders: {
+      get() {
+        return this.$store.getters.getColorFolders;
+      },
+      set(data) {
+        this.$store.commit('setColorFolders', data);
+      }
+    }
+  },
+
+  watch: {
+    colorFolders: {
+      handler: function (val, oldVal) {
+        console.log('sync color folders:', this.colorFolders);
+        chrome.storage.sync.set({ 'colorFolders': this.colorFolders }, function () {});
+      },
+      deep: true
+    },
+
+    colors: {
+      handler: function (val, oldVal) {
+        console.log('sync colors:', this.colors);
+        chrome.storage.sync.set({ 'colors': this.colors }, function () {});
+      },
+      deep: true
+    }
+  },
+
+  methods: {
+    onMove({ relatedContext, draggedContext }) {
+      const relatedElement = relatedContext.element;
+      const draggedElement = draggedContext.element;
+      return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed;
+    },
+
+    getStoredColors: function () {
+      chrome.storage.sync.get('colors', storageData => {
+        let data = storageData.colors;
+        for (let i = 0; i < data.length; i++) {
+          data[i].id = i;
+          data[i].isSelected = false;
+        }
+        // Save chrome data in store.
+        this.$store.commit('setColors', data);
+        console.log('Store colors:', data);
+      });
+
+      chrome.storage.sync.get('colorFolders', storageData => {
+        let data = storageData.colorFolders;
+        for (let i = 0; i < data.length; i++) {
+          data[i].id = i;
+          data[i].isSelected = false;
+        }
+        console.log(data);
+        // Save chrome data in store.
+        this.$store.commit('setColorFolders', data);
+        console.log('Store folders:', data);
+      });
+    },
+
+    changeColorMode: function (event) {
+      for (let text in this.color) {
+        this.color[text].isActive = text == event.text ? true : false;
+      }
+    },
+
+    selectInputText: function (event) {
+      event.target.select();
+    },
+
+    onChromeDataChange: function (changes, namespace) {
+      for (let key in changes) {
+        let storageChange = changes[key];
+        console.log('Storage key "%s" in namespace "%s" changed. ' + 'Old value was "%s", new value is "%s".', key, namespace, storageChange.oldValue, storageChange.newValue);
+      }
+      if (changes['colors'] != undefined) {
+        // Save chrome data in store.
+        this.$store.commit('setColors', changes['colors'].newValue);
+      }
+      if (changes['colorFolders'] != undefined) {
+        this.$store.commit('setColorFolders', changes['colorFolders'].newValue);
+      }
+    },
+
+    /**
+     *  Save current color to swatch
+     */
+    addCurrentColor: function (event) {
+      console.log('addCurrentColor');
+      if (!this.hex) {
+        return;
+      }
+
+      // Deselect all
+      this.deselectAll();
+
+      let color = {};
+      color.type = 'color';
+      color.id = this.colors.length;
+
+      color.hex = this.hex;
+
+      color.r = this.r;
+      color.g = this.g;
+      color.b = this.b;
+
+      color.h = this.h;
+      color.s = this.s;
+      color.l = this.l;
+
+      color.isSelected = false;
+
+      let currentCollection = this.colors ? this.colors : [];
+      currentCollection.push(color);
+    },
+
+    /**
+     * Select clicked color
+     */
+    toggleColorSelection: function (event, color, index = false, array = false) {
+      let isSelected = color.isSelected ? true : false;
+
+      if (!event) {
+        event = window.event;
+      }
+
+      if (event.ctrlKey) {
+        // ctrl is down
+        console.log('ctrl selection');
+        color.isSelected = !isSelected;
+      } else if (event.shiftKey) {
+        // shift is down
+        console.log('shift selection');
+        if (!this.selection_origin) {
+          return;
+        }
+        if (!this.selection_origin.array === array) {
+          return;
+        }
+
+        console.log('array:', array);
+        console.log('this.selection_origin.array:', this.selection_origin.array);
+
+        for (let i = 0; i < array.length; i++) {
+          if (i.between(this.selection_origin.index, index, true)) {
+            console.log('between true');
+            array[i].isSelected = true;
+          } else {
+            array[i].isSelected = false;
+          }
+        }
+      } else {
+        // Single selection
+        console.log('single selection');
+        this.deselectAll();
+        color.isSelected = !isSelected;
+        this.selection_origin = {
+          'index': index,
+          'array': array
+        };
+        // Update displayed color.
+        if (!isSelected) {
+          color.isSelected = true;
+
+          let colorToSave = {};
+          colorToSave.value = {
+            'hex': color.hex,
+            'r': color.r,
+            'g': color.g,
+            'b': color.b,
+            'h': color.h,
+            's': color.s,
+            'l': color.l
+          };
+
+          this.$store.commit('setColor', colorToSave);
+        }
+      }
+    },
+
+    /**
+     * Deselect all colors and folders
+     */
+    deselectAll: function () {
+      for (let i = 0; i < this.colors.length; i++) {
+        this.colors[i].isSelected = false;
+      }
+
+      for (let i = 0; i < this.colorFolders.length; i++) {
+        this.colorFolders[i].isSelected = false;
+        for (let j = 0; j < this.colorFolders[i].content.length; j++) {
+          this.colorFolders[i].content[j].isSelected = false;
+        }
+      }
+    },
+
+    /**
+     * Delete selected color
+     */
+    deleteSelection: function (event) {
+      console.log('deleteSelection');
+
+      let arrays = [this.colors, this.colorFolders];
+
+      for (let h in this.colorFolders) {
+        arrays.push(this.colorFolders[h].content);
+      }
+
+      for (let i in arrays) {
+        let array = arrays[i];
+
+        // Build array of selected element indexes.
+        let selectedIndexes = [];
+        for (let j in array) {
+          if (array[j].isSelected) {
+            selectedIndexes.push(j);
+          }
+        }
+
+        // Splice origin array.
+        for (let k = selectedIndexes.length - 1; k >= 0; k--) {
+          array.splice(selectedIndexes[k], 1);
+        }
+      }
+    },
+
+    deleteAll: function (event) {
+      let ask = confirm("You are about to delete all your colors and folders. Are you sure you wan't delete everything ?");
+      if (!ask) {
+        return;
+      }
+
+      // Reset user colors and folders
+      this.colors = [];
+      this.colorFolders = [];
+    },
+
+    /**
+     * Create an empty folder
+     */
+    addFolder: function (event) {
+      let item = {
+        content: [],
+        isSelected: false
+      };
+      this.colorFolders.push(item);
+    },
+
+    toggleFolderSelection: function (event, folder, index = false) {
+      console.log('toggleFolderSelection');
+      let isSelected = folder.isSelected ? true : false;
+
+      if (!event) {
+        event = window.event;
+      }
+
+      if (event.ctrlKey) {
+        // ctrl is down
+        console.log('ctrl selection');
+        folder.isSelected = !isSelected;
+      } else if (event.shiftKey) {
+        // shift is down
+        console.log('shift selection');
+      } else {
+        // Single selection
+        console.log('single selection');
+        this.deselectAll();
+
+        folder.isSelected = !isSelected;
+        this.colorFolders[index].isSelected = !isSelected;
+
+        this.$store.commit('setColorFolders', this.colorFolders);
+      }
+    },
+
+    onKeyDown: function (event) {
+      console.log('event:', event);
+      console.log('keyup:', event.keyCode);
+      if (event.altKey && event.keyCode == 65) {
+        // Alt + A
+        // Add current color shortcut
+        this.addCurrentColor();
+      } else if (event.altKey && event.keyCode == 83) {
+        // Alt + S
+        // Save colors to .ase
+        this.exportColors();
+      }
+    },
+
+    // Export colors to .ase
+    // see npm ase-utils
+    exportColors: function (event) {
+      let input = {
+        "version": "1.0",
+        "groups": [],
+        "colors": []
+      };
+
+      for (let i in this.colors) {
+        let color = this.colors[i];
+        let formattedColor = this.formatColor(color);
+        input.colors.push(formattedColor);
+      }
+
+      for (let j in this.colorFolders) {
+        let folder = this.colorFolders[j];
+
+        for (let k in folder.content) {
+          let color = folder.content[k];
+          let formattedColor = this.formatColor(color);
+          input.colors.push(formattedColor);
+        }
+      }
+
+      console.log('formatted data :', input);
+      this.convertToASE(input);
+    },
+
+    formatColor: function (color) {
+      if (!color) return null;
+      let formattedColor = {
+        "name": "R=" + color.r + "G=" + color.g + "B=" + color.b,
+        "model": "RGB",
+        "color": [],
+        "type": "global"
+      };
+
+      formattedColor.color.push(color.r / 255);
+      formattedColor.color.push(color.g / 255);
+      formattedColor.color.push(color.b / 255);
+
+      return formattedColor;
+    },
+
+    convertToASE: function (data) {
+      let encodedData = __WEBPACK_IMPORTED_MODULE_3_ase_utils___default.a.encode(data);
+      console.log('ASE encodedData:', encodedData);
+
+      this.saveFile(encodedData);
+    },
+
+    saveFile: function (fileEntry) {
+      __WEBPACK_IMPORTED_MODULE_2_save_file___default()(fileEntry, 'swatches.ase', (err, data) => {
+        if (err) throw err;
+        console.log('File saved');
+      }).then(() => {
+        console.log('saveFile then');
+      });
+    }
+  },
+
+  created: function () {
+    window.addEventListener('keydown', this.onKeyDown);
+  },
+
+  mounted: function () {
+    // Register chrome data listener
+    chrome.storage.onChanged.addListener(this.onChromeDataChange);
+    this.getStoredColors();
+  },
+
+  beforeMount: function () {},
+
+  beforeDestroy: function () {
+    // Remove chrome data listener
+    chrome.storage.onChanged.removeListener(this.onChromeDataChange, () => {
+      console.log('removed listener');
+    });
+  }
+});
+
+/***/ }),
+/* 18 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data() {
+    return {
+      scrollPos: {}
+    };
+  },
+  computed: {
+    isVisible() {
+      return this.$store.getters.getCursorVisibility;
+    },
+    activeTab() {
+      return this.$store.getters.getActiveTab;
+    },
+    cursor() {
+      return this.$store.getters.getCursorType;
+    },
+    port() {
+      return this.$store.getters.getPort;
+    }
+  },
+  methods: {
+    mouseMove(event) {
+      if (this.activeTab != 'color') {
+        return;
+      }
+      // if (this.activeTab == 'color') {
+      this.scrollPos.x = event.clientX;
+      this.scrollPos.y = event.clientY;
+
+      if (event.which == 1) {
+        // mousedown
+        this.port.postMessage({
+          'type': 'mousePos',
+          'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
+        });
+      }
+      // }
+    },
+    click(event) {
+      if (this.activeTab == 'color' && this.scrollPos.x && this.scrollPos.y) {
+        this.port.postMessage({
+          'type': 'mousePos',
+          'coord': { 'x': this.scrollPos.x, 'y': this.scrollPos.y }
+        });
+      }
+    }
+  }
+});
+
+/***/ }),
+/* 19 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data() {
+    return {
+      items: [{ name: 'Color', icon: 'eyeDropper', isActive: true }]
+    };
+  },
+  computed: {
+    isMoving() {
+      return this.$store.getters.getMovingStatus;
+    },
+    port() {
+      return this.$store.getters.getPort;
+    }
+  },
+  methods: {
+    destroy: function () {
+      this.port.postMessage({
+        'type': 'destroy'
+      });
+    }
+  }
+});
+
+/***/ }),
+/* 20 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_clickaway__ = __webpack_require__(48);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_clickaway___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue_clickaway__);
 //
 //
@@ -16581,7 +15399,383 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 43 */
+/* 21 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_menu_vue__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_menu_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_menu_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_color_vue__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_color_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__components_color_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_cursor_overlay_vue__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_cursor_overlay_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_cursor_overlay_vue__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  components: {
+    MenuComponent: __WEBPACK_IMPORTED_MODULE_0__components_menu_vue___default.a,
+    ColorComponent: __WEBPACK_IMPORTED_MODULE_1__components_color_vue___default.a,
+    CursorComponent: __WEBPACK_IMPORTED_MODULE_2__components_cursor_overlay_vue___default.a
+  },
+  data() {
+    return {
+      debug: true,
+      styleObject: {
+        left: 10,
+        top: 10,
+        cursor: 'default'
+      },
+      tempPos: {}
+    };
+  },
+  computed: {
+    isVisible() {
+      return this.$store.getters.getVisibility;
+    },
+    isMoving() {
+      return this.$store.getters.getMovingStatus;
+    }
+  },
+  methods: {
+    /* Store initial position and set moving cursor before moving the main box  */
+    startMoving: function (event) {
+      event = event || window.event;
+      if (event.srcElement.getAttribute('data-js-draggable') === null) {
+        return;
+      }
+
+      this.styleObject.cursor = 'move';
+
+      this.tempPos.left = this.styleObject.left;
+      this.tempPos.top = this.styleObject.top;
+      this.tempPos.mouseX = event.clientX;
+      this.tempPos.mouseY = event.clientY;
+
+      this.isMoving = true;
+      this.$store.commit('setMovingStatus', true);
+    },
+
+    /* Moves the main box when dragged */
+    move: function (event) {
+      if (!this.isMoving) {
+        return;
+      }
+
+      event = event || window.event;
+
+      var mouseX = event.clientX;
+      var mouseY = event.clientY;
+
+      var diffX = mouseX - this.tempPos.mouseX;
+      var diffY = mouseY - this.tempPos.mouseY;
+
+      var posX = this.tempPos.left + diffX;
+      var posY = this.tempPos.top + diffY;
+
+      this.styleObject.left = posX;
+      this.styleObject.top = posY;
+
+      this.fitBounds();
+    },
+
+    /* Prevents the main box from getting past window inner border */
+    fitBounds: function (posX, posY) {
+      var el = document.getElementById('black-shrimp');
+      var width = el.clientWidth;
+      var height = el.clientHeight;
+
+      if (this.styleObject.left + width > window.innerWidth) {
+        this.styleObject.left = window.innerWidth - width;
+      }
+      if (this.styleObject.top + height > window.innerHeight) {
+        this.styleObject.top = window.innerHeight - height;
+      }
+      if (this.styleObject.left < 0) {
+        this.styleObject.left = 0;
+      }
+      if (this.styleObject.top < 0) {
+        this.styleObject.top = 0;
+      }
+    },
+
+    /* Set back normal cursor, and moving status after moving the main box */
+    stopMoving: function (event) {
+      this.styleObject.cursor = 'default';
+      this.isMoving = false;
+      this.$store.commit('setMovingStatus', false);
+    }
+  }
+});
+
+/***/ }),
+/* 22 */,
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _vue = __webpack_require__(4);
+
+var _vue2 = _interopRequireDefault(_vue);
+
+var _vuex = __webpack_require__(6);
+
+var _vuex2 = _interopRequireDefault(_vuex);
+
+var _store = __webpack_require__(11);
+
+var _store2 = _interopRequireDefault(_store);
+
+var _sortablejs = __webpack_require__(5);
+
+var _sortablejs2 = _interopRequireDefault(_sortablejs);
+
+var _main = __webpack_require__(12);
+
+var _main2 = _interopRequireDefault(_main);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_vue2.default.use(_vuex2.default);
+
+_vue2.default.directive('sortable', {
+  inserted: function inserted(el, binding) {
+    new _sortablejs2.default(el, binding.value || {});
+  }
+});
+
+/**
+ * Dispatch Chrome port messages
+ */
+var debug;
+var connectionClosed = false;
+var port = _store2.default.getters.getPort;
+
+port.onMessage.addListener(function (request, sender, sendResponse) {
+  console.log('request :', request);
+  if (connectionClosed) {
+    return;
+  } // @TODO
+
+  switch (request.type) {
+    case 'init':
+      console.log('request init');
+      debug = request.debug;
+      BlackShrimp.create();
+      break;
+    case 'imageData':
+      console.log('request imageData');
+      // Screenshot processed
+      // if (debug && request.imageData) {
+      //   createDebugOverlay(request);
+      // }
+      app.showUI();
+      break;
+    case 'color':
+      console.log('request color');
+      app.setColor({ 'value': request.data });
+      break;
+    case 'destroy':
+      BlackShrimp.destroy();
+      break;
+  }
+});
+
+/**
+ * Display debug screen
+ */
+var canvas = document.createElement('canvas');
+canvas.id = 'toolkit__debug';
+var context = canvas.getContext('2d');
+
+function createDebugOverlay(request) {
+  var img;
+  img = new Image();
+  img.src = request.imageData;
+  img.onload = displayScreenshot.bind(img);
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function displayScreenshot() {
+  context.drawImage(this, 0, 0, canvas.width, canvas.height);
+
+  var overlay = document.getElementById('toolkit__debug');
+  if (overlay) {
+    overlay.parentNode.removeChild(overlay);
+  }
+
+  document.body.appendChild(canvas);
+}
+
+/**
+ * Vue app
+ */
+// var changeDelay = 300;
+// var changeTimeout;
+// var paused = true;
+// var altKeyWasPressed = false;
+// var colorThreshold = [0.2,0.5,0.2];
+var overlay = document.createElement('div');
+overlay.className = 'toolkit__debug';
+
+var app = void 0;
+var scrollTimer = void 0;
+var BlackShrimp = {
+  create: function create() {
+    app = new _vue2.default({
+      store: _store2.default, // inject store to all children
+      el: '#black-shrimp',
+      template: '<MainComponent/>',
+      components: {
+        MainComponent: _main2.default
+      },
+      methods: {
+        setColor: function setColor(val) {
+          _store2.default.commit('setColor', val);
+        },
+        hideUI: function hideUI() {
+          _store2.default.commit('setVisibility', false);
+        },
+        showUI: function showUI() {
+          _store2.default.commit('setVisibility', true);
+        },
+        delayScroll: function delayScroll(event) {
+          app.hideUI();
+
+          var self = this;
+          clearTimeout(scrollTimer);
+          scrollTimer = setTimeout(function () {
+            self.onViewportChange(event);
+          }, 50);
+        },
+        onViewportChange: function onViewportChange(event) {
+          console.log('process viewport change');
+          var doc = document.documentElement;
+          var pageOffset = {};
+          pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+          pageOffset.y = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+          port.postMessage({
+            'type': 'viewportChange',
+            'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y }
+          });
+        },
+        onKeyPressed: function onKeyPressed(event) {
+          if (event.keyCode == 27) {
+            // ESC pressed
+            port.postMessage({
+              'type': 'destroy'
+            });
+          }
+        },
+        destroy: function destroy() {
+          console.log('destroy app.$destroy');
+          this.$destroy();
+        }
+      },
+      beforeCreate: function beforeCreate() {
+        var el = document.createElement('div');
+        el.id = 'black-shrimp';
+        document.body.appendChild(el);
+      },
+      mounted: function mounted() {
+        console.log('app mounted');
+        window.addEventListener('scroll', this.delayScroll);
+        window.addEventListener('resize', this.onViewportChange);
+        window.addEventListener('keyup', this.onKeyPressed);
+      },
+      beforeDestroy: function beforeDestroy() {
+        window.removeEventListener('scroll', this.delayScroll);
+        window.removeEventListener('resize', this.onViewportChange);
+        window.removeEventListener('keyup', this.onKeyPressed);
+      },
+      destroyed: function destroyed() {
+        console.log('app destroyed');
+        var el = document.getElementById('black-shrimp');
+        el.parentNode.removeChild(el);
+      }
+    });
+  },
+
+  destroy: function destroy() {
+    // @TODO
+    app.destroy();
+  }
+};
+
+/**
+ * Tools
+ */
+
+Number.prototype.between = function (a, b, inclusive) {
+  var min = Math.min.apply(Math, [a, b]),
+      max = Math.max.apply(Math, [a, b]);
+  return inclusive ? this >= min && this <= max : this > min && this < max;
+};
+
+/***/ }),
+/* 24 */,
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16702,7 +15896,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 44 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16716,9 +15910,9 @@ function fromByteArray (uint8) {
 
 
 
-var base64 = __webpack_require__(43)
-var ieee754 = __webpack_require__(48)
-var isArray = __webpack_require__(51)
+var base64 = __webpack_require__(25)
+var ieee754 = __webpack_require__(34)
+var isArray = __webpack_require__(37)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -18496,10 +17690,10 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 45 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -21768,11 +20962,11 @@ function isnan (val) {
 
     /* CommonJS */ if ("function" === 'function' && typeof module === 'object' && module && typeof exports === 'object' && exports)
         module['exports'] = (function() {
-            var Long; try { Long = __webpack_require__(36); } catch (e) {}
+            var Long; try { Long = __webpack_require__(9); } catch (e) {}
             return loadByteBuffer(Long);
         })();
     /* AMD */ else if (true)
-        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(36)], __WEBPACK_AMD_DEFINE_RESULT__ = function(Long) { return loadByteBuffer(Long); }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(9)], __WEBPACK_AMD_DEFINE_RESULT__ = function(Long) { return loadByteBuffer(Long); }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
     /* Global */ else
         (global["dcodeIO"] = global["dcodeIO"] || {})["ByteBuffer"] = loadByteBuffer(global["dcodeIO"]["Long"]);
@@ -21782,7 +20976,35 @@ function isnan (val) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(67)(module)))
 
 /***/ }),
-/* 46 */
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.blackShrimp .menu {\n  position: relative;\n  display: block;\n  height: 28px;\n  color: #474747;\n  background-color: #f0f0f0;\n  border-top-left-radius: 5px;\n  border-top-right-radius: 5px;\n  overflow: hidden;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.blackShrimp .menu .item.active {\n    color: #f0f0f0;\n    background-color: #535353;\n}\n.blackShrimp .menu .item.-moving {\n    cursor: move;\n}\n.blackShrimp .menu .item {\n    display: inline-block;\n    padding-left: 5px;\n    padding-right: 8px;\n    height: 28px;\n    font-size: 12px;\n    line-height: 28px;\n    vertical-align: top;\n    cursor: pointer;\n    transition: all 0.3s linear;\n}\n.blackShrimp .menu .item > * {\n      display: inline-block;\n      vertical-align: top;\n      line-height: inherit;\n}\n.blackShrimp .menu .item .bs-icon {\n      font-size: 18px;\n}\n.blackShrimp .menu .item:hover, .blackShrimp .menu .item:focus {\n    background: #474747;\n    color: #f0f0f0;\n}\n.blackShrimp .menu .jsClose {\n    float: right;\n    padding: 0;\n    width: 28px;\n    text-align: center;\n}\n.blackShrimp .menu .jsClose.-moving {\n    cursor: move;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n@charset \"UTF-8\";\n@font-face {\n  font-family: 'Black-shrimp';\n  src: url(\"chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/Black-shrimp/Black-shrimp.woff\") format(\"woff\");\n  font-weight: normal;\n  font-style: normal;\n}\n[class^=\"bs-icon\"] {\n  /* use !important to prevent issues with browser extensions that change fonts */\n  font-family: 'Black-shrimp' !important;\n  speak: none;\n  font-style: normal;\n  font-weight: normal;\n  -webkit-font-feature-settings: normal;\n  font-feature-settings: normal;\n  font-variant: normal;\n  text-transform: none;\n  line-height: 1;\n  /* Better Font Rendering =========== */\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n[class^=\"bs-icon\"]:before {\n  font-size: inherit !important;\n  color: inherit !important;\n}\n.bs-icon-carret-up:before {\n  content: \"\\E907\";\n}\n.bs-icon-carret-down:before {\n  content: \"\\E908\";\n}\n.bs-icon-carret-left:before {\n  content: \"\\E909\";\n}\n.bs-icon-carret-right:before {\n  content: \"\\E90A\";\n}\n.bs-icon-close:before {\n  content: \"\\E906\";\n}\n.bs-icon-binoculars:before {\n  content: \"\\E900\";\n}\n.bs-icon-eyeDropper:before {\n  content: \"\\E901\";\n}\n.bs-icon-folder:before {\n  content: \"\\E902\";\n}\n.bs-icon-plus:before {\n  content: \"\\E903\";\n}\n.bs-icon-ruler:before {\n  content: \"\\E904\";\n}\n.bs-icon-trash:before {\n  content: \"\\E905\";\n}\n@font-face {\n  font-family: 'Poppins';\n  src: url(\"chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/Poppins/poppins-regular.woff\") format(\"woff\");\n  font-weight: normal;\n  font-style: normal;\n}\n.blackShrimp {\n  all: initial;\n  /* blocking inheritance for all properties */\n  display: none;\n  position: fixed;\n  top: 10px;\n  left: 10px;\n  width: 235px;\n  box-sizing: border-box;\n  font-family: 'Poppins', monospace !important;\n  z-index: 9999;\n}\n.blackShrimp * {\n    all: unset;\n    /* allowing inheritance within .black-shrimp */\n}\n.blackShrimp.-visible {\n  display: block;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -21796,7 +21018,35 @@ exports.push([module.i, "\n.blackShrimp {\n  /**\n   * Select component\n   */\n
 
 
 /***/ }),
-/* 47 */
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.blackShrimp .cursor-overlay {\n  display: none;\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.blackShrimp .cursor-overlay.-visible {\n  display: block;\n}\n.blackShrimp .cursor-overlay.-visible.-eyeDropper,\n.blackShrimp .cursor-overlay.-visible.-eyeDropper:hover {\n  cursor: url(" + __webpack_require__(44) + ") 0 22, pointer;\n}\n.blackShrimp .cursor-overlay.-visible.-eyeDropper:active, .blackShrimp .cursor-overlay.-visible.-eyeDropper:hover:active {\n  cursor: url(" + __webpack_require__(43) + ") 0 22, pointer;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.blackShrimp .btn-square:active, .blackShrimp .colorSwatches > .folder-collection > .folder:active:before {\n  background-color: #333333;\n}\n.blackShrimp .btn-square:active > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .folder:active:before > .bs-icon {\n    margin-top: -1px !important;\n    margin-left: -1px !important;\n}\n.blackShrimp .btn-square:focus, .blackShrimp .colorSwatches > .folder-collection > .folder:focus:before,\n.blackShrimp .btn-square.-selected, .blackShrimp .colorSwatches > .folder-collection > .-selected.folder:before {\n  outline-style: dashed;\n  outline-width: 1px;\n  outline-color: #f0f0f0;\n}\n.blackShrimp .btn-square:focus > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .folder:focus:before > .bs-icon,\n  .blackShrimp .btn-square.-selected > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .-selected.folder:before > .bs-icon {\n    margin-top: -2px;\n    margin-left: -2px;\n}\n.blackShrimp .colorSwatches > .folder-collection {\n  display: block;\n}\n.blackShrimp .colorSwatches > .folder-collection:not(:empty) {\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder {\n    display: block;\n    position: relative;\n    margin-top: -4px;\n    margin-bottom: 4px;\n    margin-left: -4px;\n    padding-top: 4px;\n    padding-left: 4px;\n    -webkit-user-drag: element;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    user-select: none;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder:before {\n      display: block;\n      content: '\\E902';\n      font-size: 18px;\n      font-family: 'Black-shrimp';\n      outline-width: 0 !important;\n      border-width: 0 !important;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder.-selected {\n      outline-style: dashed;\n      outline-width: 1px;\n      outline-color: #B3B3B3;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder.-selected:before {\n        background-color: #333333;\n        color: #f0f0f0;\n}\n.blackShrimp .colorSwatches > .color-collection {\n  display: block;\n  margin-left: -4px;\n  padding-left: 4px;\n}\n.blackShrimp .colorSwatches > .color-collection:not(:empty) {\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches > .button-wrapper {\n  display: block;\n  text-align: right;\n}\n.blackShrimp .colorSwatches > .button-wrapper > .btn-square, .blackShrimp .colorSwatches > .folder-collection.button-wrapper > .folder:before {\n    border: none;\n    margin-bottom: 0;\n}\n.blackShrimp .panel {\n  position: relative;\n  display: block;\n  padding: 8px;\n  font-size: 10px;\n  color: #B3B3B3;\n  background-color: #535353;\n  border-bottom-left-radius: 5px;\n  border-bottom-right-radius: 5px;\n}\n.blackShrimp .colorPicker {\n  display: block;\n  font-size: 0;\n  line-height: 0;\n}\n.blackShrimp .colorPicker > * {\n    display: inline-block;\n    height: 22px;\n    vertical-align: top;\n}\n.blackShrimp .colorPicker > * + * {\n    margin-left: 8px;\n}\n.blackShrimp .colorPicker > .select-block {\n    margin-left: 0;\n    margin-right: -8px;\n}\n.blackShrimp .colorPicker > .select-block > .value > .text {\n      width: 24px;\n}\n.blackShrimp .colorViewer {\n  position: relative;\n  width: 22px;\n  height: 22px;\n  border-radius: 100%;\n  border: 1px solid #666666;\n  box-sizing: border-box;\n}\n.blackShrimp .hexWrapper, .blackShrimp .rgbWrapper, .blackShrimp .hslWrapper {\n  display: none;\n}\n.blackShrimp .hexWrapper.active, .blackShrimp .rgbWrapper.active, .blackShrimp .hslWrapper.active {\n  display: inline-block;\n}\n.blackShrimp .hexWrapper input {\n  width: 140px;\n}\n.blackShrimp .rgbWrapper input, .blackShrimp .hslWrapper input {\n  width: 44px;\n}\n.blackShrimp .rgbWrapper input + input, .blackShrimp .hslWrapper input + input {\n  margin-left: 4px;\n}\n.blackShrimp input[type=\"text\"] {\n  display: inline-block;\n  height: 22px;\n  padding: 4px;\n  font-family: 'Poppins', monospace !important;\n  font-size: 11px;\n  line-height: 14px;\n  text-align: center;\n  color: #f0f0f0;\n  background-color: #474747;\n  border: solid 1px #666666;\n  border-radius: 3px;\n  box-sizing: border-box;\n}\n.blackShrimp input[type=\"text\"]:focus {\n  border-color: #333333;\n}\n.blackShrimp .colorSwatches {\n  position: relative;\n  display: block;\n  margin-top: 8px;\n  margin-right: -4px;\n  padding-top: 8px;\n}\n.blackShrimp .colorSwatches .btn-square, .blackShrimp .colorSwatches > .folder-collection > .folder:before {\n    margin-right: 4px;\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches:before {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  left: -8px;\n  right: -4px;\n  border-top: solid 1px #666666;\n}\n.blackShrimp .btn-square, .blackShrimp .colorSwatches > .folder-collection > .folder:before {\n  display: inline-block;\n  width: 18px;\n  height: 18px;\n  font-size: 18px;\n  background-color: #666666;\n  border-radius: 2px;\n  border-width: 1px;\n  border-style: solid;\n  border-color: transparent;\n  box-sizing: border-box;\n  vertical-align: middle;\n  cursor: pointer;\n  -webkit-user-drag: element;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  transition: background-color .2s ease;\n}\n.blackShrimp .btn-square:hover, .blackShrimp .colorSwatches > .folder-collection > .folder:hover:before {\n  background-color: #474747;\n  color: #f0f0f0;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/* FileSaver.js
@@ -21991,7 +21241,7 @@ if (typeof module !== "undefined" && module.exports) {
 
 
 /***/ }),
-/* 48 */
+/* 34 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -22081,7 +21331,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 49 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function(root) {
@@ -22108,7 +21358,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 50 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22122,7 +21372,7 @@ module.exports = function (x) {
 
 
 /***/ }),
-/* 51 */
+/* 37 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -22133,7 +21383,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 52 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22144,10 +21394,10 @@ module.exports = Array.isArray || function (arr) {
  */
 
 
-var saveAs = __webpack_require__(47).saveAs
-var ab = __webpack_require__(56)
-var getMimeType = __webpack_require__(53)('application/octect-stream');
-var isBlob = __webpack_require__(50)
+var saveAs = __webpack_require__(33).saveAs
+var ab = __webpack_require__(42)
+var getMimeType = __webpack_require__(39)('application/octect-stream');
+var isBlob = __webpack_require__(36)
 
 var planned = null
 
@@ -22195,7 +21445,7 @@ module.exports = function save (data, filename, done) {
 
 
 /***/ }),
-/* 53 */
+/* 39 */
 /***/ (function(module, exports) {
 
 // A simple mime database.
@@ -22400,7 +21650,7 @@ types = {
 
 
 /***/ }),
-/* 54 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22410,9 +21660,9 @@ types = {
 
 
 
-var atob = __webpack_require__(41)
-var isBase64 = __webpack_require__(55)
-var assert = __webpack_require__(35)
+var atob = __webpack_require__(16)
+var isBase64 = __webpack_require__(41)
+var assert = __webpack_require__(8)
 
 module.exports = function stringToArrayBuffer (arg) {
 	assert(typeof arg === 'string', 'Argument should be a string')
@@ -22470,7 +21720,7 @@ function decode(uri) {
 
 
 /***/ }),
-/* 55 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function(root) {
@@ -22506,7 +21756,7 @@ function decode(uri) {
 
 
 /***/ }),
-/* 56 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22516,8 +21766,8 @@ function decode(uri) {
 
 
 
-var isBase64 = __webpack_require__(49)
-var str2ab = __webpack_require__(54)
+var isBase64 = __webpack_require__(35)
+var str2ab = __webpack_require__(40)
 
 //FIXME: what is the good way to go on with this package?
 module.exports = function toArrayBuffer (arg) {
@@ -22552,7 +21802,19 @@ module.exports = function toArrayBuffer (arg) {
 
 
 /***/ }),
-/* 57 */
+/* 43 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAACXBIWXMAAAsSAAALEgHS3X78AAABaUlEQVQ4y63VMWrDQBAF0CG1iyld6gh7ABc+go+wR3CRA4jgKupTb+EDBNylSGW70sKCECrkQiwRGIZAwEVQ9VNJyLJlO7YGfrMMD3YYGAJADySw1q7yPC92u91L/X4XBICttavtdvs7m80QBAHCMISIeAD8H4yzLPtM07Qqy7IyxoCIjhKGIeI4NjeDIuK11idQO8yMPM+LwcA2+kQD1mKxqEaj0est6E9Zll4pdbFJa02TySQej8dvV7/vnFsbY8DMcM6hbwxZln3dtFJdsK5zcBRF71fRPhAAnHNHoNYam83m4yJag0R0FmRmaK2bFEXxDYB70TZIRDDGnAWdc2sR8d57aYMnaBdsw12w3uEueIT2gd3ZtcDeEABKkuR5KLBBnXProcAG3e/3pVJqELBGw+VyWQ0F1mjBzA00nU5BRJjP53eBDaqUAjPDGAPvvYjIIY5jc++ZIQAqTdNERA7W2ujBm0UA6A8Wihn3FKuIMAAAAABJRU5ErkJggg=="
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAACXBIWXMAAAsSAAALEgHS3X78AAABhElEQVQ4y63Vu4rCQBQG4GFriyktfYR5AAsfwXLLeQQfISxWa7/1FLKVxYKVW2ylVhkIhDGEWMQhweIgLARdrP6tEuIlXqIDfzMMH5zhHA4DwB5IS2s9jqIoXi6Xb/l9LQgA11qP5/P5X7fbRavVguM4ICILgN+D8SAIfowx+zRN90opMMYO4jgOXNdVN4NEZKWUJ1A5nHNEURQ/DSyjL+yJp9/v7xuNxvst6G+aplYIcfGRlJK122232Wx+XC3f87ypUgqcc/i+j6pvCIIguamljsEkSbDZbM7Cg8Hg6yp6DK5WKwDAbrfDYrE4AKWUmM1m3xfRKnC73SIMQ3DOIaUsEsfxBgCvRG8FPc+bEpG11lIZPEHvAfMePgYP0BpgZRgANplMXvNZVkphvV7XBgt0NBp9lkctDENkWVYLLFBjjC+EOJjh/CvuBXPUGQ6H+3NTUgfM0ZhzXkCdTgeMMfR6vVpggQohipKttUREmeu6qu6aYQCEMcYnokxrPXhwZzEA7B90uUovodIxjgAAAABJRU5ErkJggg=="
+
+/***/ }),
+/* 45 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -22581,7 +21843,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 58 */
+/* 46 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -22592,7 +21854,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 59 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -23120,7 +22382,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(58);
+exports.isBuffer = __webpack_require__(46);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -23164,7 +22426,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(57);
+exports.inherits = __webpack_require__(45);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -23182,16 +22444,16 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33), __webpack_require__(37)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(10)))
 
 /***/ }),
-/* 60 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 
-var Vue = __webpack_require__(3);
+var Vue = __webpack_require__(4);
 Vue = 'default' in Vue ? Vue['default'] : Vue;
 
 var version = '2.1.0';
@@ -23266,21 +22528,135 @@ var mixin = {
 exports.version = version;
 exports.directive = directive;
 exports.mixin = mixin;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
-/* 61 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(63)
+__webpack_require__(62)
 
 var Component = __webpack_require__(1)(
   /* script */
-  __webpack_require__(42),
+  __webpack_require__(17),
   /* template */
-  __webpack_require__(62),
+  __webpack_require__(57),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "/mnt/c/Users/thomas/Desktop/Black-shrimp/app/components/color.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] color.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-75b1cde6", Component.options)
+  } else {
+    hotAPI.reload("data-v-75b1cde6", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(61)
+
+var Component = __webpack_require__(1)(
+  /* script */
+  __webpack_require__(18),
+  /* template */
+  __webpack_require__(56),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "/mnt/c/Users/thomas/Desktop/Black-shrimp/app/components/cursor-overlay.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] cursor-overlay.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-3d91b5e6", Component.options)
+  } else {
+    hotAPI.reload("data-v-3d91b5e6", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(58)
+
+var Component = __webpack_require__(1)(
+  /* script */
+  __webpack_require__(19),
+  /* template */
+  __webpack_require__(53),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "/mnt/c/Users/thomas/Desktop/Black-shrimp/app/components/menu.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] menu.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-0d7bd1ac", Component.options)
+  } else {
+    hotAPI.reload("data-v-0d7bd1ac", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(60)
+
+var Component = __webpack_require__(1)(
+  /* script */
+  __webpack_require__(20),
+  /* template */
+  __webpack_require__(55),
   /* scopeId */
   null,
   /* cssModules */
@@ -23307,7 +22683,106 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 62 */
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "menu",
+    attrs: {
+      "data-js-draggable": ""
+    }
+  }, [_vm._l((_vm.items), function(item) {
+    return _c('span', {
+      staticClass: "item",
+      class: [{
+        active: item.isActive
+      }, {
+        '-moving': _vm.isMoving
+      }, 'item--' + item.name],
+      attrs: {
+        "data-js-draggable": ""
+      }
+    }, [_c('i', {
+      staticClass: "bs-icon",
+      class: ['bs-icon-' + item.icon],
+      attrs: {
+        "data-js-draggable": ""
+      }
+    }), _vm._v(" "), _c('span', {
+      attrs: {
+        "data-js-draggable": ""
+      }
+    }, [_vm._v(_vm._s(item.name))])])
+  }), _vm._v(" "), _c('span', {
+    staticClass: "jsClose item",
+    class: {
+      '-moving': _vm.isMoving
+    },
+    attrs: {
+      "data-js-draggable": ""
+    },
+    on: {
+      "click": function($event) {
+        _vm.destroy($event)
+      }
+    }
+  }, [_c('i', {
+    staticClass: "bs-icon bs-icon-close",
+    attrs: {
+      "data-js-draggable": ""
+    }
+  })])], 2)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-0d7bd1ac", module.exports)
+  }
+}
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "blackShrimp",
+    class: [{
+      '-visible': _vm.isVisible
+    }],
+    style: ({
+      'left': _vm.styleObject.left + 'px',
+      'top': _vm.styleObject.top + 'px',
+      'cursor': _vm.styleObject.cursor
+    }),
+    attrs: {
+      "id": "black-shrimp"
+    },
+    on: {
+      "mousedown": function($event) {
+        _vm.startMoving($event)
+      },
+      "mouseup": function($event) {
+        _vm.stopMoving($event)
+      },
+      "mousemove": function($event) {
+        _vm.move($event)
+      }
+    }
+  }, [_c('CursorComponent'), _vm._v(" "), _c('MenuComponent'), _vm._v(" "), _c('ColorComponent')], 1)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-20d78a16", module.exports)
+  }
+}
+
+/***/ }),
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -23356,13 +22831,453 @@ if (false) {
 }
 
 /***/ }),
-/* 63 */
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "cursor-overlay",
+    class: [{
+      '-visible': _vm.isVisible
+    }, '-' + _vm.cursor],
+    on: {
+      "mousemove": function($event) {
+        _vm.mouseMove($event)
+      },
+      "mousedown": function($event) {
+        _vm.click($event)
+      }
+    }
+  })
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-3d91b5e6", module.exports)
+  }
+}
+
+/***/ }),
+/* 57 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "panel panel--color"
+  }, [_c('div', {
+    staticClass: "colorPicker"
+  }, [_c('div', {
+    staticClass: "colorViewer",
+    style: ({
+      backgroundColor: _vm.hex
+    })
+  }), _vm._v(" "), _c('div', {
+    staticClass: "valueWrapper"
+  }, [_c('div', {
+    staticClass: "hexWrapper",
+    class: [{
+      active: _vm.color.hex.isActive
+    }]
+  }, [_c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.hex),
+      expression: "hex"
+    }],
+    staticClass: "value_hex",
+    attrs: {
+      "type": "text",
+      "spellcheck": "false"
+    },
+    domProps: {
+      "value": (_vm.hex)
+    },
+    on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.hex = $event.target.value
+      }
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "rgbWrapper",
+    class: [{
+      active: _vm.color.rgb.isActive
+    }]
+  }, [_c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.r),
+      expression: "r"
+    }],
+    staticClass: "value_r",
+    attrs: {
+      "type": "text",
+      "spellcheck": "false"
+    },
+    domProps: {
+      "value": (_vm.r)
+    },
+    on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.r = $event.target.value
+      }
+    }
+  }), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.g),
+      expression: "g"
+    }],
+    staticClass: "value_g",
+    attrs: {
+      "type": "text",
+      "spellcheck": "false"
+    },
+    domProps: {
+      "value": (_vm.g)
+    },
+    on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.g = $event.target.value
+      }
+    }
+  }), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.b),
+      expression: "b"
+    }],
+    staticClass: "value_b",
+    attrs: {
+      "type": "text",
+      "spellcheck": "false"
+    },
+    domProps: {
+      "value": (_vm.b)
+    },
+    on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.b = $event.target.value
+      }
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "hslWrapper",
+    class: [{
+      active: _vm.color.hsl.isActive
+    }]
+  }, [_c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.h),
+      expression: "h"
+    }],
+    staticClass: "value_h",
+    attrs: {
+      "type": "text",
+      "spellcheck": "false"
+    },
+    domProps: {
+      "value": (_vm.h)
+    },
+    on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.h = $event.target.value
+      }
+    }
+  }), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.s),
+      expression: "s"
+    }],
+    staticClass: "value_s",
+    attrs: {
+      "type": "text",
+      "spellcheck": "false"
+    },
+    domProps: {
+      "value": (_vm.s)
+    },
+    on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.s = $event.target.value
+      }
+    }
+  }), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.l),
+      expression: "l"
+    }],
+    staticClass: "value_l",
+    attrs: {
+      "type": "text",
+      "spellcheck": "false"
+    },
+    domProps: {
+      "value": (_vm.l)
+    },
+    on: {
+      "click": function($event) {
+        _vm.selectInputText($event)
+      },
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.l = $event.target.value
+      }
+    }
+  })])]), _vm._v(" "), _c('SelectComponent', {
+    attrs: {
+      "options": [{
+          text: 'hex',
+          value: 1,
+          isSelected: true
+        },
+        {
+          text: 'rgb',
+          value: 2,
+          isSelected: false
+        },
+        {
+          text: 'hsl',
+          value: 3,
+          isSelected: false
+        } ]
+    },
+    on: {
+      "change": function($event) {
+        _vm.changeColorMode($event)
+      }
+    }
+  })], 1), _vm._v(" "), _c('div', {
+    staticClass: "colorSwatches"
+  }, [_c('draggable', {
+    staticClass: "color-collection",
+    attrs: {
+      "element": 'ul',
+      "move": _vm.onMove,
+      "options": {
+        group: 'colors'
+      }
+    },
+    model: {
+      value: (_vm.colors),
+      callback: function($$v) {
+        _vm.colors = $$v
+      },
+      expression: "colors"
+    }
+  }, _vm._l((_vm.colors), function(color, index) {
+    return _c('li', {
+      key: index,
+      staticClass: "btn-square -color",
+      class: [{
+        '-selected': color.isSelected
+      }],
+      style: ({
+        'background-color': color.hex
+      }),
+      on: {
+        "click": function($event) {
+          _vm.toggleColorSelection($event, color, index, _vm.colors)
+        }
+      }
+    })
+  })), _vm._v(" "), _c('draggable', {
+    staticClass: "folder-collection",
+    attrs: {
+      "element": 'ul',
+      "move": _vm.onMove
+    },
+    model: {
+      value: (_vm.colorFolders),
+      callback: function($$v) {
+        _vm.colorFolders = $$v
+      },
+      expression: "colorFolders"
+    }
+  }, _vm._l((_vm.colorFolders), function(folder, index) {
+    return _c('draggable', {
+      key: index,
+      staticClass: "folder",
+      class: [{
+        '-selected': folder.isSelected
+      }],
+      attrs: {
+        "element": 'ul',
+        "options": {
+          group: 'colors'
+        },
+        "move": _vm.onMove
+      },
+      on: {
+        "click": function($event) {
+          _vm.console.log(folder)
+        }
+      },
+      nativeOn: {
+        "click": function($event) {
+          if ($event.target !== $event.currentTarget) { return null; }
+          _vm.toggleFolderSelection($event, folder, index)
+        }
+      },
+      model: {
+        value: (_vm.colorFolders[index].content),
+        callback: function($$v) {
+          _vm.colorFolders[index].content = $$v
+        },
+        expression: "colorFolders[index].content"
+      }
+    }, _vm._l((folder.content), function(color, subIndex) {
+      return _c('li', {
+        key: subIndex,
+        staticClass: "btn-square -color",
+        class: [{
+          '-selected': color.isSelected
+        }],
+        style: ({
+          'background-color': color.hex
+        }),
+        on: {
+          "click": function($event) {
+            _vm.toggleColorSelection($event, color, subIndex, folder.content)
+          }
+        }
+      })
+    }))
+  })), _vm._v(" "), _c('div', {
+    staticClass: "button-wrapper"
+  }, [_c('button', {
+    staticClass: "btn-square",
+    on: {
+      "click": function($event) {
+        _vm.addCurrentColor($event)
+      }
+    }
+  }, [_c('i', {
+    staticClass: "bs-icon bs-icon-plus"
+  })]), _vm._v(" "), _c('button', {
+    staticClass: "btn-square",
+    on: {
+      "click": function($event) {
+        _vm.addFolder($event)
+      }
+    }
+  }, [_c('i', {
+    staticClass: "bs-icon bs-icon-folder"
+  })]), _vm._v(" "), _c('button', {
+    staticClass: "btn-square",
+    on: {
+      "click": [function($event) {
+        _vm.deleteSelection($event)
+      }, function($event) {
+        if (!$event.shiftKey) { return null; }
+        _vm.deleteAll($event)
+      }]
+    }
+  }, [_c('i', {
+    staticClass: "bs-icon bs-icon-trash"
+  })])])], 1)])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-75b1cde6", module.exports)
+  }
+}
+
+/***/ }),
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(46);
+var content = __webpack_require__(28);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(2)("4571b040", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-0d7bd1ac!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./menu.vue", function() {
+     var newContent = require("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-0d7bd1ac!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./menu.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(29);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(2)("84e0d78c", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../node_modules/css-loader/index.js?-autoprefixer!../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-20d78a16!../node_modules/sass-loader/lib/loader.js!../node_modules/postcss-loader/lib/index.js!../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./main.vue", function() {
+     var newContent = require("!!../node_modules/css-loader/index.js?-autoprefixer!../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-20d78a16!../node_modules/sass-loader/lib/loader.js!../node_modules/postcss-loader/lib/index.js!../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./main.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(30);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -23380,6 +23295,91 @@ if(false) {
  // When the module is disposed, remove the <style> tags
  module.hot.dispose(function() { update(); });
 }
+
+/***/ }),
+/* 61 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(31);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(2)("30435c05", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-3d91b5e6!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./cursor-overlay.vue", function() {
+     var newContent = require("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-3d91b5e6!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./cursor-overlay.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(32);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(2)("2aba03c1", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-75b1cde6!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./color.vue", function() {
+     var newContent = require("!!../../node_modules/css-loader/index.js?-autoprefixer!../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-75b1cde6!../../node_modules/sass-loader/lib/loader.js!../../node_modules/postcss-loader/lib/index.js!../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./color.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 63 */
+/***/ (function(module, exports) {
+
+/**
+ * Translates the list format produced by css-loader into something
+ * easier to manipulate.
+ */
+module.exports = function listToStyles (parentId, list) {
+  var styles = []
+  var newStyles = {}
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i]
+    var id = item[0]
+    var css = item[1]
+    var media = item[2]
+    var sourceMap = item[3]
+    var part = {
+      id: parentId + ':' + i,
+      css: css,
+      media: media,
+      sourceMap: sourceMap
+    }
+    if (!newStyles[id]) {
+      styles.push(newStyles[id] = { id: id, parts: [part] })
+    } else {
+      newStyles[id].parts.push(part)
+    }
+  }
+  return styles
+}
+
 
 /***/ }),
 /* 64 */
@@ -23734,7 +23734,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
   }
 
   if (true) {
-    var Sortable = __webpack_require__(6);
+    var Sortable = __webpack_require__(5);
     module.exports = buildDraggable(Sortable);
   } else if (typeof define == "function" && define.amd) {
     define(['sortablejs'], function (Sortable) {
