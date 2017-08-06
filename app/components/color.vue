@@ -1,28 +1,57 @@
 <template>
   <div class="panel panel--color">
     <div class="colorPicker">
+
       <div class="colorViewer" v-bind:style="{ backgroundColor: hex }"></div>
 
+      <!-- Color inputs -->
       <div class="valueWrapper">
-
         <div class="hexWrapper" v-bind:class="[{ active: color.hex.isActive }]">
-          <input type="text" class="value_hex" v-model="hex" spellcheck="false" @click="selectInputText($event)">
+          <input type="text"
+            class="value_hex"
+            v-model="hex"
+            spellcheck="false"
+            @click="selectInputText($event)">
         </div>
 
         <div class="rgbWrapper" v-bind:class="[{ active: color.rgb.isActive }]">
-          <input type="text" class="value_r" v-model="r" spellcheck="false" @click="selectInputText($event)">
-          <input type="text" class="value_g" v-model="g" spellcheck="false" @click="selectInputText($event)">
-          <input type="text" class="value_b" v-model="b" spellcheck="false" @click="selectInputText($event)">
+          <input type="text"
+            class="value_r"
+            v-model="r"
+            @click="selectInputText($event)"
+            spellcheck="false">
+          <input type="text"
+            class="value_g"
+            v-model="g"
+            @click="selectInputText($event)"
+            spellcheck="false">
+          <input type="text"
+            class="value_b"
+            v-model="b"
+            spellcheck="false"
+            @click="selectInputText($event)">
         </div>
 
         <div class="hslWrapper" v-bind:class="[{ active: color.hsl.isActive }]">
-          <input type="text" class="value_h" v-model="h" spellcheck="false" @click="selectInputText($event)">
-          <input type="text" class="value_s" v-model="s" spellcheck="false" @click="selectInputText($event)">
-          <input type="text" class="value_l" v-model="l" spellcheck="false" @click="selectInputText($event)">
+          <input type="text"
+            class="value_h"
+            v-model="h"
+            @click="selectInputText($event)"
+            spellcheck="false">
+          <input type="text"
+            class="value_s"
+            v-model="s"
+            @click="selectInputText($event)"
+            spellcheck="false">
+          <input type="text"
+            class="value_l"
+            v-model="l"
+            spellcheck="false"
+            @click="selectInputText($event)">
         </div>
-
       </div>
 
+      <!-- Color mode select -->
       <SelectComponent :options="[
         { text: 'hex', value: 1, isSelected: true  },
         { text: 'rgb', value: 2, isSelected: false },
@@ -31,50 +60,121 @@
       </SelectComponent>
     </div>
 
+    <!-- Color swatches -->
     <div class="colorSwatches">
 
-      <draggable class="color-collection" v-model="colors" :element="'ul'" :move="onMove" :options="{group:'colors'}">
+      <draggable class="color-collection"
+        v-model="colors"
+        :element="'ul'"
+        :move="onMove"
+        :options="{group:'colors'}">
         <li v-for="(color, index) in colors"
-            :key="index"
-            class="btn-square -color"
-            :class="[{ '-selected': color.isSelected }]"
-            :style="{ 'background-color': color.hex }"
-            @click="toggleColorSelection($event, color, index, colors)"
-        >
+          :key="index"
+          class="btn-square -color"
+          :class="[{ '-selected': color.isSelected }]"
+          :style="{ 'background-color': color.hex }"
+          @click="toggleColorSelection($event, color, index, colors)">
         </li>
       </draggable>
 
-      <draggable class="folder-collection" v-model="colorFolders" :element="'ul'" :move="onMove">
+      <!-- <draggable class="folder-collection"
+        v-model="colorFolders"
+        :element="'ul'"
+        :move="onMove"
+        :options="{group:'folders'}"
+        style="
+            display: block;
+            -webkit-user-drag: element;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;">
         <draggable v-for="(folder, index) in colorFolders"
-                   :key="index"
-                   v-model="colorFolders[index].content"
-                   :element="'ul'"
-                   class="folder"
-                   :class="[{ '-selected': folder.isSelected }]"
-                   :options="{group:'colors'}"
-                   :move="onMove"
-                   @click.self.native="toggleFolderSelection($event, folder, index)"
-                   @click="console.log(folder)"
-        >
+          :key="index"
+          v-model="colorFolders[index].content"
+          :element="'ul'"
+          class="folder"
+          :class="[{ '-selected': folder.isSelected }]"
+          :options="{group:'colors'}"
+          :move="onMove"
+          @click.self.native="toggleFolderSelection($event, folder, index)"
+          @click="console.log(folder)">
           <li v-for="(color, subIndex) in folder.content"
+            :key="subIndex"
+            class="btn-square -color"
+            :class="[{ '-selected': color.isSelected }]"
+            :style="{ 'background-color': color.hex }"
+            @click="toggleColorSelection($event, color, subIndex, folder.content)">
+          </li>
+        </draggable>
+      </draggable> -->
+
+
+
+
+      <draggable class="folder-collection"
+        v-model="colorFolders"
+        :element="'ul'"
+        :move="onMove"
+        :options="{group:'folders'}"
+        style="
+            display: block;
+            -webkit-user-drag: element;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;">
+        <ul
+          v-for="(folder, index) in colorFolders"
+          :key="index"
+          :class="[{ '-selected': folder.isSelected }]"
+          class="folder"
+          @click.self.native="toggleFolderSelection($event, folder, index)"
+          style="
+            display: block;
+            -webkit-user-drag: element;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;">
+          <draggable
+            v-model="colorFolders[index].content"
+            :options="{group:'colors'}"
+            :move="onMove">
+            <li v-for="(color, subIndex) in folder.content"
               :key="subIndex"
               class="btn-square -color"
               :class="[{ '-selected': color.isSelected }]"
               :style="{ 'background-color': color.hex }"
-              @click="toggleColorSelection($event, color, subIndex, folder.content)"
-          >
-          </li>
-        </draggable>
+              @click="toggleColorSelection($event, color, subIndex, folder.content)">
+            </li>
+          </draggable>
+        </ul>
       </draggable>
 
 
+
+
+
+
+
+
+
+
+
+      <!-- Action buttons -->
       <div class="button-wrapper">
-        <button class="btn-square" @click="addCurrentColor($event)"><i class="bs-icon bs-icon-plus"></i></button>
-        <button class="btn-square" @click="addFolder($event)"><i class="bs-icon bs-icon-folder"></i></button>
+        <button class="btn-square" @click="addCurrentColor($event)">
+          <i class="bs-icon bs-icon-plus"></i>
+        </button>
+
+        <button class="btn-square" @click="addFolder($event)">
+          <i class="bs-icon bs-icon-folder"></i>
+        </button>
+
         <button class="btn-square"
-                @click="deleteSelection($event)"
-                @click.shift="deleteAll($event)"
-        >
+          @click="deleteSelection($event)"
+          @click.shift="deleteAll($event)">
           <i class="bs-icon bs-icon-trash"></i>
         </button>
       </div>
@@ -94,6 +194,7 @@
       SelectComponent,
       draggable
     },
+
     data: () => ({
       isActive: true,
       currentColorType: 'hex',
@@ -108,6 +209,7 @@
       isDragging: false,
       delayedDragging: false
     }),
+
     computed: {
       port() {
         return this.$store.getters.getPort;
@@ -154,7 +256,7 @@
     watch: {
       colorFolders: {
         handler: function (val, oldVal) {
-          console.log('sync color folders:', this.colorFolders);
+          // console.log('sync color folders:', this.colorFolders);
           chrome.storage.sync.set({'colorFolders': this.colorFolders}, function() {});
         },
         deep: true
@@ -162,7 +264,7 @@
 
       colors: {
         handler: function (val, oldVal) {
-          console.log('sync colors:', this.colors);
+          // console.log('sync colors:', this.colors);
           chrome.storage.sync.set({'colors': this.colors}, function() {});
         },
         deep: true
@@ -171,6 +273,10 @@
 
     methods: {
       onMove ({relatedContext, draggedContext}) {
+        console.log(
+          'onMove',
+          relatedContext,
+          draggedContext)
         const relatedElement = relatedContext.element;
         const draggedElement = draggedContext.element;
         return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
@@ -214,12 +320,11 @@
       onChromeDataChange: function(changes, namespace) {
         for ( let key in changes) {
           let storageChange = changes[key];
-          console.log('Storage key "%s" in namespace "%s" changed. ' +
-                      'Old value was "%s", new value is "%s".',
-                      key,
-                      namespace,
-                      storageChange.oldValue,
-                      storageChange.newValue);
+          console.log(
+            'Storage key "%s" in namespace "%s" changed.',
+            key,
+            namespace
+          );
         }
         if (changes['colors'] != undefined) {
           // Save chrome data in store.
@@ -268,20 +373,16 @@
 
         if (!event) { event = window.event; }
 
-        if (event.ctrlKey ) {            // ctrl is down
-          console.log('ctrl selection');
+        if (event.ctrlKey ) {
+          // ctrl selection
           color.isSelected = !isSelected;
-        } else if (event.shiftKey) {     // shift is down
-          console.log('shift selection');
+        } else if (event.shiftKey) {
+          // shift selection
           if (!this.selection_origin) { return }
           if (!this.selection_origin.array === array) { return }
 
-          console.log('array:', array);
-          console.log('this.selection_origin.array:', this.selection_origin.array);
-
           for (let i = 0; i < array.length; i++) {
             if ( i.between(this.selection_origin.index, index, true) ) {
-              console.log('between true');
               array[i].isSelected = true;
             } else {
               array[i].isSelected = false;
@@ -289,17 +390,18 @@
           }
         } else {
           // Single selection
-          console.log('single selection');
           this.deselectAll();
           color.isSelected = !isSelected;
           this.selection_origin = {
             'index': index,
             'array': array
           };
+
           // Update displayed color.
           if ( !isSelected ) {
             color.isSelected = true;
 
+            // @TODO refactor
             let colorToSave = {};
             colorToSave.value = {
               'hex' : color.hex,
@@ -337,8 +439,7 @@
        * Delete selected color
        */
       deleteSelection: function(event) {
-        console.log('deleteSelection')
-
+        // @TODO rework/refactor this block
         let arrays = [this.colors, this.colorFolders];
 
         for ( let h in this.colorFolders ) {
@@ -364,11 +465,13 @@
         }
       },
 
+      /**
+       * Reset user colors and folders
+       */
       deleteAll: function(event) {
-        let ask = confirm("You are about to delete all your colors and folders. Are you sure you wan't delete everything ?");
+        let ask = confirm('You are about to delete all your colors and folders. Please confirm to proceed.');
         if (!ask) { return }
 
-        // Reset user colors and folders
         this.colors = []
         this.colorFolders = []
       },
@@ -385,6 +488,7 @@
       },
 
       toggleFolderSelection: function(event, folder, index = false) {
+        // @TODO refactor
         console.log('toggleFolderSelection');
         let isSelected = folder.isSelected ? true : false;
 
@@ -407,6 +511,9 @@
         }
       },
 
+      /**
+       * Keyboard shortcuts
+       */
       onKeyDown: function(event) {
         console.log('event:', event)
         console.log('keyup:', event.keyCode)
@@ -451,7 +558,8 @@
       },
 
       formatColor: function(color) {
-        if (!color) return null
+        if (!color) { return null }
+
         let formattedColor = {
           "name": "R=" + color.r + "G=" + color.g + "B=" + color.b,
           "model": "RGB",
@@ -468,18 +576,15 @@
 
       convertToASE: function(data) {
         let encodedData = ase.encode(data);
-        console.log('ASE encodedData:', encodedData);
-
         this.saveFile(encodedData);
       },
 
       saveFile: function(fileEntry) {
         save(fileEntry, 'swatches.ase', (err, data) => {
-          if (err) throw err;
+          if (err) { throw err }
           console.log('File saved');
         })
         .then(() => {
-          console.log('saveFile then')
         })
       },
     },

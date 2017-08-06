@@ -14774,6 +14774,106 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -14785,6 +14885,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     SelectComponent: __WEBPACK_IMPORTED_MODULE_0__select_block_vue___default.a,
     draggable: __WEBPACK_IMPORTED_MODULE_1_vuedraggable___default.a
   },
+
   data: () => ({
     isActive: true,
     currentColorType: 'hex',
@@ -14799,6 +14900,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     isDragging: false,
     delayedDragging: false
   }),
+
   computed: {
     port() {
       return this.$store.getters.getPort;
@@ -14845,7 +14947,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   watch: {
     colorFolders: {
       handler: function (val, oldVal) {
-        console.log('sync color folders:', this.colorFolders);
+        // console.log('sync color folders:', this.colorFolders);
         chrome.storage.sync.set({ 'colorFolders': this.colorFolders }, function () {});
       },
       deep: true
@@ -14853,7 +14955,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     colors: {
       handler: function (val, oldVal) {
-        console.log('sync colors:', this.colors);
+        // console.log('sync colors:', this.colors);
         chrome.storage.sync.set({ 'colors': this.colors }, function () {});
       },
       deep: true
@@ -14862,6 +14964,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
   methods: {
     onMove({ relatedContext, draggedContext }) {
+      console.log('onMove', relatedContext, draggedContext);
       const relatedElement = relatedContext.element;
       const draggedElement = draggedContext.element;
       return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed;
@@ -14905,7 +15008,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     onChromeDataChange: function (changes, namespace) {
       for (let key in changes) {
         let storageChange = changes[key];
-        console.log('Storage key "%s" in namespace "%s" changed. ' + 'Old value was "%s", new value is "%s".', key, namespace, storageChange.oldValue, storageChange.newValue);
+        console.log('Storage key "%s" in namespace "%s" changed.', key, namespace);
       }
       if (changes['colors'] != undefined) {
         // Save chrome data in store.
@@ -14959,12 +15062,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       }
 
       if (event.ctrlKey) {
-        // ctrl is down
-        console.log('ctrl selection');
+        // ctrl selection
         color.isSelected = !isSelected;
       } else if (event.shiftKey) {
-        // shift is down
-        console.log('shift selection');
+        // shift selection
         if (!this.selection_origin) {
           return;
         }
@@ -14972,12 +15073,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
           return;
         }
 
-        console.log('array:', array);
-        console.log('this.selection_origin.array:', this.selection_origin.array);
-
         for (let i = 0; i < array.length; i++) {
           if (i.between(this.selection_origin.index, index, true)) {
-            console.log('between true');
             array[i].isSelected = true;
           } else {
             array[i].isSelected = false;
@@ -14985,17 +15082,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
       } else {
         // Single selection
-        console.log('single selection');
         this.deselectAll();
         color.isSelected = !isSelected;
         this.selection_origin = {
           'index': index,
           'array': array
         };
+
         // Update displayed color.
         if (!isSelected) {
           color.isSelected = true;
 
+          // @TODO refactor
           let colorToSave = {};
           colorToSave.value = {
             'hex': color.hex,
@@ -15032,8 +15130,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
      * Delete selected color
      */
     deleteSelection: function (event) {
-      console.log('deleteSelection');
-
+      // @TODO rework/refactor this block
       let arrays = [this.colors, this.colorFolders];
 
       for (let h in this.colorFolders) {
@@ -15058,13 +15155,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       }
     },
 
+    /**
+     * Reset user colors and folders
+     */
     deleteAll: function (event) {
-      let ask = confirm("You are about to delete all your colors and folders. Are you sure you wan't delete everything ?");
+      let ask = confirm('You are about to delete all your colors and folders. Please confirm to proceed.');
       if (!ask) {
         return;
       }
 
-      // Reset user colors and folders
       this.colors = [];
       this.colorFolders = [];
     },
@@ -15081,6 +15180,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
     toggleFolderSelection: function (event, folder, index = false) {
+      // @TODO refactor
       console.log('toggleFolderSelection');
       let isSelected = folder.isSelected ? true : false;
 
@@ -15107,6 +15207,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       }
     },
 
+    /**
+     * Keyboard shortcuts
+     */
     onKeyDown: function (event) {
       console.log('event:', event);
       console.log('keyup:', event.keyCode);
@@ -15151,7 +15254,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
     formatColor: function (color) {
-      if (!color) return null;
+      if (!color) {
+        return null;
+      }
+
       let formattedColor = {
         "name": "R=" + color.r + "G=" + color.g + "B=" + color.b,
         "model": "RGB",
@@ -15168,18 +15274,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     convertToASE: function (data) {
       let encodedData = __WEBPACK_IMPORTED_MODULE_3_ase_utils___default.a.encode(data);
-      console.log('ASE encodedData:', encodedData);
-
       this.saveFile(encodedData);
     },
 
     saveFile: function (fileEntry) {
       __WEBPACK_IMPORTED_MODULE_2_save_file___default()(fileEntry, 'swatches.ase', (err, data) => {
-        if (err) throw err;
+        if (err) {
+          throw err;
+        }
         console.log('File saved');
-      }).then(() => {
-        console.log('saveFile then');
-      });
+      }).then(() => {});
     }
   },
 
@@ -23116,9 +23220,20 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     })
   })), _vm._v(" "), _c('draggable', {
     staticClass: "folder-collection",
+    staticStyle: {
+      "display": "block",
+      "-webkit-user-drag": "element",
+      "-webkit-user-select": "none",
+      "-moz-user-select": "none",
+      "-ms-user-select": "none",
+      "user-select": "none"
+    },
     attrs: {
       "element": 'ul',
-      "move": _vm.onMove
+      "move": _vm.onMove,
+      "options": {
+        group: 'folders'
+      }
     },
     model: {
       value: (_vm.colorFolders),
@@ -23128,29 +23243,32 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       expression: "colorFolders"
     }
   }, _vm._l((_vm.colorFolders), function(folder, index) {
-    return _c('draggable', {
+    return _c('ul', {
       key: index,
       staticClass: "folder",
       class: [{
         '-selected': folder.isSelected
       }],
-      attrs: {
-        "element": 'ul',
-        "options": {
-          group: 'colors'
-        },
-        "move": _vm.onMove
-      },
-      on: {
-        "click": function($event) {
-          _vm.console.log(folder)
-        }
+      staticStyle: {
+        "display": "block",
+        "-webkit-user-drag": "element",
+        "-webkit-user-select": "none",
+        "-moz-user-select": "none",
+        "-ms-user-select": "none",
+        "user-select": "none"
       },
       nativeOn: {
         "click": function($event) {
           if ($event.target !== $event.currentTarget) { return null; }
           _vm.toggleFolderSelection($event, folder, index)
         }
+      }
+    }, [_c('draggable', {
+      attrs: {
+        "options": {
+          group: 'colors'
+        },
+        "move": _vm.onMove
       },
       model: {
         value: (_vm.colorFolders[index].content),
@@ -23175,7 +23293,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
           }
         }
       })
-    }))
+    }))], 1)
   })), _vm._v(" "), _c('div', {
     staticClass: "button-wrapper"
   }, [_c('button', {

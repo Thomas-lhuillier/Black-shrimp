@@ -2,7 +2,7 @@
 // "update_url": "https://clients2.google.com/service/update2/crx",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4nbyG54bq5iBfXfTBn5EXbE4uozsiiqyGiFBWuWa7+su8nKGLBUJaDUrs9N31rlN0PkxPTNZ+aPv4W62eZoAW2ZxdvOsO9NoRcuaGN4akY6Dr90XyJVm0dxjUk4EOGF4xJShKFAPm3YHPzgrdNg9o2WYNESrcluJBZjP2fULG1kuqLUkBYzZPx2cu4jE+csINR8AcrZzxNwuMsGovL9UuKkemgxyx/gudHDYboWOmOIqM03Jxguymo9mrvPOxsZkhAQePRNVi2yOnKLD340FFI0aHb6xI2aNTXEVlHkz5oxA3C+jWYKQdguaLsKvcGj7w/Fz/nUJ/v36YqXqlt9z7wIDAQAB",
   "name": "Black-shrimp",
-  "description": "desc",
+  "description": "A color picker extension that allow you to pick, save and organise color swatches while browsing. You can also export your collection to use it in programs like Illustrator or Photoshop.",
   "version": "1.0.0",
   "manifest_version": 2,
   "author": "Thomas L'huillier",
