@@ -77,41 +77,6 @@
         </li>
       </draggable>
 
-      <!-- <draggable class="folder-collection"
-        v-model="colorFolders"
-        :element="'ul'"
-        :move="onMove"
-        :options="{group:'folders'}"
-        style="
-            display: block;
-            -webkit-user-drag: element;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;">
-        <draggable v-for="(folder, index) in colorFolders"
-          :key="index"
-          v-model="colorFolders[index].content"
-          :element="'ul'"
-          class="folder"
-          :class="[{ '-selected': folder.isSelected }]"
-          :options="{group:'colors'}"
-          :move="onMove"
-          @click.self.native="toggleFolderSelection($event, folder, index)"
-          @click="console.log(folder)">
-          <li v-for="(color, subIndex) in folder.content"
-            :key="subIndex"
-            class="btn-square -color"
-            :class="[{ '-selected': color.isSelected }]"
-            :style="{ 'background-color': color.hex }"
-            @click="toggleColorSelection($event, color, subIndex, folder.content)">
-          </li>
-        </draggable>
-      </draggable> -->
-
-
-
-
       <draggable class="folder-collection"
         v-model="colorFolders"
         :element="'ul'"
@@ -124,12 +89,11 @@
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;">
-        <ul
+        <li
           v-for="(folder, index) in colorFolders"
           :key="index"
           :class="[{ '-selected': folder.isSelected }]"
           class="folder"
-          @click.self.native="toggleFolderSelection($event, folder, index)"
           style="
             display: block;
             -webkit-user-drag: element;
@@ -139,8 +103,10 @@
             user-select: none;">
           <draggable
             v-model="colorFolders[index].content"
+            :element="'ul'"
             :options="{group:'colors'}"
-            :move="onMove">
+            :move="onMove"
+            @click.self.native="toggleFolderSelection($event, folder, index)">
             <li v-for="(color, subIndex) in folder.content"
               :key="subIndex"
               class="btn-square -color"
@@ -149,18 +115,8 @@
               @click="toggleColorSelection($event, color, subIndex, folder.content)">
             </li>
           </draggable>
-        </ul>
+        </li>
       </draggable>
-
-
-
-
-
-
-
-
-
-
 
       <!-- Action buttons -->
       <div class="button-wrapper">
@@ -521,9 +477,9 @@
           // Alt + A
           // Add current color shortcut
           this.addCurrentColor();
-        } else if (event.altKey && event.keyCode == 83) {
-          // Alt + S
-          // Save colors to .ase
+        } else if (event.altKey && event.keyCode == 69) {
+          // Alt + E
+          // Export swatches .ase
           this.exportColors();
         }
       },
@@ -762,40 +718,45 @@
         & > .folder {
           display: block;
           position: relative;
-          margin-top: -($spacer / 2);
-          margin-bottom: $spacer / 2;
-          margin-left: -($spacer / 2);
-          padding-top: $spacer / 2;
-          padding-left: $spacer / 2;
+          margin-top   : -($spacer / 2);
+          margin-bottom:   $spacer / 2;
+          margin-left  : -($spacer / 2);
+          padding-top  :   $spacer / 2;
+          padding-left :   $spacer / 2;
 
           -webkit-user-drag: element;
           user-select: none;
-
-          &:before {
-            @extend .btn-square;
-            display: block;
-            content: '\e902';
-            font-size: 18px;
-            font-family: 'Black-shrimp';
-            outline-width: 0 !important;
-            border-width: 0 !important;
-          }
 
           &.-selected {
             outline-style: dashed;
             outline-width: 1px;
             outline-color: $gray-lighter;
 
-            &:before {
+            & > ul:before {
               background-color: $gray-darker;
               color: $soft-white;
+            }
+          }
+
+          & > ul {
+            display: block;
+            position: relative;
+
+            &:before {
+              @extend .btn-square;
+              display: block;
+              content: '\e902';
+              font-size: 18px;
+              font-family: 'Black-shrimp';
+              outline-width: 0 !important;
+              border-width: 0 !important;
             }
           }
         }
       }
 
       .btn-square {
-        margin-right: $spacer / 2;
+        margin-right : $spacer / 2;
         margin-bottom: $spacer / 2;
       }
 
@@ -803,7 +764,7 @@
 
     .btn-square {
       display: inline-block;
-      width: 18px;
+      width : 18px;
       height: 18px;
 
       font-size: 18px;

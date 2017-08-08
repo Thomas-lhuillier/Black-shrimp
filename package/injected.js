@@ -14830,50 +14830,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -15217,9 +15173,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         // Alt + A
         // Add current color shortcut
         this.addCurrentColor();
-      } else if (event.altKey && event.keyCode == 83) {
-        // Alt + S
-        // Save colors to .ase
+      } else if (event.altKey && event.keyCode == 69) {
+        // Alt + E
+        // Export swatches .ase
         this.exportColors();
       }
     },
@@ -21144,7 +21100,7 @@ exports = module.exports = __webpack_require__(0)(undefined);
 
 
 // module
-exports.push([module.i, "\n.blackShrimp .btn-square:active, .blackShrimp .colorSwatches > .folder-collection > .folder:active:before {\n  background-color: #333333;\n}\n.blackShrimp .btn-square:active > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .folder:active:before > .bs-icon {\n    margin-top: -1px !important;\n    margin-left: -1px !important;\n}\n.blackShrimp .btn-square:focus, .blackShrimp .colorSwatches > .folder-collection > .folder:focus:before,\n.blackShrimp .btn-square.-selected, .blackShrimp .colorSwatches > .folder-collection > .-selected.folder:before {\n  outline-style: dashed;\n  outline-width: 1px;\n  outline-color: #f0f0f0;\n}\n.blackShrimp .btn-square:focus > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .folder:focus:before > .bs-icon,\n  .blackShrimp .btn-square.-selected > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .-selected.folder:before > .bs-icon {\n    margin-top: -2px;\n    margin-left: -2px;\n}\n.blackShrimp .colorSwatches > .folder-collection {\n  display: block;\n}\n.blackShrimp .colorSwatches > .folder-collection:not(:empty) {\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder {\n    display: block;\n    position: relative;\n    margin-top: -4px;\n    margin-bottom: 4px;\n    margin-left: -4px;\n    padding-top: 4px;\n    padding-left: 4px;\n    -webkit-user-drag: element;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    user-select: none;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder:before {\n      display: block;\n      content: '\\E902';\n      font-size: 18px;\n      font-family: 'Black-shrimp';\n      outline-width: 0 !important;\n      border-width: 0 !important;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder.-selected {\n      outline-style: dashed;\n      outline-width: 1px;\n      outline-color: #B3B3B3;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder.-selected:before {\n        background-color: #333333;\n        color: #f0f0f0;\n}\n.blackShrimp .colorSwatches > .color-collection {\n  display: block;\n  margin-left: -4px;\n  padding-left: 4px;\n}\n.blackShrimp .colorSwatches > .color-collection:not(:empty) {\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches > .button-wrapper {\n  display: block;\n  text-align: right;\n}\n.blackShrimp .colorSwatches > .button-wrapper > .btn-square, .blackShrimp .colorSwatches > .folder-collection.button-wrapper > .folder:before {\n    border: none;\n    margin-bottom: 0;\n}\n.blackShrimp .panel {\n  position: relative;\n  display: block;\n  padding: 8px;\n  font-size: 10px;\n  color: #B3B3B3;\n  background-color: #535353;\n  border-bottom-left-radius: 5px;\n  border-bottom-right-radius: 5px;\n}\n.blackShrimp .colorPicker {\n  display: block;\n  font-size: 0;\n  line-height: 0;\n}\n.blackShrimp .colorPicker > * {\n    display: inline-block;\n    height: 22px;\n    vertical-align: top;\n}\n.blackShrimp .colorPicker > * + * {\n    margin-left: 8px;\n}\n.blackShrimp .colorPicker > .select-block {\n    margin-left: 0;\n    margin-right: -8px;\n}\n.blackShrimp .colorPicker > .select-block > .value > .text {\n      width: 24px;\n}\n.blackShrimp .colorViewer {\n  position: relative;\n  width: 22px;\n  height: 22px;\n  border-radius: 100%;\n  border: 1px solid #666666;\n  box-sizing: border-box;\n}\n.blackShrimp .hexWrapper, .blackShrimp .rgbWrapper, .blackShrimp .hslWrapper {\n  display: none;\n}\n.blackShrimp .hexWrapper.active, .blackShrimp .rgbWrapper.active, .blackShrimp .hslWrapper.active {\n  display: inline-block;\n}\n.blackShrimp .hexWrapper input {\n  width: 140px;\n}\n.blackShrimp .rgbWrapper input, .blackShrimp .hslWrapper input {\n  width: 44px;\n}\n.blackShrimp .rgbWrapper input + input, .blackShrimp .hslWrapper input + input {\n  margin-left: 4px;\n}\n.blackShrimp input[type=\"text\"] {\n  display: inline-block;\n  height: 22px;\n  padding: 4px;\n  font-family: 'Poppins', monospace !important;\n  font-size: 11px;\n  line-height: 14px;\n  text-align: center;\n  color: #f0f0f0;\n  background-color: #474747;\n  border: solid 1px #666666;\n  border-radius: 3px;\n  box-sizing: border-box;\n}\n.blackShrimp input[type=\"text\"]:focus {\n  border-color: #333333;\n}\n.blackShrimp .colorSwatches {\n  position: relative;\n  display: block;\n  margin-top: 8px;\n  margin-right: -4px;\n  padding-top: 8px;\n}\n.blackShrimp .colorSwatches .btn-square, .blackShrimp .colorSwatches > .folder-collection > .folder:before {\n    margin-right: 4px;\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches:before {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  left: -8px;\n  right: -4px;\n  border-top: solid 1px #666666;\n}\n.blackShrimp .btn-square, .blackShrimp .colorSwatches > .folder-collection > .folder:before {\n  display: inline-block;\n  width: 18px;\n  height: 18px;\n  font-size: 18px;\n  background-color: #666666;\n  border-radius: 2px;\n  border-width: 1px;\n  border-style: solid;\n  border-color: transparent;\n  box-sizing: border-box;\n  vertical-align: middle;\n  cursor: pointer;\n  -webkit-user-drag: element;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  transition: background-color .2s ease;\n}\n.blackShrimp .btn-square:hover, .blackShrimp .colorSwatches > .folder-collection > .folder:hover:before {\n  background-color: #474747;\n  color: #f0f0f0;\n}\n", ""]);
+exports.push([module.i, "\n.blackShrimp .btn-square:active, .blackShrimp .colorSwatches > .folder-collection > .folder > ul:active:before {\n  background-color: #333333;\n}\n.blackShrimp .btn-square:active > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .folder > ul:active:before > .bs-icon {\n    margin-top: -1px !important;\n    margin-left: -1px !important;\n}\n.blackShrimp .btn-square:focus, .blackShrimp .colorSwatches > .folder-collection > .folder > ul:focus:before,\n.blackShrimp .btn-square.-selected, .blackShrimp .colorSwatches > .folder-collection > .folder > ul.-selected:before {\n  outline-style: dashed;\n  outline-width: 1px;\n  outline-color: #f0f0f0;\n}\n.blackShrimp .btn-square:focus > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .folder > ul:focus:before > .bs-icon,\n  .blackShrimp .btn-square.-selected > .bs-icon, .blackShrimp .colorSwatches > .folder-collection > .folder > ul.-selected:before > .bs-icon {\n    margin-top: -2px;\n    margin-left: -2px;\n}\n.blackShrimp .colorSwatches > .folder-collection {\n  display: block;\n}\n.blackShrimp .colorSwatches > .folder-collection:not(:empty) {\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder {\n    display: block;\n    position: relative;\n    margin-top: -4px;\n    margin-bottom: 4px;\n    margin-left: -4px;\n    padding-top: 4px;\n    padding-left: 4px;\n    -webkit-user-drag: element;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    user-select: none;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder.-selected {\n      outline-style: dashed;\n      outline-width: 1px;\n      outline-color: #B3B3B3;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder.-selected > ul:before {\n        background-color: #333333;\n        color: #f0f0f0;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder > ul {\n      display: block;\n      position: relative;\n}\n.blackShrimp .colorSwatches > .folder-collection > .folder > ul:before {\n        display: block;\n        content: '\\E902';\n        font-size: 18px;\n        font-family: 'Black-shrimp';\n        outline-width: 0 !important;\n        border-width: 0 !important;\n}\n.blackShrimp .colorSwatches > .color-collection {\n  display: block;\n  margin-left: -4px;\n  padding-left: 4px;\n}\n.blackShrimp .colorSwatches > .color-collection:not(:empty) {\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches > .button-wrapper {\n  display: block;\n  text-align: right;\n}\n.blackShrimp .colorSwatches > .button-wrapper > .btn-square, .blackShrimp .colorSwatches > .folder-collection.colorSwatches > .folder.button-wrapper > ul:before {\n    border: none;\n    margin-bottom: 0;\n}\n.blackShrimp .panel {\n  position: relative;\n  display: block;\n  padding: 8px;\n  font-size: 10px;\n  color: #B3B3B3;\n  background-color: #535353;\n  border-bottom-left-radius: 5px;\n  border-bottom-right-radius: 5px;\n}\n.blackShrimp .colorPicker {\n  display: block;\n  font-size: 0;\n  line-height: 0;\n}\n.blackShrimp .colorPicker > * {\n    display: inline-block;\n    height: 22px;\n    vertical-align: top;\n}\n.blackShrimp .colorPicker > * + * {\n    margin-left: 8px;\n}\n.blackShrimp .colorPicker > .select-block {\n    margin-left: 0;\n    margin-right: -8px;\n}\n.blackShrimp .colorPicker > .select-block > .value > .text {\n      width: 24px;\n}\n.blackShrimp .colorViewer {\n  position: relative;\n  width: 22px;\n  height: 22px;\n  border-radius: 100%;\n  border: 1px solid #666666;\n  box-sizing: border-box;\n}\n.blackShrimp .hexWrapper, .blackShrimp .rgbWrapper, .blackShrimp .hslWrapper {\n  display: none;\n}\n.blackShrimp .hexWrapper.active, .blackShrimp .rgbWrapper.active, .blackShrimp .hslWrapper.active {\n  display: inline-block;\n}\n.blackShrimp .hexWrapper input {\n  width: 140px;\n}\n.blackShrimp .rgbWrapper input, .blackShrimp .hslWrapper input {\n  width: 44px;\n}\n.blackShrimp .rgbWrapper input + input, .blackShrimp .hslWrapper input + input {\n  margin-left: 4px;\n}\n.blackShrimp input[type=\"text\"] {\n  display: inline-block;\n  height: 22px;\n  padding: 4px;\n  font-family: 'Poppins', monospace !important;\n  font-size: 11px;\n  line-height: 14px;\n  text-align: center;\n  color: #f0f0f0;\n  background-color: #474747;\n  border: solid 1px #666666;\n  border-radius: 3px;\n  box-sizing: border-box;\n}\n.blackShrimp input[type=\"text\"]:focus {\n  border-color: #333333;\n}\n.blackShrimp .colorSwatches {\n  position: relative;\n  display: block;\n  margin-top: 8px;\n  margin-right: -4px;\n  padding-top: 8px;\n}\n.blackShrimp .colorSwatches .btn-square, .blackShrimp .colorSwatches > .folder-collection > .folder > ul:before {\n    margin-right: 4px;\n    margin-bottom: 4px;\n}\n.blackShrimp .colorSwatches:before {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  left: -8px;\n  right: -4px;\n  border-top: solid 1px #666666;\n}\n.blackShrimp .btn-square, .blackShrimp .colorSwatches > .folder-collection > .folder > ul:before {\n  display: inline-block;\n  width: 18px;\n  height: 18px;\n  font-size: 18px;\n  background-color: #666666;\n  border-radius: 2px;\n  border-width: 1px;\n  border-style: solid;\n  border-color: transparent;\n  box-sizing: border-box;\n  vertical-align: middle;\n  cursor: pointer;\n  -webkit-user-drag: element;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  transition: background-color .2s ease;\n}\n.blackShrimp .btn-square:hover, .blackShrimp .colorSwatches > .folder-collection > .folder > ul:hover:before {\n  background-color: #474747;\n  color: #f0f0f0;\n}\n", ""]);
 
 // exports
 
@@ -23243,7 +23199,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       expression: "colorFolders"
     }
   }, _vm._l((_vm.colorFolders), function(folder, index) {
-    return _c('ul', {
+    return _c('li', {
       key: index,
       staticClass: "folder",
       class: [{
@@ -23256,19 +23212,20 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         "-moz-user-select": "none",
         "-ms-user-select": "none",
         "user-select": "none"
+      }
+    }, [_c('draggable', {
+      attrs: {
+        "element": 'ul',
+        "options": {
+          group: 'colors'
+        },
+        "move": _vm.onMove
       },
       nativeOn: {
         "click": function($event) {
           if ($event.target !== $event.currentTarget) { return null; }
           _vm.toggleFolderSelection($event, folder, index)
         }
-      }
-    }, [_c('draggable', {
-      attrs: {
-        "options": {
-          group: 'colors'
-        },
-        "move": _vm.onMove
       },
       model: {
         value: (_vm.colorFolders[index].content),
