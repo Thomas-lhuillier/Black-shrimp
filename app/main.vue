@@ -121,6 +121,7 @@ export default {
     },
 
     /* Prevents the main box from getting past window inner border */
+    // @TODO trigger fitbounds on window resize, after checking window is big enough
     fitBounds: function(posX, posY) {
       var el = document.getElementById('black-shrimp');
       var width  = el.clientWidth;

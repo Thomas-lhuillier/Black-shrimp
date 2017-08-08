@@ -73,7 +73,8 @@
           class="btn-square -color"
           :class="[{ '-selected': color.isSelected }]"
           :style="{ 'background-color': color.hex }"
-          @click="toggleColorSelection($event, color, index, colors)">
+          @click="toggleColorSelection($event, color, index, colors)"
+          data-maintain-selection>
         </li>
       </draggable>
 
@@ -106,13 +107,15 @@
             :element="'ul'"
             :options="{group:'colors'}"
             :move="onMove"
-            @click.self.native="toggleFolderSelection($event, folder, index)">
+            @click.self.native="toggleFolderSelection($event, folder, index)"
+            data-maintain-selection>
             <li v-for="(color, subIndex) in folder.content"
               :key="subIndex"
               class="btn-square -color"
               :class="[{ '-selected': color.isSelected }]"
               :style="{ 'background-color': color.hex }"
-              @click="toggleColorSelection($event, color, subIndex, folder.content)">
+              @click="toggleColorSelection($event, color, subIndex, folder.content)"
+              data-maintain-selection>
             </li>
           </draggable>
         </li>
@@ -130,7 +133,8 @@
 
         <button class="btn-square"
           @click="deleteSelection($event)"
-          @click.shift="deleteAll($event)">
+          @click.shift="deleteAll($event)"
+          data-maintain-selection>
           <i class="bs-icon bs-icon-trash"></i>
         </button>
       </div>
@@ -467,6 +471,17 @@
         }
       },
 
+
+      /**
+       * Keyboard shortcuts
+       */
+      onClick: function(event) {
+        if (!event.target.hasAttribute('data-maintain-selection')) {
+          this.deselectAll();
+        }
+      },
+
+
       /**
        * Keyboard shortcuts
        */
@@ -545,23 +560,20 @@
       },
     },
 
-    created: function () {
-      window.addEventListener('keydown', this.onKeyDown)
-    },
-
     mounted: function() {
-      // Register chrome data listener
-      chrome.storage.onChanged.addListener(this.onChromeDataChange);
+      // Register event listeners
+      window.addEventListener('click', this.onClick)
+      window.addEventListener('keydown', this.onKeyDown)
+      chrome.storage.onChanged.addListener(this.onChromeDataChange)
       this.getStoredColors();
     },
 
-    beforeMount: function() {
-    },
-
     beforeDestroy: function() {
-      // Remove chrome data listener
+      // Remove event listeners
+      window.removeEventListener('click', this.onClick)
+      window.removeEventListener('keydown', this.onKeyDown)
       chrome.storage.onChanged.removeListener(this.onChromeDataChange, () => {
-        console.log('removed listener');
+        console.log('removed listener')
       });
     }
   }

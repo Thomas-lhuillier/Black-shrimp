@@ -14830,6 +14830,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -15166,6 +15170,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     /**
      * Keyboard shortcuts
      */
+    onClick: function (event) {
+      if (!event.target.hasAttribute('data-maintain-selection')) {
+        this.deselectAll();
+      }
+    },
+
+    /**
+     * Keyboard shortcuts
+     */
     onKeyDown: function (event) {
       console.log('event:', event);
       console.log('keyup:', event.keyCode);
@@ -15243,20 +15256,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     }
   },
 
-  created: function () {
-    window.addEventListener('keydown', this.onKeyDown);
-  },
-
   mounted: function () {
-    // Register chrome data listener
+    // Register event listeners
+    window.addEventListener('click', this.onClick);
+    window.addEventListener('keydown', this.onKeyDown);
     chrome.storage.onChanged.addListener(this.onChromeDataChange);
     this.getStoredColors();
   },
 
-  beforeMount: function () {},
-
   beforeDestroy: function () {
-    // Remove chrome data listener
+    // Remove event listeners
+    window.removeEventListener('click', this.onClick);
+    window.removeEventListener('keydown', this.onKeyDown);
     chrome.storage.onChanged.removeListener(this.onChromeDataChange, () => {
       console.log('removed listener');
     });
@@ -15597,6 +15608,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
     /* Prevents the main box from getting past window inner border */
+    // @TODO trigger fitbounds on window resize, after checking window is big enough
     fitBounds: function (posX, posY) {
       var el = document.getElementById('black-shrimp');
       var width = el.clientWidth;
@@ -23168,6 +23180,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       style: ({
         'background-color': color.hex
       }),
+      attrs: {
+        "data-maintain-selection": ""
+      },
       on: {
         "click": function($event) {
           _vm.toggleColorSelection($event, color, index, _vm.colors)
@@ -23219,7 +23234,8 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         "options": {
           group: 'colors'
         },
-        "move": _vm.onMove
+        "move": _vm.onMove,
+        "data-maintain-selection": ""
       },
       nativeOn: {
         "click": function($event) {
@@ -23244,6 +23260,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         style: ({
           'background-color': color.hex
         }),
+        attrs: {
+          "data-maintain-selection": ""
+        },
         on: {
           "click": function($event) {
             _vm.toggleColorSelection($event, color, subIndex, folder.content)
@@ -23273,6 +23292,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "bs-icon bs-icon-folder"
   })]), _vm._v(" "), _c('button', {
     staticClass: "btn-square",
+    attrs: {
+      "data-maintain-selection": ""
+    },
     on: {
       "click": [function($event) {
         _vm.deleteSelection($event)
