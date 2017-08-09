@@ -27,10 +27,10 @@
   // Style resets, preventing local style affecting this component.
   all: initial; /* blocking inheritance for all properties */
 
-  // &:before,
-  // &:after,
-  // *:before,
-  // *:after,
+  &:before,
+  &:after,
+  *:before,
+  *:after,
   * {
     all: unset; /* allowing inheritance within .black-shrimp */
   }
@@ -127,8 +127,22 @@ export default {
       var width  = el.clientWidth;
       var height = el.clientHeight;
 
-      if ( this.styleObject.left + width > window.innerWidth ) {
-        this.styleObject.left = window.innerWidth - width;
+      var body = document.body;
+      var html = document.documentElement;
+
+      var docHeight = Math.max(
+          body.scrollHeight,
+          body.offsetHeight,
+          html.clientHeight,
+          html.scrollHeight,
+          html.offsetHeight);
+
+      var verticalScrollbarWidth = docHeight > window.innerHeight ? 17 : 0;
+      // var isHorizontalScrollbar = ? true : false;
+      console.log('verticalScrollbarWidth:', verticalScrollbarWidth, '\n', document.innerHeight, window.innerHeight)
+
+      if ( this.styleObject.left + width > window.innerWidth - verticalScrollbarWidth) {
+        this.styleObject.left = window.innerWidth - width -verticalScrollbarWidth;
       }
       if ( this.styleObject.top + height > window.innerHeight ) {
         this.styleObject.top = window.innerHeight - height;

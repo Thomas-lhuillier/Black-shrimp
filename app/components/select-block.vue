@@ -1,12 +1,12 @@
 <template>
-  <div class="colorMode select-block" v-on-clickaway="close">
+  <div class="colorMode select-block" v-bind:class="[{'-opened': isOpen }]" v-on-clickaway="close">
     <div class="value" v-on:click="toggleDropdown">
       <div class="text">
         {{text}}
       </div>
       <i class="bs-icon bs-icon-carret-down"></i>
     </div>
-    <div class="options" v-bind:class="[{'-opened': isOpen }]">
+    <div class="options">
       <div class="option" v-for="(item, index) in mutableOptions" v-bind:class="[{'-selected': item.isSelected }]" v-on:click="updateValue(item)">{{item.text}}</div>
     </div>
   </div>
@@ -120,34 +120,46 @@
         > .bs-icon {
           font-size: 14px;
           vertical-align: middle;
+          line-height: inherit;
 
           &.bs-icon-carret-down {
             display: inline-block;
-            margin-top: -2px;
+            margin-right: -$spacer;
+            width: 18px;
+            height: 22px;
+            vertical-align: top;
+            transition: transform 0.2s ease;
 
             &:before {
               display: block;
+              margin-top: 2px;
               margin-right: -8px;
               width: 18px;
               height: 18px;
-
               line-height: 18px;
               text-align: center;
-
               border-radius: 100%;
             }
           }
         }
       }
 
+      &.-opened {
+        > .value {
+          .bs-icon-carret-down {
+            transform: rotateZ(-90deg);
+          }
+        }
+        > .options {
+          display: block;
+        }
+      }
+
       > .options {
         display: none;
         position: relative;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
         z-index: 1;
-
-        &.-opened {
-          display: block;
-        }
 
         > .option {
           display: block;

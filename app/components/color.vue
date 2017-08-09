@@ -476,6 +476,7 @@
        * Keyboard shortcuts
        */
       onClick: function(event) {
+        // Deselect all if user clicks outside a color or folder.
         if (!event.target.hasAttribute('data-maintain-selection')) {
           this.deselectAll();
         }
@@ -617,6 +618,7 @@
 
         > .value > .text {
           width: 24px;
+          vertical-align: top;
         }
 
       }
