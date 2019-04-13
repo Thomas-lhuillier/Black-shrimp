@@ -1,11 +1,10 @@
 {
-  "name": "Black-shrimp",
-  "version": "1.0.0",
-  "description": "Another web toolbox.",
+  "name": "black-shrimp",
+  "version": "1.0.2",
+  "description": "A color picker extension that allow you to pick, save and organise color swatches while browsing. You can also export your collection to use it in programs like Illustrator or Photoshop.",
   "author": "Thomas L'huillier <lhuillier.tom@gmail.com>",
   "scripts": {
-    "sass": "sass -w sass:css",
-    "webpack": "webpack --watch --colors"
+    "webpack": "webpack --mode=development --watch --colors --display=normal"
   },
   "main": "contentscript.js",
   "repository": {
@@ -14,13 +13,16 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
     "ase-utils": "latest",
-    "babel-core": "latest",
+    "autoprefixer": "^9.5.1",
     "babel-loader": "latest",
-    "babel-preset-es2015": "latest",
     "bourbon": "latest",
+    "copy-webpack-plugin": "^5.0.2",
     "css-loader": "latest",
     "extract-text-webpack-plugin": "latest",
+    "file-loader": "^3.0.1",
     "node-sass": "latest",
     "postcss-cssnext": "latest",
     "postcss-import": "latest",
@@ -28,14 +30,19 @@
     "sass-loader": "latest",
     "save-file": "latest",
     "scss-loader": "latest",
+    "sortablejs": "^1.8.4",
     "style-loader": "latest",
     "url-loader": "latest",
+    "vue": "^2.6.10",
     "vue-cli": "latest",
-    "vue-hot-reload-api": "latest",
-    "vuex": "latest",
-    "vuedraggable": "latest",
     "vue-clickaway": "latest",
-    "webpack": "latest"
+    "vue-hot-reload-api": "latest",
+    "vue-loader": "^15.7.0",
+    "vue-template-compiler": "^2.6.10",
+    "vuedraggable": "latest",
+    "vuex": "latest",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.0"
   },
   "private": true
 }

@@ -1,18 +1,17 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import store from './vuex/store'
-import Sortable from 'sortablejs'
+import store from './vuex/store';
+import Sortable from 'sortablejs';
 
 Vue.use(Vuex);
 
 Vue.directive('sortable', {
-  inserted: function (el, binding) {
-    new Sortable(el, binding.value || {})
+  inserted: function(el, binding) {
+    new Sortable(el, binding.value || {});
   }
 });
 
 import MainComponent from './main.vue';
-
 
 /**
  * Dispatch Chrome port messages
@@ -23,7 +22,9 @@ var port = store.getters.getPort;
 
 port.onMessage.addListener(function(request, sender, sendResponse) {
   console.log('request :', request);
-  if (connectionClosed) { return; } // @TODO
+  if (connectionClosed) {
+    return;
+  } // @TODO
 
   switch (request.type) {
     case 'init':
@@ -41,14 +42,13 @@ port.onMessage.addListener(function(request, sender, sendResponse) {
       break;
     case 'color':
       console.log('request color');
-      app.setColor({ 'value': request.data });
+      app.setColor({ value: request.data });
       break;
     case 'destroy':
       BlackShrimp.destroy();
       break;
   }
 });
-
 
 /**
  * Display debug screen
@@ -59,11 +59,11 @@ var context = canvas.getContext('2d');
 
 function createDebugOverlay(request) {
   var img;
-  img        = new Image();
-  img.src    = request.imageData;
+  img = new Image();
+  img.src = request.imageData;
   img.onload = displayScreenshot.bind(img);
 
-  canvas.width  = window.innerWidth;
+  canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
 
@@ -71,11 +71,12 @@ function displayScreenshot() {
   context.drawImage(this, 0, 0, canvas.width, canvas.height);
 
   var overlay = document.getElementById('toolkit__debug');
-  if (overlay) { overlay.parentNode.removeChild(overlay); }
+  if (overlay) {
+    overlay.parentNode.removeChild(overlay);
+  }
 
   document.body.appendChild(canvas);
 }
-
 
 /**
  * Vue app
@@ -93,14 +94,16 @@ let scrollTimer;
 let BlackShrimp = {
   create: function() {
     app = new Vue({
-      store, // inject store to all children
+      store, // Inject store to all children
       el: '#black-shrimp',
       template: '<MainComponent/>',
+
       components: {
         MainComponent
       },
+
       methods: {
-        setColor (val) {
+        setColor(val) {
           store.commit('setColor', val);
         },
         hideUI() {
@@ -120,35 +123,36 @@ let BlackShrimp = {
         },
         onViewportChange(event) {
           console.log('process viewport change');
-          var doc = document.documentElement;
-          var pageOffset = {};
-          pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
-          pageOffset.y = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+          const doc = document.documentElement;
+          const pageOffset = {};
+          pageOffset.x =
+            (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+          pageOffset.y =
+            (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
           port.postMessage({
-            'type': 'viewportChange',
-            'pageOffset': { 'x': pageOffset.x, 'y': pageOffset.y },
-            // 'zoom' : '' //@TODO
+            type: 'viewportChange',
+            pageOffset: { x: pageOffset.x, y: pageOffset.y }
+            // 'zoom' : '' // @todo
           });
         },
         onKeyPressed(event) {
-          if (event.keyCode == 27) { // ESC pressed
+          if (event.keyCode == 27) {
+            // ESC key pressed
             port.postMessage({
-              'type': 'destroy'
+              type: 'destroy'
             });
           }
         },
         destroy() {
-          console.log('destroy app.$destroy');
           this.$destroy();
-        },
+        }
       },
       beforeCreate() {
-        var el = document.createElement('div');
+        const el = document.createElement('div');
         el.id = 'black-shrimp';
         document.body.appendChild(el);
       },
       mounted() {
-        console.log('app mounted');
         window.addEventListener('scroll', this.delayScroll);
         window.addEventListener('resize', this.onViewportChange);
         window.addEventListener('keyup', this.onKeyPressed);
@@ -159,26 +163,25 @@ let BlackShrimp = {
         window.removeEventListener('keyup', this.onKeyPressed);
       },
       destroyed() {
-        console.log('app destroyed');
-        var el = document.getElementById('black-shrimp');
+        const el = document.getElementById('black-shrimp');
         el.parentNode.removeChild(el);
       }
     });
   },
 
   destroy: function() {
-    // @TODO
+    // @todo
     app.destroy();
-  },
-}
-
+  }
+};
 
 /**
  * Tools
+ * @todo import from separated file
  */
 
 Number.prototype.between = function(a, b, inclusive) {
-  var min = Math.min.apply(Math, [a, b]),
-      max = Math.max.apply(Math, [a, b]);
+  const min = Math.min.apply(Math, [a, b]),
+    max = Math.max.apply(Math, [a, b]);
   return inclusive ? this >= min && this <= max : this > min && this < max;
 };

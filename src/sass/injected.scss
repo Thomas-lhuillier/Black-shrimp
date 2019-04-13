@@ -1,5 +1,3 @@
-@import '../../node_modules/bourbon/app/assets/stylesheets/bourbon';
-
 // Colors
 $gray: #535353;
 $gray-light: #666666;
@@ -7,14 +5,17 @@ $gray-dark: #474747;
 
 $soft-white: #f0f0f0;
 
+// Border radius
 $border-radius: 5px;
 
-@import '../../assets/fonts/Black-shrimp/style.scss';
-
 // Fonts
+// font icon
+@import '../assets/fonts/Black-shrimp/style.scss';
+
 @font-face {
   font-family: 'Poppins';
-  src: url('chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/poppins/poppins-regular.woff') format('woff');
+  src: url('chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/poppins/poppins-regular.woff')
+    format('woff');
   font-weight: normal;
   font-style: normal;
 }
@@ -69,15 +70,11 @@ $border-radius: 5px;
     > * {
       vertical-align: top;
     }
-    &:hover, &:focus {
 
-    }
     &.active {
       color: $soft-white;
       background-color: $gray-dark;
     }
-
-    .bs-menu__name {}
 
     i.bs-icon {
       font-size: 18px;
@@ -153,16 +150,10 @@ $border-radius: 5px;
     }
   }
 
-  input[type="text"] {
+  input[type='text'] {
     color: $soft-white;
     background-color: $gray-dark;
     border: solid 1px $gray-light;
     border-radius: 3px;
-  }
-
-  .colorPicker__colorType {
-  }
-
-  .colorPicker__colorSwitch {
   }
 }
