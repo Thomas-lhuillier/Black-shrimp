@@ -1,16 +1,8 @@
-// Colors
-$gray: #535353;
-$gray-light: #666666;
-$gray-dark: #474747;
-
-$soft-white: #f0f0f0;
-
-// Border radius
-$border-radius: 5px;
+@import './variables';
 
 // Fonts
 // font icon
-@import '../assets/fonts/Black-shrimp/style.scss';
+@import '../assets/fonts/Black-shrimp/style';
 
 @font-face {
   font-family: 'Poppins';

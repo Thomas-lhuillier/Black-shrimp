@@ -59,7 +59,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../sass/_vars.scss";
+@import "../sass/variables";
 
 .blackShrimp {
   .cursor-overlay {

@@ -19,9 +19,9 @@
 </template>
 
 <style lang="scss">
-@import "sass/_vars.scss";
-@import "assets/fonts/Black-shrimp/style.scss";
-@import "assets/fonts/Poppins/style.scss";
+@import "sass/variables";
+@import "assets/fonts/Black-shrimp/style";
+@import "assets/fonts/Poppins/style";
 
 .blackShrimp {
   // Style resets, preventing local style affecting this component.

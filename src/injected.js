@@ -2,48 +2,28 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import store from './vuex/store';
 import Sortable from 'sortablejs';
-
-Vue.use(Vuex);
-
-Vue.directive('sortable', {
-  inserted: function(el, binding) {
-    new Sortable(el, binding.value || {});
-  }
-});
-
 import MainComponent from './main.vue';
 
 /**
  * Dispatch Chrome port messages
  */
-var debug;
-var connectionClosed = false;
-var port = store.getters.getPort;
-
+const port = store.getters.getPort;
 port.onMessage.addListener(function(request, sender, sendResponse) {
   console.log('request :', request);
-  if (connectionClosed) {
-    return;
-  } // @TODO
 
   switch (request.type) {
     case 'init':
-      console.log('request init');
-      debug = request.debug;
       BlackShrimp.create();
       break;
+
     case 'imageData':
-      console.log('request imageData');
-      // Screenshot processed
-      // if (debug && request.imageData) {
-      //   createDebugOverlay(request);
-      // }
       app.showUI();
       break;
+
     case 'color':
-      console.log('request color');
       app.setColor({ value: request.data });
       break;
+
     case 'destroy':
       BlackShrimp.destroy();
       break;
@@ -51,36 +31,14 @@ port.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 /**
- * Display debug screen
- */
-var canvas = document.createElement('canvas');
-canvas.id = 'toolkit__debug';
-var context = canvas.getContext('2d');
-
-function createDebugOverlay(request) {
-  var img;
-  img = new Image();
-  img.src = request.imageData;
-  img.onload = displayScreenshot.bind(img);
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-
-function displayScreenshot() {
-  context.drawImage(this, 0, 0, canvas.width, canvas.height);
-
-  var overlay = document.getElementById('toolkit__debug');
-  if (overlay) {
-    overlay.parentNode.removeChild(overlay);
-  }
-
-  document.body.appendChild(canvas);
-}
-
-/**
  * Vue app
  */
+Vue.use(Vuex).directive('sortable', {
+  inserted: function(el, binding) {
+    new Sortable(el, binding.value || {});
+  }
+});
+
 // var changeDelay = 300;
 // var changeTimeout;
 // var paused = true;
@@ -147,21 +105,26 @@ let BlackShrimp = {
           this.$destroy();
         }
       },
+
       beforeCreate() {
+        // Dynamically insert the root element in the body
         const el = document.createElement('div');
         el.id = 'black-shrimp';
         document.body.appendChild(el);
       },
+
       mounted() {
         window.addEventListener('scroll', this.delayScroll);
         window.addEventListener('resize', this.onViewportChange);
         window.addEventListener('keyup', this.onKeyPressed);
       },
+
       beforeDestroy() {
         window.removeEventListener('scroll', this.delayScroll);
         window.removeEventListener('resize', this.onViewportChange);
         window.removeEventListener('keyup', this.onKeyPressed);
       },
+
       destroyed() {
         const el = document.getElementById('black-shrimp');
         el.parentNode.removeChild(el);
