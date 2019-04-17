@@ -1,10 +1,11 @@
 <template>
   <div class="menu" data-js-draggable>
     <span
-      v-for="item in items"
+      v-for="(item, index) in items"
       class="item"
       v-bind:class="[{active: item.isActive }, {'-moving': isMoving}, 'item--' + item.name]"
       data-js-draggable
+      v-bind:key="index"
     >
       <i class="bs-icon" v-bind:class="['bs-icon-' + item.icon]" data-js-draggable></i>
       <span data-js-draggable>{{item.name}}</span>
@@ -53,68 +54,68 @@ export default {
 <style lang="scss">
 @import "../sass/variables";
 
-.blackShrimp {
-  .menu {
-    $height: 28px;
+.menu {
+  $height: 28px;
 
-    position: relative;
-    display: block;
+  position: relative;
+  display: block;
+  height: $height;
+
+  color: $gray-dark;
+  background-color: $soft-white;
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+
+  overflow: hidden;
+  user-select: none;
+
+  .item {
+    display: inline-block;
+    padding: 0 8px;
     height: $height;
 
-    color: $gray-dark;
-    background-color: $soft-white;
-    border-top-left-radius: $border-radius;
-    border-top-right-radius: $border-radius;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: $height;
+    vertical-align: top;
 
-    overflow: hidden;
-    user-select: none;
+    cursor: pointer;
+    transition: all 0.3s linear;
 
-    .item {
+    > * {
       display: inline-block;
-      padding-left: 5px;
-      padding-right: 8px;
-      height: $height;
-
-      font-size: 12px;
-      line-height: $height;
       vertical-align: top;
-
-      cursor: pointer;
-      transition: all 0.3s linear;
-
-      > * {
-        display: inline-block;
-        vertical-align: top;
-        line-height: inherit;
-      }
-
-      &:hover,
-      &:focus {
-        background: $gray-dark;
-        color: $soft-white;
-      }
-
-      &.-moving {
-        cursor: move;
-      }
-
-      &.active {
-        color: $soft-white;
-        background-color: $gray;
-      }
-
-      .bs-icon {
-        font-size: 18px;
-      }
+      line-height: inherit;
     }
-    .jsClose {
-      float: right;
-      padding: 0;
-      width: $height;
-      text-align: center;
-      &.-moving {
-        cursor: move;
-      }
+
+    &:hover,
+    &:focus {
+      background: $gray-dark;
+      color: $soft-white;
+    }
+
+    &.-moving {
+      cursor: move;
+    }
+
+    &.active {
+      color: $soft-white;
+      background-color: $gray;
+    }
+
+    .bs-icon {
+      font-size: 18px;
+    }
+  }
+
+  // @todo fix class
+  .jsClose {
+    float: right;
+    padding: 0;
+    width: $height;
+    text-align: center;
+    &.-moving {
+      cursor: move;
     }
   }
 }

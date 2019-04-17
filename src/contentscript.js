@@ -1,4 +1,3 @@
-
 let debug = true;
 let tabs = {};
 
@@ -23,21 +22,23 @@ function deactivateTab(id) {
 
 function clearTab(id) {
   for (let tabId in tabs) {
-    if (tabId == id) { delete tabs[tabId]; }
+    if (tabId == id) {
+      delete tabs[tabId];
+    }
   }
 }
 
 let lastBrowserAction = null;
 
 // Icon click listener
-chrome.browserAction.onClicked.addListener(function(tab){
+chrome.browserAction.onClicked.addListener(function(tab) {
   toggle(tab);
   lastBrowserAction = Date.now();
 });
 
 // Runtime port connexion
 chrome.runtime.onConnect.addListener(function(port) {
-  tabs[ port.sender.tab.id ].initialize(port);
+  tabs[port.sender.tab.id].initialize(port);
 });
 
 chrome.runtime.onSuspend.addListener(function() {
@@ -57,19 +58,13 @@ const Blackshrimp = {
     this.onBrowserDisconnectClosure = this.onBrowserDisconnect.bind(this);
     this.receiveBrowserMessageClosure = this.receiveBrowserMessage.bind(this);
 
-    let tabId = this.tab.id;
     chrome.tabs.executeScript(this.tab.id, { file: 'injected.js' });
-    // chrome.tabs.executeScript(tabId, { file: 'vendors/jquery-3.2.1.min.js' }, function() {
-    //   chrome.tabs.executeScript(tabId, { file: 'injected.js' });
-    // });
-    // chrome.tabs.insertCSS(this.tab.id, { file: 'css/injected.css' });
 
     // Set active icon
     chrome.browserAction.setIcon({
       tabId: this.tab.id,
       path: {
-        16: 'assets/img/icon16_alt.png',
-        32: 'assets/img/icon16@2x.png',
+        16: 'assets/img/icon16_alt.png'
       }
     });
 
@@ -79,8 +74,6 @@ const Blackshrimp = {
       type: 'init',
       debug: debug
     });
-
-    // this.captureTab();
   },
 
   destroy: function(silent) {
@@ -99,15 +92,14 @@ const Blackshrimp = {
 
     // this.port.postMessage({ type: 'destroy' });
     this.worker.postMessage({
-      type: 'destroy',
+      type: 'destroy'
     });
 
     // Set back normal Icon
     chrome.browserAction.setIcon({
       tabId: this.tab.id,
       path: {
-        16: 'assets/img/icon16.png',
-        32: 'assets/img/icon16@2x.png'
+        16: 'assets/img/icon16.png'
       }
     });
 
@@ -118,11 +110,6 @@ const Blackshrimp = {
     this.port = port;
 
     console.log('initialize - port:', port);
-
-    // if (!this.alive) {
-      // this.destroy();
-      // return;
-    // }
 
     this.port.onMessage.addListener(this.receiveBrowserMessageClosure);
     this.port.onDisconnect.addListener(this.onBrowserDisconnectClosure);
@@ -157,7 +144,7 @@ const Blackshrimp = {
         this.port.postMessage({
           type: 'color',
           coord: event.data
-        })
+        });
         break;
       case 'viewportChange':
         console.log('receiveBrowserMessage viewportChange', event.pageOffset);
@@ -171,16 +158,16 @@ const Blackshrimp = {
   },
 
   receiveWorkerMessage: function(event) {
-    let forward = ['debug screen', 'color', 'screenshot processed' , 'mousePos'];
+    let forward = ['debug screen', 'color', 'screenshot processed', 'mousePos'];
     console.log('received worker message, forward to port :', event);
 
-    if(forward.indexOf(event.data.type) > -1){
-      this.port.postMessage(event.data)
+    if (forward.indexOf(event.data.type) > -1) {
+      this.port.postMessage(event.data);
     }
   },
 
   captureTab: function() {
-    chrome.tabs.captureVisibleTab({ format: "png" }, this.loadImage.bind(this));
+    chrome.tabs.captureVisibleTab({ format: 'png' }, this.loadImage.bind(this));
   },
 
   loadImage: function(dataUrl) {
@@ -196,23 +183,34 @@ const Blackshrimp = {
     this.canvas.height = this.tab.height;
 
     // draw the image to the canvas
-    this.context.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
+    this.context.drawImage(
+      this.image,
+      0,
+      0,
+      this.canvas.width,
+      this.canvas.height
+    );
 
     // store image data
-    let imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height).data;
+    let imageData = this.context.getImageData(
+      0,
+      0,
+      this.canvas.width,
+      this.canvas.height
+    ).data;
     this.sendImageData(imageData);
   },
 
   sendImageData: function(imageData) {
-    console.log('imageData :', imageData);
-    // console.log('imageData.buffer :', imageData.buffer);
-
-    this.worker.postMessage({
-      type: 'imageData',
-      imageData: imageData.buffer,
-      width: this.canvas.width,
-      height: this.canvas.height
-    }, [imageData.buffer]);
+    this.worker.postMessage(
+      {
+        type: 'imageData',
+        imageData: imageData.buffer,
+        width: this.canvas.width,
+        height: this.canvas.height
+      },
+      [imageData.buffer]
+    );
 
     this.port.postMessage({
       type: 'imageData',
@@ -220,6 +218,5 @@ const Blackshrimp = {
       width: this.canvas.width,
       height: this.canvas.height
     });
-
-  },
+  }
 };

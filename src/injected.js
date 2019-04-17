@@ -2,26 +2,26 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import store from './vuex/store';
 import Sortable from 'sortablejs';
+import IframeComponent from './components/iframe.vue';
+import MenuComponent from './components/menu.vue';
+import ColorComponent from './components/color.vue';
+import OverlayComponent from './components/overlay.vue';
 import MainComponent from './main.vue';
 
-/**
- * Dispatch Chrome port messages
- */
+// Dispatch Chrome port messages
 const port = store.getters.getPort;
 port.onMessage.addListener(function(request, sender, sendResponse) {
-  console.log('request :', request);
-
   switch (request.type) {
     case 'init':
       BlackShrimp.create();
       break;
 
     case 'imageData':
-      app.showUI();
+      appInstance.showUI();
       break;
 
     case 'color':
-      app.setColor({ value: request.data });
+      appInstance.setColor({ value: request.data });
       break;
 
     case 'destroy':
@@ -30,34 +30,34 @@ port.onMessage.addListener(function(request, sender, sendResponse) {
   }
 });
 
-/**
- * Vue app
- */
+// Vue app
 Vue.use(Vuex).directive('sortable', {
   inserted: function(el, binding) {
     new Sortable(el, binding.value || {});
   }
 });
 
-// var changeDelay = 300;
-// var changeTimeout;
-// var paused = true;
-// var altKeyWasPressed = false;
-// var colorThreshold = [0.2,0.5,0.2];
-let overlay = document.createElement('div');
-overlay.className = 'toolkit__debug';
-
-let app;
+let appInstance;
 let scrollTimer;
+
 let BlackShrimp = {
   create: function() {
-    app = new Vue({
-      store, // Inject store to all children
-      el: '#black-shrimp',
-      template: '<MainComponent/>',
+    appInstance = new Vue({
+      el: '#black-shrimp-root',
+
+      template: `
+        <IframeComponent>
+          <MainComponent/>
+          <OverlayComponent/>
+        </IframeComponent>`,
+
+      // Inject store to all children
+      store,
 
       components: {
-        MainComponent
+        IframeComponent,
+        MainComponent,
+        OverlayComponent
       },
 
       methods: {
@@ -71,7 +71,7 @@ let BlackShrimp = {
           store.commit('setVisibility', true);
         },
         delayScroll(event) {
-          app.hideUI();
+          appInstance.hideUI();
 
           let self = this;
           clearTimeout(scrollTimer);
@@ -80,22 +80,22 @@ let BlackShrimp = {
           }, 50);
         },
         onViewportChange(event) {
-          console.log('process viewport change');
           const doc = document.documentElement;
           const pageOffset = {};
+
           pageOffset.x =
             (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
           pageOffset.y =
             (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+
           port.postMessage({
             type: 'viewportChange',
             pageOffset: { x: pageOffset.x, y: pageOffset.y }
-            // 'zoom' : '' // @todo
           });
         },
         onKeyPressed(event) {
+          // ESC key pressed
           if (event.keyCode == 27) {
-            // ESC key pressed
             port.postMessage({
               type: 'destroy'
             });
@@ -109,7 +109,7 @@ let BlackShrimp = {
       beforeCreate() {
         // Dynamically insert the root element in the body
         const el = document.createElement('div');
-        el.id = 'black-shrimp';
+        el.id = 'black-shrimp-root';
         document.body.appendChild(el);
       },
 
@@ -126,15 +126,14 @@ let BlackShrimp = {
       },
 
       destroyed() {
-        const el = document.getElementById('black-shrimp');
-        el.parentNode.removeChild(el);
+        // Manually remove the root element, since Vue let the DOM untouched on destroy
+        this.$el.parentNode.removeChild(this.$el);
       }
     });
   },
 
   destroy: function() {
-    // @todo
-    app.destroy();
+    appInstance.$destroy();
   }
 };
 

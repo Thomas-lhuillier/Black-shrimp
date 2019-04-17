@@ -3,6 +3,7 @@ const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const autoprefixer = require('autoprefixer');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 process.traceDeprecation = true;
 
@@ -23,14 +24,6 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader'
-        }
-      },
-
-      {
         test: /\.vue$/,
         loader: 'vue-loader',
         options: {
@@ -49,9 +42,17 @@ module.exports = {
       },
 
       {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader'
+        }
+      },
+
+      {
         test: /\.s[a|c]ss$/,
         use: [
-          { loader: 'vue-style-loader' },
+          { loader: MiniCssExtractPlugin.loader },
           { loader: 'css-loader' },
           { loader: 'postcss-loader' },
           { loader: 'sass-loader' }
@@ -91,6 +92,10 @@ module.exports = {
   },
 
   plugins: [
+    new MiniCssExtractPlugin({
+      filename: 'assets/injected.css'
+    }),
+
     new webpack.LoaderOptionsPlugin({
       options: { postcss: [autoprefixer] }
     }),

@@ -21,16 +21,19 @@ onmessage = function(event) {
       width = event.data.width;
       height = event.data.height;
 
-      postMessage({
-        type: 'screenshot processed',
-        imageData: imageData.buffer,
-        width: width,
-        height: height
-      }, [imageData.buffer]);
+      postMessage(
+        {
+          type: 'screenshot processed',
+          imageData: imageData.buffer,
+          width: width,
+          height: height
+        },
+        [imageData.buffer]
+      );
       break;
 
     case 'mousePos':
-      let coord = event.data.coord
+      let coord = event.data.coord;
       processMousePos(coord);
       break;
 
@@ -41,7 +44,7 @@ onmessage = function(event) {
     //   });
     //   break;
   }
-}
+};
 
 let centerPixel = {};
 
@@ -49,7 +52,6 @@ function processMousePos(coord) {
   centerPixel.x = coord.x;
   centerPixel.y = coord.y;
   Object.assign(centerPixel, getPixelValueAt(centerPixel.x, centerPixel.y));
-  console.log('centerPixel', centerPixel);
 
   postMessage({
     type: 'color',
@@ -59,44 +61,52 @@ function processMousePos(coord) {
 
 function getPixelValueAt(x, y) {
   let tempArray = new Uint8ClampedArray(workerImageData);
-  let n = y * width * 4 + x * 4 ;
+  let n = y * width * 4 + x * 4;
 
   let R = tempArray[n],
-      G = tempArray[++n],
-      B = tempArray[++n],
-      HEX = rgbToHex(R, G, B),
-      HSL = rgbToHsl(R, G, B);
+    G = tempArray[++n],
+    B = tempArray[++n],
+    HEX = rgbToHex(R, G, B),
+    HSL = rgbToHsl(R, G, B);
 
   let pixel = { r: R, g: G, b: B, hex: HEX, h: HSL[0], s: HSL[1], l: HSL[2] };
   return pixel;
 }
 
 function rgbToHex(r, g, b) {
-  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+  return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
 function componentToHex(c) {
   let hex = c.toString(16);
-  return hex.length == 1 ? "0" + hex : hex;
+  return hex.length == 1 ? '0' + hex : hex;
 }
 
 function rgbToHsl(r, g, b) {
-  r /= 255, g /= 255, b /= 255;
+  (r /= 255), (g /= 255), (b /= 255);
   let max = Math.max(r, g, b),
-      min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
+    min = Math.min(r, g, b);
+  let h,
+    s,
+    l = (max + min) / 2;
 
   if (max == min) {
-      h = s = 0; // achromatic
+    h = s = 0; // achromatic
   } else {
-      let d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch(max) {
-          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-          case g: h = (b - r) / d + 2; break;
-          case b: h = (r - g) / d + 4; break;
-      }
-      h /= 6;
+    let d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
+    }
+    h /= 6;
   }
 
   // return [h, s, l];

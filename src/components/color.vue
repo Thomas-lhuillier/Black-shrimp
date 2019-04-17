@@ -85,9 +85,10 @@ This component represent the entire color panel
       <draggable
         class="color-collection"
         v-model="colors"
-        :element="'ul'"
+        :tag="'ul'"
         :move="onMove"
-        :options="{group:'colors'}"
+        @end="deselectAll"
+        group="colors"
       >
         <li
           v-for="(color, index) in colors"
@@ -103,9 +104,10 @@ This component represent the entire color panel
       <draggable
         class="folder-collection"
         v-model="colorFolders"
-        :element="'ul'"
+        :tag="'ul'"
         :move="onMove"
-        :options="{group:'folders'}"
+        @end="deselectAll"
+        group="folders"
         style="
           display: block;
           -webkit-user-drag: element;
@@ -129,9 +131,10 @@ This component represent the entire color panel
         >
           <draggable
             v-model="colorFolders[index].content"
-            :element="'ul'"
-            :options="{group:'colors'}"
+            :tag="'ul'"
+            group="colors"
             :move="onMove"
+            @end="deselectAll"
             @click.self.native="toggleFolderSelection($event, folder, index)"
             data-maintain-selection
           >
@@ -203,25 +206,25 @@ export default {
       return this.$store.getters.getPort;
     },
     hex() {
-      return this.$store.getters.getColorState.value.hex.toString();
+      return this.getColor("hex").toString();
     },
     r() {
-      return this.$store.getters.getColorState.value.r.toString();
+      return this.getColor("r").toString();
     },
     g() {
-      return this.$store.getters.getColorState.value.g.toString();
+      return this.getColor("g").toString();
     },
     b() {
-      return this.$store.getters.getColorState.value.b.toString();
+      return this.getColor("b").toString();
     },
     h() {
-      return this.$store.getters.getColorState.value.h.toString();
+      return this.getColor("h").toString();
     },
     s() {
-      return this.$store.getters.getColorState.value.s.toString();
+      return this.getColor("s").toString();
     },
     l() {
-      return this.$store.getters.getColorState.value.l.toString();
+      return this.getColor("l").toString();
     },
     colors: {
       get() {
@@ -244,7 +247,6 @@ export default {
   watch: {
     colorFolders: {
       handler: function(val, oldVal) {
-        // console.log('sync color folders:', this.colorFolders);
         chrome.storage.sync.set(
           { colorFolders: this.colorFolders },
           function() {}
@@ -255,7 +257,6 @@ export default {
 
     colors: {
       handler: function(val, oldVal) {
-        // console.log('sync colors:', this.colors);
         chrome.storage.sync.set({ colors: this.colors }, function() {});
       },
       deep: true
@@ -263,8 +264,11 @@ export default {
   },
 
   methods: {
+    getColor(key) {
+      return this.$store.getters.getColorState.value[key];
+    },
+
     onMove({ relatedContext, draggedContext }) {
-      console.log("onMove", relatedContext, draggedContext);
       const relatedElement = relatedContext.element;
       const draggedElement = draggedContext.element;
       return (
@@ -272,6 +276,7 @@ export default {
       );
     },
 
+    // @todo Maybe we can refactor to mutualize the following code
     getStoredColors: function() {
       chrome.storage.sync.get("colors", storageData => {
         let data = storageData.colors;
@@ -279,9 +284,9 @@ export default {
           data[i].id = i;
           data[i].isSelected = false;
         }
+
         // Save chrome data in store.
         this.$store.commit("setColors", data);
-        console.log("Store colors:", data);
       });
 
       chrome.storage.sync.get("colorFolders", storageData => {
@@ -290,10 +295,9 @@ export default {
           data[i].id = i;
           data[i].isSelected = false;
         }
-        console.log(data);
+
         // Save chrome data in store.
         this.$store.commit("setColorFolders", data);
-        console.log("Store folders:", data);
       });
     },
 
@@ -310,16 +314,13 @@ export default {
     onChromeDataChange: function(changes, namespace) {
       for (let key in changes) {
         let storageChange = changes[key];
-        console.log(
-          'Storage key "%s" in namespace "%s" changed.',
-          key,
-          namespace
-        );
       }
+
       if (changes["colors"] != undefined) {
         // Save chrome data in store.
         this.$store.commit("setColors", changes["colors"].newValue);
       }
+
       if (changes["colorFolders"] != undefined) {
         this.$store.commit("setColorFolders", changes["colorFolders"].newValue);
       }
@@ -329,7 +330,6 @@ export default {
      *  Save current color to swatch
      */
     addCurrentColor: function(event) {
-      console.log("addCurrentColor");
       if (!this.hex) {
         return;
       }
@@ -488,8 +488,7 @@ export default {
     },
 
     toggleFolderSelection: function(event, folder, index = false) {
-      // @TODO refactor
-      console.log("toggleFolderSelection");
+      // @todo refactor
       let isSelected = folder.isSelected ? true : false;
 
       if (!event) {
@@ -498,14 +497,11 @@ export default {
 
       if (event.ctrlKey) {
         // ctrl is down
-        console.log("ctrl selection");
         folder.isSelected = !isSelected;
       } else if (event.shiftKey) {
         // shift is down
-        console.log("shift selection");
       } else {
         // Single selection
-        console.log("single selection");
         this.deselectAll();
 
         folder.isSelected = !isSelected;
@@ -529,8 +525,6 @@ export default {
      * Keyboard shortcuts
      */
     onKeyDown: function(event) {
-      console.log("event:", event);
-      console.log("keyup:", event.keyCode);
       if (event.altKey && event.keyCode == 65) {
         // Alt + A
         // Add current color shortcut
@@ -567,7 +561,6 @@ export default {
         }
       }
 
-      console.log("formatted data :", input);
       this.convertToASE(input);
     },
 
@@ -600,7 +593,6 @@ export default {
         if (err) {
           throw err;
         }
-        console.log("File saved");
       }).then(() => {});
     }
   },
@@ -617,9 +609,7 @@ export default {
     // Remove event listeners
     window.removeEventListener("click", this.onClick);
     window.removeEventListener("keydown", this.onKeyDown);
-    chrome.storage.onChanged.removeListener(this.onChromeDataChange, () => {
-      console.log("removed listener");
-    });
+    chrome.storage.onChanged.removeListener(this.onChromeDataChange);
   }
 };
 </script>
@@ -627,242 +617,226 @@ export default {
 <style lang="scss">
 @import "../sass/variables";
 
-.blackShrimp {
-  .panel {
-    position: relative;
+.panel {
+  position: relative;
+  display: block;
+  padding: 8px;
+
+  font-size: 10px;
+
+  color: $gray-lighter;
+  background-color: $gray;
+
+  border-bottom-left-radius: $border-radius;
+  border-bottom-right-radius: $border-radius;
+}
+
+.colorPicker {
+  display: flex;
+  font-size: 0;
+  line-height: 0;
+
+  > * {
+    vertical-align: top;
+    min-width: 0; // allow flex children to shrink bellow initial size
+  }
+
+  > * + * {
+    margin-left: $spacer;
+  }
+
+  > .select-block {
+    flex-shrink: 0;
+    width: 52px; // We set the width to avoid chaging width when setting value
+  }
+}
+
+.colorViewer {
+  flex-shrink: 0;
+  position: relative;
+  width: 22px;
+  height: 22px;
+
+  border-radius: 100%;
+  border: 1px solid $gray-light;
+  box-sizing: border-box;
+}
+
+.hexWrapper {
+  display: none;
+
+  &.active {
     display: block;
-    padding: 8px;
+  }
+}
 
-    font-size: 10px;
+.rgbWrapper,
+.hslWrapper {
+  display: none;
 
-    color: $gray-lighter;
-    background-color: $gray;
-
-    border-bottom-left-radius: $border-radius;
-    border-bottom-right-radius: $border-radius;
+  &.active {
+    display: flex;
   }
 
-  .colorPicker {
+  input {
+    width: 44px;
+  }
+
+  input + input {
+    margin-left: 4px;
+  }
+}
+
+input[type="text"] {
+  display: inline-block;
+  height: 22px;
+  padding: 4px;
+  width: 100%;
+
+  font-family: "Poppins", monospace !important;
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+
+  color: $soft-white;
+  background-color: $gray-dark;
+  border: solid 1px $gray-light;
+  border-radius: $border-radius-sm;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: $gray-darker;
+  }
+}
+
+.colorSwatches {
+  position: relative;
+  display: block;
+  margin-top: $spacer;
+  margin-right: -$spacer / 2;
+  padding-top: $spacer;
+
+  &:before {
+    content: "";
     display: block;
-    font-size: 0;
-    line-height: 0;
-
-    > * {
-      display: inline-block;
-      height: 22px;
-      vertical-align: top;
-    }
-
-    > * + * {
-      margin-left: $spacer;
-    }
-
-    > .select-block {
-      margin-left: 0;
-      margin-right: -$spacer;
-
-      > .value > .text {
-        width: 24px;
-        vertical-align: top;
-      }
-    }
+    position: absolute;
+    top: 0;
+    left: -$spacer;
+    right: -$spacer / 2;
+    border-top: solid 1px $gray-light;
   }
 
-  .colorViewer {
-    position: relative;
-    width: 22px;
-    height: 22px;
-
-    border-radius: 100%;
-    border: 1px solid $gray-light;
-    box-sizing: border-box;
-  }
-
-  .hexWrapper,
-  .rgbWrapper,
-  .hslWrapper {
-    display: none;
-
-    &.active {
-      display: inline-block;
-    }
-  }
-
-  .hexWrapper {
-    input {
-      width: 140px;
-    }
-  }
-
-  .rgbWrapper,
-  .hslWrapper {
-    input {
-      width: 44px;
-    }
-
-    input + input {
-      margin-left: 4px;
-    }
-  }
-
-  input[type="text"] {
-    display: inline-block;
-    height: 22px;
-    padding: 4px;
-
-    font-family: "Poppins", monospace !important;
-    font-size: 11px;
-    line-height: 14px;
-    text-align: center;
-
-    color: $soft-white;
-    background-color: $gray-dark;
-    border: solid 1px $gray-light;
-    border-radius: $border-radius-sm;
-    box-sizing: border-box;
-
-    &:focus {
-      border-color: $gray-darker;
-    }
-  }
-
-  .colorSwatches {
-    position: relative;
+  & > .button-wrapper {
     display: block;
-    margin-top: $spacer;
-    margin-right: -$spacer / 2;
-    padding-top: $spacer;
+    text-align: right;
 
-    &:before {
-      content: "";
-      display: block;
-      position: absolute;
-      top: 0;
-      left: -$spacer;
-      right: -$spacer / 2;
-      border-top: solid 1px $gray-light;
+    & > .btn-square {
+      border: none;
+      margin-bottom: 0;
     }
+  }
 
-    & > .button-wrapper {
-      display: block;
-      text-align: right;
+  & > .color-collection {
+    display: block;
+    margin-left: -($spacer / 2);
+    padding-left: $spacer / 2;
 
-      & > .btn-square {
-        border: none;
-        margin-bottom: 0;
-      }
-    }
-
-    & > .color-collection {
-      display: block;
-      margin-left: -($spacer / 2);
-      padding-left: $spacer / 2;
-
-      &:not(:empty) {
-        margin-bottom: $spacer / 2;
-      }
-    }
-
-    & > .folder-collection {
-      display: block;
-
-      &:not(:empty) {
-        margin-bottom: $spacer / 2;
-      }
-
-      & > .folder {
-        display: block;
-        position: relative;
-        margin-top: -($spacer / 2);
-        margin-bottom: $spacer / 2;
-        margin-left: -($spacer / 2);
-        padding-top: $spacer / 2;
-        padding-left: $spacer / 2;
-
-        -webkit-user-drag: element;
-        user-select: none;
-
-        &.-selected {
-          outline-style: dashed;
-          outline-width: 1px;
-          outline-color: $gray-lighter;
-
-          & > ul:before {
-            background-color: $gray-darker;
-            color: $soft-white;
-          }
-        }
-
-        & > ul {
-          display: block;
-          position: relative;
-
-          &:before {
-            @extend .btn-square;
-            display: block;
-            content: "\e902";
-            font-size: 18px;
-            font-family: "Black-shrimp";
-            outline-width: 0 !important;
-            border-width: 0 !important;
-          }
-        }
-      }
-    }
-
-    .btn-square {
-      margin-right: $spacer / 2;
+    &:not(:empty) {
       margin-bottom: $spacer / 2;
     }
   }
 
+  & > .folder-collection {
+    display: block;
+
+    &:not(:empty) {
+      margin-bottom: $spacer / 2;
+    }
+
+    & > .folder {
+      display: block;
+      position: relative;
+      margin-top: -($spacer / 2);
+      margin-bottom: $spacer / 2;
+      margin-left: -($spacer / 2);
+      padding-top: $spacer / 2;
+      padding-left: $spacer / 2;
+
+      -webkit-user-drag: element;
+      user-select: none;
+
+      &.-selected {
+        outline-style: dashed;
+        outline-width: 1px;
+        outline-color: $gray-lighter;
+
+        & > ul:before {
+          background-color: $gray-darker;
+          color: $soft-white;
+        }
+      }
+
+      & > ul {
+        display: block;
+        position: relative;
+
+        &:before {
+          @extend .btn-square;
+          display: block;
+          content: "\e902";
+          font-size: 18px;
+          font-family: "Black-shrimp";
+          outline-width: 0 !important;
+          border-width: 0 !important;
+        }
+      }
+    }
+  }
+
   .btn-square {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
+    margin-right: $spacer / 2;
+    margin-bottom: $spacer / 2;
+  }
+}
 
-    font-size: 18px;
-    background-color: $gray-light;
+.btn-square {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
 
-    border-radius: 2px;
-    border-width: 1px;
-    border-style: solid;
-    border-color: transparent;
+  font-size: 18px;
+  background-color: $gray-light;
 
-    box-sizing: border-box;
-    vertical-align: middle;
-    cursor: pointer;
+  border-radius: 2px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
 
-    -webkit-user-drag: element;
-    user-select: none;
+  box-sizing: border-box;
+  vertical-align: middle;
+  cursor: pointer;
 
-    transition: background-color 0.2s ease;
+  -webkit-user-drag: element;
+  user-select: none;
 
-    &:hover {
-      background-color: $gray-dark;
-      color: $soft-white;
-    }
+  transition: background-color 0.2s ease;
 
-    &:focus,
-    &.-selected {
-      // border-color: $gray-darker;
-      // border-width: 2px;
-      outline-style: dashed;
-      outline-width: 1px;
-      outline-color: $soft-white;
+  &:hover {
+    background-color: $gray-dark;
+    color: $soft-white;
+  }
 
-      > .bs-icon {
-        margin-top: -2px;
-        margin-left: -2px;
-      }
-    }
+  &.-selected {
+    outline-style: dashed;
+    outline-width: 1px;
+    outline-color: $soft-white;
+  }
 
-    &:active {
-      background-color: $gray-darker;
-      > .bs-icon {
-        margin-top: -1px !important;
-        margin-left: -1px !important;
-      }
+  &:active {
+    background-color: $gray-darker;
+    > .bs-icon {
+      margin-top: -1px !important;
+      margin-left: -1px !important;
     }
   }
 }

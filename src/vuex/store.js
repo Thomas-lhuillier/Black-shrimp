@@ -5,10 +5,10 @@
  * to be shared with application components.
  */
 
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 // root state object.
 // each Vuex instance is just a single state tree.
@@ -18,23 +18,23 @@ const state = {
   activeTab: 'color',
   color: {
     value: {
-      hex : '',
-      r   : '',
-      g   : '',
-      b   : '',
-      h   : '',
-      s   : '',
-      l   : '',
+      hex: '',
+      r: '',
+      g: '',
+      b: '',
+      h: '',
+      s: '',
+      l: ''
     }
   },
   colors: [],
   colorFolders: [],
   cursorOverlay: {
     isVisible: true,
-    cursor: 'eyeDropper',
+    cursor: 'eyeDropper'
   },
-  port: chrome.runtime.connect({ name: "toolkit" }), // @TODO change to black shrimp
-}
+  port: chrome.runtime.connect({ name: 'toolkit' }) // @TODO change to black shrimp
+};
 
 // mutations are operations that actually mutates the state.
 // each mutation handler gets the entire state tree as the
@@ -49,7 +49,6 @@ const mutations = {
     state.activeTab = val;
   },
   setColor(state, val) {
-    console.log('VALUE:', val.value);
     state.color.value = val.value;
   },
   setMovingStatus(state, val) {
@@ -61,32 +60,31 @@ const mutations = {
   setColors(state, arr) {
     state.colors = arr;
     // Save colors in chrome storage.
-    chrome.storage.sync.set({'colors': arr}, function() {});
+    chrome.storage.sync.set({ colors: arr }, function() {});
   },
   setColorFolders(state, arr) {
     state.colorFolders = arr;
     // Save color folders in chrome storage.
-    chrome.storage.sync.set({'colorFolders': arr}, function() {});
-  },
-}
+    chrome.storage.sync.set({ colorFolders: arr }, function() {});
+  }
+};
 
 // actions are functions that causes side effects and can involve
 // asynchronous operations.
-const actions = {
-}
+const actions = {};
 
 // getters are functions
 const getters = {
-  getVisibility       : state => state.isVisible,
-  getMovingStatus     : state => state.isMoving,
-  getActiveTab        : state => state.activeTab,
-  getColorState       : state => state.color,
-  getCursorVisibility : state => state.cursorOverlay.isVisible,
-  getCursorType       : state => state.cursorOverlay.cursor,
-  getPort             : state => state.port,
-  getColors           : state => state.colors,
-  getColorFolders     : state => state.colorFolders,
-}
+  getVisibility: state => state.isVisible,
+  getMovingStatus: state => state.isMoving,
+  getActiveTab: state => state.activeTab,
+  getColorState: state => state.color,
+  getCursorVisibility: state => state.cursorOverlay.isVisible,
+  getCursorType: state => state.cursorOverlay.cursor,
+  getPort: state => state.port,
+  getColors: state => state.colors,
+  getColorFolders: state => state.colorFolders
+};
 
 // A Vuex instance is created by combining the state, mutations, actions,
 // and getters.
@@ -95,4 +93,4 @@ export default new Vuex.Store({
   getters,
   actions,
   mutations
-})
+});

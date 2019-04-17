@@ -14,6 +14,7 @@ export default {
       scrollPos: {}
     };
   },
+
   computed: {
     isVisible() {
       return this.$store.getters.getCursorVisibility;
@@ -28,23 +29,22 @@ export default {
       return this.$store.getters.getPort;
     }
   },
+
   methods: {
     mouseMove(event) {
       if (this.activeTab != "color") {
         return;
       }
-      // if (this.activeTab == 'color') {
-      this.scrollPos.x = event.clientX;
-      this.scrollPos.y = event.clientY;
 
       if (event.which == 1) {
-        // mousedown
+        this.scrollPos.x = event.clientX;
+        this.scrollPos.y = event.clientY;
+
         this.port.postMessage({
           type: "mousePos",
           coord: { x: this.scrollPos.x, y: this.scrollPos.y }
         });
       }
-      // }
     },
     click(event) {
       if (this.activeTab == "color" && this.scrollPos.x && this.scrollPos.y) {
@@ -61,28 +61,27 @@ export default {
 <style lang="scss">
 @import "../sass/variables";
 
-.blackShrimp {
-  .cursor-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+.cursor-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
 
-    user-select: none;
+  user-select: none;
 
-    &.-visible {
-      display: block;
-      &.-eyeDropper,
-      &.-eyeDropper:hover {
-        // background-color: rgba(150,0,0,0.5);
-        cursor: url("../assets/img/cursor-eyeDropper.png") 0 22, pointer;
-        &:active {
-          cursor: url("../assets/img/cursor-eyeDropper-filled.png") 0 22,
-            pointer;
-        }
-      }
+  &.-visible {
+    display: block;
+  }
+
+  &.-eyeDropper,
+  &.-eyeDropper:hover {
+    cursor: url("../assets/img/cursor-eyeDropper.png") 0 22, pointer;
+
+    &:active {
+      cursor: url("../assets/img/cursor-eyeDropper-filled.png") 0 22, pointer;
     }
   }
 }
