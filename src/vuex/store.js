@@ -33,7 +33,7 @@ const state = {
     isVisible: true,
     cursor: 'eyeDropper'
   },
-  port: chrome.runtime.connect({ name: 'toolkit' }) // @TODO change to black shrimp
+  port: chrome.runtime.connect()
 };
 
 // mutations are operations that actually mutates the state.

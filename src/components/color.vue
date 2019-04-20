@@ -108,26 +108,12 @@ This component represent the entire color panel
         :move="onMove"
         @end="deselectAll"
         group="folders"
-        style="
-          display: block;
-          -webkit-user-drag: element;
-          -webkit-user-select: none;
-          -moz-user-select: none;
-          -ms-user-select: none;
-          user-select: none;"
       >
         <li
           v-for="(folder, index) in colorFolders"
           :key="index"
           :class="[{ '-selected': folder.isSelected }]"
           class="folder"
-          style="
-            display: block;
-            -webkit-user-drag: element;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;"
         >
           <draggable
             v-model="colorFolders[index].content"
@@ -153,21 +139,30 @@ This component represent the entire color panel
 
       <!-- Action buttons -->
       <div class="button-wrapper">
-        <button class="btn-square" @click="addCurrentColor($event)">
-          <i class="bs-icon bs-icon-plus"></i>
+        <button
+          class="btn-square"
+          v-on:click="addCurrentColor($event)"
+          title="Add color [Alt + Shift + A]"
+        >
+          <i class="icon icon-plus"></i>
         </button>
 
-        <button class="btn-square" @click="addFolder($event)">
-          <i class="bs-icon bs-icon-folder"></i>
+        <button class="btn-square" @click="addFolder($event)" title="Add Folder [Alt + Shift + F]">
+          <i class="icon icon-folder"></i>
         </button>
 
         <button
           class="btn-square"
           @click.exact="deleteSelection($event)"
           @click.shift.exact="deleteAll($event)"
+          title="Delete selection [Alt + Shift + D]"
           data-maintain-selection
         >
-          <i class="bs-icon bs-icon-trash"></i>
+          <i class="icon icon-trash"></i>
+        </button>
+
+        <button class="btn-square">
+          <i class="icon icon-binoculars"></i>
         </button>
       </div>
     </div>
@@ -479,7 +474,7 @@ export default {
     /**
      * Create an empty folder
      */
-    addFolder: function(event) {
+    addFolder: function() {
       let item = {
         content: [],
         isSelected: false
@@ -525,12 +520,17 @@ export default {
      * Keyboard shortcuts
      */
     onKeyDown: function(event) {
-      if (event.altKey && event.keyCode == 65) {
-        // Alt + A
-        // Add current color shortcut
+      if (event.altKey && event.shiftKey && event.keyCode == 65) {
+        // Alt + Shift + A
         this.addCurrentColor();
-      } else if (event.altKey && event.keyCode == 69) {
-        // Alt + E
+      } else if (event.altKey && event.shiftKey && event.keyCode == 70) {
+        // Alt + Shift + F
+        this.addFolder();
+      } else if (event.altKey && event.shiftKey && event.keyCode == 68) {
+        // Alt + Shift + D
+        this.deleteSelection();
+      } else if (event.altKey && event.shiftKey && event.keyCode == 69) {
+        // Alt + Shift + E
         // Export swatches .ase
         this.exportColors();
       }
@@ -598,37 +598,29 @@ export default {
   },
 
   mounted: function() {
-    // Register event listeners
-    window.addEventListener("click", this.onClick);
-    window.addEventListener("keydown", this.onKeyDown);
+    this.$root.window.addEventListener("click", this.onClick);
+    this.$root.window.addEventListener("keydown", this.onKeyDown);
     chrome.storage.onChanged.addListener(this.onChromeDataChange);
     this.getStoredColors();
   },
 
   beforeDestroy: function() {
-    // Remove event listeners
-    window.removeEventListener("click", this.onClick);
-    window.removeEventListener("keydown", this.onKeyDown);
+    this.$root.window.removeEventListener("click", this.onClick);
+    this.$root.window.removeEventListener("keydown", this.onKeyDown);
     chrome.storage.onChanged.removeListener(this.onChromeDataChange);
   }
 };
 </script>
 
 <style lang="scss">
-@import "../sass/variables";
+@import "../sass/abstracts/variables";
 
 .panel {
   position: relative;
-  display: block;
   padding: 8px;
-
   font-size: 10px;
-
   color: $gray-lighter;
   background-color: $gray;
-
-  border-bottom-left-radius: $border-radius;
-  border-bottom-right-radius: $border-radius;
 }
 
 .colorPicker {
@@ -834,7 +826,7 @@ input[type="text"] {
 
   &:active {
     background-color: $gray-darker;
-    > .bs-icon {
+    > .icon {
       margin-top: -1px !important;
       margin-left: -1px !important;
     }

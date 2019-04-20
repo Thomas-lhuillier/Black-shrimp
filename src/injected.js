@@ -3,10 +3,8 @@ import Vuex from 'vuex';
 import store from './vuex/store';
 import Sortable from 'sortablejs';
 import IframeComponent from './components/iframe.vue';
-import MenuComponent from './components/menu.vue';
-import ColorComponent from './components/color.vue';
 import OverlayComponent from './components/overlay.vue';
-import MainComponent from './main.vue';
+import PanelComponent from './components/panel.vue';
 
 // Dispatch Chrome port messages
 const port = store.getters.getPort;
@@ -47,7 +45,7 @@ let BlackShrimp = {
 
       template: `
         <IframeComponent>
-          <MainComponent/>
+          <PanelComponent/>
           <OverlayComponent/>
         </IframeComponent>`,
 
@@ -56,7 +54,7 @@ let BlackShrimp = {
 
       components: {
         IframeComponent,
-        MainComponent,
+        PanelComponent,
         OverlayComponent
       },
 
@@ -64,22 +62,26 @@ let BlackShrimp = {
         setColor(val) {
           store.commit('setColor', val);
         },
+
         hideUI() {
           store.commit('setVisibility', false);
         },
+
         showUI() {
           store.commit('setVisibility', true);
         },
-        delayScroll(event) {
+
+        handleViewportChange(event) {
           appInstance.hideUI();
 
           let self = this;
           clearTimeout(scrollTimer);
           scrollTimer = setTimeout(function() {
-            self.onViewportChange(event);
+            self.processViewportChange(event);
           }, 50);
         },
-        onViewportChange(event) {
+
+        processViewportChange(event) {
           const doc = document.documentElement;
           const pageOffset = {};
 
@@ -93,14 +95,7 @@ let BlackShrimp = {
             pageOffset: { x: pageOffset.x, y: pageOffset.y }
           });
         },
-        onKeyPressed(event) {
-          // ESC key pressed
-          if (event.keyCode == 27) {
-            port.postMessage({
-              type: 'destroy'
-            });
-          }
-        },
+
         destroy() {
           this.$destroy();
         }
@@ -114,15 +109,13 @@ let BlackShrimp = {
       },
 
       mounted() {
-        window.addEventListener('scroll', this.delayScroll);
-        window.addEventListener('resize', this.onViewportChange);
-        window.addEventListener('keyup', this.onKeyPressed);
+        window.addEventListener('scroll', this.handleViewportChange);
+        window.addEventListener('resize', this.handleViewportChange);
       },
 
       beforeDestroy() {
-        window.removeEventListener('scroll', this.delayScroll);
-        window.removeEventListener('resize', this.onViewportChange);
-        window.removeEventListener('keyup', this.onKeyPressed);
+        window.removeEventListener('scroll', this.handleViewportChange);
+        window.removeEventListener('resize', this.handleViewportChange);
       },
 
       destroyed() {

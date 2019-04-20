@@ -1,60 +1,28 @@
 <template>
   <div
-    id="black-shrimp"
-    class="blackShrimp"
-    :class="[{ '-visible': isVisible }]"
+    class="window"
     :style="{
-    'left'   : styleObject.left + 'px',
-    'top'    : styleObject.top + 'px',
-    'cursor' : styleObject.cursor
-  }"
+      'left'   : styleObject.left + 'px',
+      'top'    : styleObject.top + 'px',
+      'cursor' : styleObject.cursor
+    }"
     @mousedown="startMoving($event)"
     @mouseup="stopMoving($event)"
     @mousemove="move($event)"
   >
-    <CursorComponent></CursorComponent>
     <MenuComponent></MenuComponent>
     <ColorComponent></ColorComponent>
   </div>
 </template>
 
 <style lang="scss">
-@import "sass/variables";
-@import "assets/fonts/Black-shrimp/style";
-@import "assets/fonts/Poppins/style";
-
-.blackShrimp {
-  // Style resets, preventing local style affecting this component.
-  all: initial; // blocking inheritance for all properties
-
-  &:before,
-  &:after,
-  *:before,
-  *:after,
-  * {
-    all: unset; // allowing inheritance within .black-shrimp
-  }
-
-  display: none;
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  width: 235px;
-  box-sizing: border-box;
-  z-index: 9999999;
-
-  font-family: "Poppins", monospace !important;
-
-  &.-visible {
-    display: block;
-  }
-}
+@import "../sass/main";
 </style>
 
 <script>
-import MenuComponent from "./components/menu.vue";
-import ColorComponent from "./components/color.vue";
-import CursorComponent from "./components/cursor-overlay.vue";
+import MenuComponent from "./menu.vue";
+import ColorComponent from "./color.vue";
+import CursorComponent from "./overlay.vue";
 
 export default {
   components: {
@@ -74,9 +42,6 @@ export default {
     };
   },
   computed: {
-    isVisible() {
-      return this.$store.getters.getVisibility;
-    },
     isMoving() {
       return this.$store.getters.getMovingStatus;
     }
@@ -100,6 +65,7 @@ export default {
     },
 
     // Moves the main box when dragged
+    // @todo @perf Throttle
     move: function(event) {
       if (!this.isMoving) {
         return;
@@ -125,9 +91,8 @@ export default {
     // Prevents the main box from getting past window inner border
     // @todo Trigger fitbounds on window resize, after checking window is big enough
     fitBounds: function(posX, posY) {
-      const el = document.getElementById("black-shrimp");
-      const width = el.clientWidth;
-      const height = el.clientHeight;
+      const width = this.$el.clientWidth;
+      const height = this.$el.clientHeight;
 
       const body = document.body;
       const html = document.documentElement;

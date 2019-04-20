@@ -1,0 +1,36 @@
+// Colors
+$gray-darker: #333333;
+$gray-dark: #474747;
+$gray: #535353;
+$gray-light: #666666;
+$gray-lighter: #b3b3b3;
+
+$soft-white: #f0f0f0;
+
+// Spacing
+$spacer: 8px;
+
+// Borders
+$border-radius: 5px;
+$border-radius-sm: 3px;
+
+// Fonts
+$font-folder: '../assets/fonts/' !default;
+
+// Icons
+$icons: (
+  carret-up: '\e907',
+  carret-down: '\e908',
+  carret-left: '\e909',
+  carret-right: '\e90a',
+  close: '\e906',
+  binoculars: '\e900',
+  eyeDropper: '\e901',
+  folder: '\e902',
+  plus: '\e903',
+  ruler: '\e904',
+  trash: '\e905'
+);
+
+// Shadows
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);

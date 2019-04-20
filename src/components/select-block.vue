@@ -2,7 +2,7 @@
   <div class="colorMode select-block" v-bind:class="[{'-opened': isOpen }]" v-on-clickaway="close">
     <button class="btn value" v-on:click="toggleDropdown">
       <span class="text">{{text}}</span>
-      <i class="bs-icon bs-icon-carret-down"></i>
+      <i class="icon icon-carret-down"></i>
     </button>
     <ul class="options">
       <li
@@ -10,7 +10,9 @@
         v-for="(item, index) in mutableOptions"
         v-bind:class="[{'-selected': item.isSelected }]"
         v-on:click="updateValue(item)"
+        v-on:keyup.enter="updateValue(item)"
         v-bind:key="index"
+        tabindex="0"
       >{{item.text}}</li>
     </ul>
   </div>
@@ -82,7 +84,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../sass/variables";
+@import "../sass/abstracts/variables";
 
 .select-block {
   position: relative;
@@ -100,14 +102,14 @@ export default {
 
     user-select: none;
 
-    > .bs-icon {
+    > .icon {
       width: 22px;
       height: 22px;
       font-size: 14px;
       vertical-align: middle;
       line-height: inherit;
 
-      &.bs-icon-carret-down {
+      &.icon-carret-down {
         display: inline-block;
         margin-right: -$spacer;
         vertical-align: top;
@@ -116,7 +118,6 @@ export default {
         &:before {
           display: block;
           text-align: center;
-          border-radius: 100%;
         }
       }
     }
@@ -124,7 +125,7 @@ export default {
 
   &.-opened {
     > .value {
-      .bs-icon-carret-down {
+      .icon-carret-down {
         transform: rotateZ(-90deg);
       }
     }
@@ -138,7 +139,7 @@ export default {
     position: absolute;
     left: 0;
     right: 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    box-shadow: $shadow;
     z-index: 1;
 
     > .option {
@@ -165,7 +166,6 @@ export default {
           top: 50%;
           width: 3px;
           height: 3px;
-          font-sizeborder-radius: 100%;
         }
       }
     }

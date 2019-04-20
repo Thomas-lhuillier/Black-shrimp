@@ -25,6 +25,9 @@ export default {
   computed: {
     isVisible() {
       return this.$store.getters.getVisibility;
+    },
+    port() {
+      return this.$store.getters.getPort;
     }
   },
 
@@ -58,7 +61,8 @@ export default {
 
         // Freeze to prevent unnessessary Reactifiation of vNodes
         data: {
-          children: Object.freeze(children)
+          children: Object.freeze(children),
+          window: this.$el.contentDocument.defaultView
         },
 
         render(h) {
@@ -79,30 +83,25 @@ export default {
       style.href = chrome.extension.getURL("/assets/injected.css");
 
       head.appendChild(style);
+    },
+
+    onKeyPressed(event) {
+      if (event.key == "Escape") {
+        this.port.postMessage({
+          type: "destroy"
+        });
+      }
     }
+  },
+
+  mounted() {
+    const _window = this.$el.contentDocument.defaultView;
+    _window.addEventListener("keyup", this.onKeyPressed);
+  },
+
+  beforeDestroy() {
+    const _window = this.$el.contentDocument.defaultView;
+    _window.removeEventListener("keyup", this.onKeyPressed);
   }
 };
 </script>
-
-<style lang="scss">
-@import "../sass/variables";
-
-// resets
-button {
-  padding: 0;
-  color: inherit;
-  cursor: pointer;
-}
-
-.btn {
-  color: #b3b3b3;
-  background-color: #666666;
-  border-width: 0;
-  border-radius: 2px;
-
-  &:hover {
-    color: #f0f0f0;
-    background-color: #333333;
-  }
-}
-</style>

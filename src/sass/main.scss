@@ -1,0 +1,47 @@
+@import './abstracts/variables';
+
+@import 'reset-css/sass/_reset.scss';
+@import './base/typography';
+
+@import './components/icons';
+
+body {
+  margin: 0;
+  font-family: 'Poppins', monospace;
+}
+
+.window {
+  position: fixed;
+  z-index: 10;
+  top: 10px;
+  left: 10px;
+  width: 235px;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: $border-radius;
+  box-shadow: $shadow;
+}
+
+// resets
+button {
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.btn {
+  color: #b3b3b3;
+  background-color: #666666;
+  border-width: 0;
+  border-radius: 2px;
+
+  &:hover {
+    color: #f0f0f0;
+    background-color: #333333;
+  }
+}
+
+// Utilitie
+.ml-auto {
+  margin-left: auto !important;
+}

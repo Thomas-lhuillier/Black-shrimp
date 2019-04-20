@@ -1,20 +1,14 @@
 <template>
   <div
     class="cursor-overlay"
-    v-bind:class="[{ '-visible': isVisible }, '-'+cursor]"
-    @mousemove="mouseMove($event)"
-    @mousedown="click($event)"
+    v-bind:class="[{ '-visible': isVisible }, '-' + cursor]"
+    @mousemove="handleEvent($event)"
+    @mousedown="handleEvent($event)"
   ></div>
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      scrollPos: {}
-    };
-  },
-
   computed: {
     isVisible() {
       return this.$store.getters.getCursorVisibility;
@@ -31,35 +25,22 @@ export default {
   },
 
   methods: {
-    mouseMove(event) {
-      if (this.activeTab != "color") {
+    handleEvent(event) {
+      if (this.activeTab != "color" || event.which !== 1) {
         return;
       }
 
-      if (event.which == 1) {
-        this.scrollPos.x = event.clientX;
-        this.scrollPos.y = event.clientY;
-
-        this.port.postMessage({
-          type: "mousePos",
-          coord: { x: this.scrollPos.x, y: this.scrollPos.y }
-        });
-      }
-    },
-    click(event) {
-      if (this.activeTab == "color" && this.scrollPos.x && this.scrollPos.y) {
-        this.port.postMessage({
-          type: "mousePos",
-          coord: { x: this.scrollPos.x, y: this.scrollPos.y }
-        });
-      }
+      this.port.postMessage({
+        type: "mousePos",
+        coord: { x: event.clientX, y: event.clientY }
+      });
     }
   }
 };
 </script>
 
 <style lang="scss">
-@import "../sass/variables";
+@import "../sass/abstracts/variables";
 
 .cursor-overlay {
   display: none;
@@ -76,8 +57,8 @@ export default {
     display: block;
   }
 
-  &.-eyeDropper,
-  &.-eyeDropper:hover {
+  &.-eyeDropper {
+    // @todo Use SVG format
     cursor: url("../assets/img/cursor-eyeDropper.png") 0 22, pointer;
 
     &:active {

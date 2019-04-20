@@ -7,17 +7,12 @@
       data-js-draggable
       v-bind:key="index"
     >
-      <i class="bs-icon" v-bind:class="['bs-icon-' + item.icon]" data-js-draggable></i>
+      <i class="icon" v-bind:class="['icon-' + item.icon]" data-js-draggable></i>
       <span data-js-draggable>{{item.name}}</span>
     </span>
 
-    <span
-      class="jsClose item"
-      :class="{'-moving': isMoving}"
-      @click="destroy($event)"
-      data-js-draggable
-    >
-      <i class="bs-icon bs-icon-close" data-js-draggable></i>
+    <span class="ml-auto item" :class="{'-moving': isMoving}" @click="destroy()" data-js-draggable>
+      <i class="icon icon-close" data-js-draggable></i>
     </span>
   </div>
 </template>
@@ -52,50 +47,37 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../sass/variables";
+@import "../sass/abstracts/variables";
+
+$height: 28px;
 
 .menu {
-  $height: 28px;
-
   position: relative;
-  display: block;
+  display: flex;
   height: $height;
-
   color: $gray-dark;
   background-color: $soft-white;
-  border-top-left-radius: $border-radius;
-  border-top-right-radius: $border-radius;
-
-  overflow: hidden;
   user-select: none;
 
   .item {
-    display: inline-block;
+    display: flex;
     padding: 0 8px;
-    height: $height;
 
     font-size: 12px;
     font-weight: 600;
     line-height: $height;
-    vertical-align: top;
 
     cursor: pointer;
-    transition: all 0.3s linear;
+    transition: color 0.3s linear, background-color 0.3s linear;
 
     > * {
-      display: inline-block;
-      vertical-align: top;
       line-height: inherit;
     }
 
     &:hover,
     &:focus {
-      background: $gray-dark;
       color: $soft-white;
-    }
-
-    &.-moving {
-      cursor: move;
+      background: $gray-dark;
     }
 
     &.active {
@@ -103,19 +85,12 @@ export default {
       background-color: $gray;
     }
 
-    .bs-icon {
-      font-size: 18px;
-    }
-  }
-
-  // @todo fix class
-  .jsClose {
-    float: right;
-    padding: 0;
-    width: $height;
-    text-align: center;
     &.-moving {
       cursor: move;
+    }
+
+    .icon {
+      font-size: 18px;
     }
   }
 }

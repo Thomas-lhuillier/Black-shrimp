@@ -1,0 +1,35 @@
+@font-face {
+  font-family: 'Black-shrimp';
+  src: url('#{$font-folder}Black-shrimp/Black-shrimp.ttf?o1kej0')
+      format('truetype'),
+    url('#{$font-folder}Black-shrimp/Black-shrimp.svg?o1kej0#Black-shrimp')
+      format('svg'),
+    url('chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/Black-shrimp/Black-shrimp.woff')
+      format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^='icon'] {
+  font-family: 'Black-shrimp';
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  // Better Font Rendering
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  &:before {
+    font-size: inherit;
+    color: inherit;
+  }
+}
+
+@each $name, $icon in $icons {
+  .icon-#{$name}:before {
+    content: $icon;
+  }
+}
