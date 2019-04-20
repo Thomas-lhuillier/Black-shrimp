@@ -3,10 +3,8 @@ let tabs = {};
 
 function toggle(tab) {
   if (!tabs[tab.id]) {
-    console.log('addTab', tab.id);
     addTab(tab);
   } else {
-    console.log('deactivateTab', tab.id);
     deactivateTab(tab.id);
   }
 }
@@ -17,6 +15,7 @@ function addTab(tab) {
 }
 
 function deactivateTab(id) {
+  console.log('deactivateTab', id);
   tabs[id].destroy();
 }
 
@@ -77,20 +76,12 @@ const Blackshrimp = {
   },
 
   destroy: function(silent) {
-    // if(!this.port){
-    //   // not yet initialized
-    //   this.alive = false;
-    //   return;
-    // }
-
     if (!silent) {
       this.port.postMessage({ type: 'destroy' });
     }
 
-    // this.port.onMessage.removeListener(this.receiveBrowserMessageClosure);
     this.port.onDisconnect.removeListener(this.onBrowserDisconnectClosure);
 
-    // this.port.postMessage({ type: 'destroy' });
     this.worker.postMessage({
       type: 'destroy'
     });
@@ -159,7 +150,10 @@ const Blackshrimp = {
 
   receiveWorkerMessage: function(event) {
     let forward = ['debug screen', 'color', 'screenshot processed', 'mousePos'];
-    console.log('received worker message, forward to port :', event);
+    console.log(
+      `received worker message, forward to port ${this.port} :`,
+      event
+    );
 
     if (forward.indexOf(event.data.type) > -1) {
       this.port.postMessage(event.data);

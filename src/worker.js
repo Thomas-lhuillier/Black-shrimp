@@ -10,13 +10,11 @@ onmessage = function(event) {
   switch (event.data.type) {
     case 'init':
       debug = event.data.debug;
-      // postMessage({ type: "init", debug: debug});
       break;
 
     case 'imageData':
       imageData = new Uint8ClampedArray(event.data.imageData);
       workerImageData = new Uint8ClampedArray(imageData);
-      // data = grayscale( imageData );
 
       width = event.data.width;
       height = event.data.height;
@@ -36,13 +34,6 @@ onmessage = function(event) {
       let coord = event.data.coord;
       processMousePos(coord);
       break;
-
-    // case 'saveFile':
-    //   postMessage({
-    //     type: 'saveFile',
-    //     data: event.data
-    //   });
-    //   break;
   }
 };
 

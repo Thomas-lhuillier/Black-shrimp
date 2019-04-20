@@ -174,6 +174,9 @@ import SelectComponent from "./select-block.vue";
 import draggable from "vuedraggable";
 import save from "save-file";
 import ase from "ase-utils";
+import { between } from "../utilities/number";
+
+Number.prototype.between = between;
 
 export default {
   components: {
@@ -356,7 +359,7 @@ export default {
      * Select clicked color
      */
     toggleColorSelection: function(event, color, index = false, array = false) {
-      let isSelected = color.isSelected ? true : false;
+      let isSelected = color.isSelected;
 
       if (!event) {
         event = window.event;
@@ -367,20 +370,30 @@ export default {
         color.isSelected = !isSelected;
       } else if (event.shiftKey) {
         // shift selection
-        if (!this.selection_origin) {
-          return;
-        }
-        if (!this.selection_origin.array === array) {
+        if (!this.selection_origin || !this.selection_origin.array === array) {
           return;
         }
 
+        console.log("yolo");
+
         for (let i = 0; i < array.length; i++) {
-          if (i.between(this.selection_origin.index, index, true)) {
+          console.log("i", i);
+          console.log(
+            "this.selection_origin.index",
+            this.selection_origin.index
+          );
+          console.log("index", index);
+          console.log(
+            "between",
+            between(this.selection_origin.index, index, true)
+          );
+          if (between(this.selection_origin.index, index, true)) {
             array[i].isSelected = true;
           } else {
             array[i].isSelected = false;
           }
         }
+        event.stopPropagation();
       } else {
         // Single selection
         this.deselectAll();
