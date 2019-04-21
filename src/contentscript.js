@@ -52,21 +52,16 @@ const Blackshrimp = {
   construct: function(tab) {
     this.tab = tab;
 
-    this.onBrowserDisconnectClosure = this.onBrowserDisconnect.bind(this);
-    this.receiveBrowserMessageClosure = this.receiveBrowserMessage.bind(this);
+    this.onBrowserDisconnect = this.onBrowserDisconnect.bind(this);
+    this.onPortMessage = this.onPortMessage.bind(this);
 
     chrome.tabs.executeScript(this.tab.id, { file: 'injected.js' });
 
     // Set active icon
-    chrome.browserAction.setIcon({
-      tabId: this.tab.id,
-      path: {
-        16: 'assets/img/icon16_alt.png'
-      }
-    });
+    this.setIcon('active');
 
     this.worker = new Worker('worker.js');
-    this.worker.onmessage = this.receiveWorkerMessage.bind(this);
+    this.worker.onmessage = this.onWorkerMessage.bind(this);
     this.worker.postMessage({
       type: 'init'
     });
@@ -77,29 +72,16 @@ const Blackshrimp = {
       this.port.postMessage({ type: 'destroy' });
     }
 
-    this.port.onDisconnect.removeListener(this.onBrowserDisconnectClosure);
-
-    this.worker.postMessage({
-      type: 'destroy'
-    });
-
-    // Set back normal Icon
-    chrome.browserAction.setIcon({
-      tabId: this.tab.id,
-      path: {
-        16: 'assets/img/icon16.png'
-      }
-    });
-
+    this.port.onDisconnect.removeListener(this.onBrowserDisconnect);
+    this.worker.postMessage({ type: 'destroy' });
+    this.setIcon('default');
     clearTab(this.tab.id);
   },
 
   connect: function(port) {
     this.port = port;
-    console.log(`connect to port ${port}`);
-
-    this.port.onMessage.addListener(this.receiveBrowserMessageClosure);
-    this.port.onDisconnect.addListener(this.onBrowserDisconnectClosure);
+    this.port.onMessage.addListener(this.onPortMessage);
+    this.port.onDisconnect.addListener(this.onBrowserDisconnect);
 
     this.port.postMessage({
       type: 'init'
@@ -109,15 +91,10 @@ const Blackshrimp = {
   },
 
   onBrowserDisconnect: function() {
-    console.log('onBrowserDisconnect');
     this.destroy(true);
   },
 
-  receiveBrowserMessageClosure: function(event) {
-    console.log('receiveBrowserMessageClosure', event);
-  },
-
-  receiveBrowserMessage: function(event) {
+  onPortMessage: function(event) {
     switch (event.type) {
       case 'mousePos':
         this.worker.postMessage({
@@ -125,25 +102,25 @@ const Blackshrimp = {
           coord: event.coord
         });
         break;
+
       case 'color':
-        console.log('receiveBrowserMessage color', event.data.data);
         this.port.postMessage({
           type: 'color',
           coord: event.data
         });
         break;
+
       case 'viewportChange':
-        console.log('receiveBrowserMessage viewportChange', event.pageOffset);
         this.captureTab();
         break;
+
       case 'destroy':
-        console.log('receiveBrowserMessage destroy');
         this.destroy();
         break;
     }
   },
 
-  receiveWorkerMessage: function(event) {
+  onWorkerMessage: function(event) {
     let forward = ['color', 'screenshot processed', 'mousePos'];
     console.log(
       `received worker message, forward to port ${this.port} :`,
@@ -153,6 +130,26 @@ const Blackshrimp = {
     if (forward.indexOf(event.data.type) > -1) {
       this.port.postMessage(event.data);
     }
+  },
+
+  setIcon: function(type = 'default') {
+    let path;
+    switch (type) {
+      case 'active':
+        path = 'assets/img/icon16_alt.png';
+        break;
+
+      default:
+        path = 'assets/img/icon16.png';
+        break;
+    }
+
+    chrome.browserAction.setIcon({
+      tabId: this.tab.id,
+      path: {
+        16: path
+      }
+    });
   },
 
   captureTab: function() {

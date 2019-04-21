@@ -433,7 +433,7 @@ export default {
       arrays.forEach(array => {
         // Build array of selected element indexes.
         let selectedIndexes = [];
-        array.forEach(color, index => {
+        array.forEach((color, index) => {
           if (color.isSelected) {
             selectedIndexes.push(index);
           }
