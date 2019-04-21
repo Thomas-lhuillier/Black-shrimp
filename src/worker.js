@@ -1,4 +1,3 @@
-let debug;
 let imageData;
 let workerImageData;
 let width, height;
@@ -9,7 +8,6 @@ let width, height;
 onmessage = function(event) {
   switch (event.data.type) {
     case 'init':
-      debug = event.data.debug;
       break;
 
     case 'imageData':

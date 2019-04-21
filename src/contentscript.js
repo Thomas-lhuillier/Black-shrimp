@@ -1,5 +1,4 @@
-let debug = true;
-let tabs = {};
+const tabs = {};
 
 function toggle(tab) {
   if (!tabs[tab.id]) {
@@ -15,7 +14,6 @@ function addTab(tab) {
 }
 
 function deactivateTab(id) {
-  console.log('deactivateTab', id);
   tabs[id].destroy();
 }
 
@@ -37,7 +35,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 
 // Runtime port connexion
 chrome.runtime.onConnect.addListener(function(port) {
-  tabs[port.sender.tab.id].initialize(port);
+  tabs[port.sender.tab.id].connect(port);
 });
 
 chrome.runtime.onSuspend.addListener(function() {
@@ -70,8 +68,7 @@ const Blackshrimp = {
     this.worker = new Worker('worker.js');
     this.worker.onmessage = this.receiveWorkerMessage.bind(this);
     this.worker.postMessage({
-      type: 'init',
-      debug: debug
+      type: 'init'
     });
   },
 
@@ -97,17 +94,15 @@ const Blackshrimp = {
     clearTab(this.tab.id);
   },
 
-  initialize: function(port) {
+  connect: function(port) {
     this.port = port;
-
-    console.log('initialize - port:', port);
+    console.log(`connect to port ${port}`);
 
     this.port.onMessage.addListener(this.receiveBrowserMessageClosure);
     this.port.onDisconnect.addListener(this.onBrowserDisconnectClosure);
 
     this.port.postMessage({
-      type: 'init',
-      debug: debug
+      type: 'init'
     });
 
     this.captureTab();
@@ -149,7 +144,7 @@ const Blackshrimp = {
   },
 
   receiveWorkerMessage: function(event) {
-    let forward = ['debug screen', 'color', 'screenshot processed', 'mousePos'];
+    let forward = ['color', 'screenshot processed', 'mousePos'];
     console.log(
       `received worker message, forward to port ${this.port} :`,
       event

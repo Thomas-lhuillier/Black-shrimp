@@ -32,7 +32,6 @@ export default {
   },
   data() {
     return {
-      debug: true,
       styleObject: {
         left: 10,
         top: 10,

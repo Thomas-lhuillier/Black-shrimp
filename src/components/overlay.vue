@@ -8,19 +8,6 @@
 </template>
 
 <script>
-// import Channel from "../utilities/channel.js";
-
-// const channel_name = "overlay";
-
-// const Pipe = new Channel({
-//   name: channel_name,
-//   model: {
-//     // tabId: chrome.devtools.inspectedWindow.tabId,
-//     src_channel: channel_name,
-//     target_channel: "worker"
-//   }
-// });
-
 export default {
   computed: {
     isVisible() {
@@ -47,11 +34,6 @@ export default {
         type: "mousePos",
         coord: { x: event.clientX, y: event.clientY }
       });
-
-      // Pipe.post({
-      //   type: "mousePos",
-      //   coord: { x: event.clientX, y: event.clientY }
-      // });
     }
   }
 };
