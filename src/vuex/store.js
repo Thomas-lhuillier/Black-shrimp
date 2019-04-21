@@ -60,12 +60,14 @@ const mutations = {
   setColors(state, arr) {
     state.colors = arr;
     // Save colors in chrome storage.
-    chrome.storage.sync.set({ colors: arr }, function() {});
+    chrome.storage.sync.set({ colors: arr }, () => {});
+    console.log('sync chrome storage');
   },
   setColorFolders(state, arr) {
     state.colorFolders = arr;
     // Save color folders in chrome storage.
-    chrome.storage.sync.set({ colorFolders: arr }, function() {});
+    chrome.storage.sync.set({ colorFolders: arr }, () => {});
+    console.log('sync chrome storage');
   }
 };
 

@@ -121,7 +121,7 @@ This component represent the entire color panel
             group="colors"
             :move="onMove"
             @end="deselectAll"
-            @click.self.native="toggleFolderSelection($event, folder, index)"
+            @click.self.native="toggleFolderSelection($event, folder)"
             data-maintain-selection
           >
             <li
@@ -175,8 +175,6 @@ import draggable from "vuedraggable";
 import save from "save-file";
 import ase from "ase-utils";
 import { between } from "../utilities/number";
-
-Number.prototype.between = between;
 
 export default {
   components: {
@@ -276,32 +274,34 @@ export default {
 
     // @todo Maybe we can refactor to mutualize the following code
     getStoredColors: function() {
-      chrome.storage.sync.get("colors", storageData => {
-        let data = storageData.colors;
-        for (let i = 0; i < data.length; i++) {
-          data[i].id = i;
-          data[i].isSelected = false;
-        }
+      chrome.storage.sync.get("colors", storage => {
+        const colors = storage.colors.map((color, index) => {
+          return {
+            ...color,
+            id: index,
+            isSelected: false
+          };
+        });
 
-        // Save chrome data in store.
-        this.$store.commit("setColors", data);
+        this.$store.commit("setColors", colors);
       });
 
-      chrome.storage.sync.get("colorFolders", storageData => {
-        let data = storageData.colorFolders;
-        for (let i = 0; i < data.length; i++) {
-          data[i].id = i;
-          data[i].isSelected = false;
-        }
+      chrome.storage.sync.get("colorFolders", storage => {
+        const folders = storage.colorFolders.map((folder, index) => {
+          return {
+            ...folder,
+            id: index,
+            isSelected: false
+          };
+        });
 
-        // Save chrome data in store.
-        this.$store.commit("setColorFolders", data);
+        this.$store.commit("setColorFolders", folders);
       });
     },
 
     changeColorMode: function(event) {
       for (let text in this.color) {
-        this.color[text].isActive = text == event.text ? true : false;
+        this.color[text].isActive = text == event.text;
       }
     },
 
@@ -310,16 +310,11 @@ export default {
     },
 
     onChromeDataChange: function(changes, namespace) {
-      for (let key in changes) {
-        let storageChange = changes[key];
-      }
-
-      if (changes["colors"] != undefined) {
-        // Save chrome data in store.
+      if (changes["colors"]) {
         this.$store.commit("setColors", changes["colors"].newValue);
       }
 
-      if (changes["colorFolders"] != undefined) {
+      if (changes["colorFolders"]) {
         this.$store.commit("setColorFolders", changes["colorFolders"].newValue);
       }
     },
@@ -331,9 +326,6 @@ export default {
       if (!this.hex) {
         return;
       }
-
-      // Deselect all
-      this.deselectAll();
 
       let color = {};
       color.type = "color";
@@ -351,8 +343,7 @@ export default {
 
       color.isSelected = false;
 
-      let currentCollection = this.colors ? this.colors : [];
-      currentCollection.push(color);
+      this.colors.push(color);
     },
 
     /**
@@ -361,66 +352,54 @@ export default {
     toggleColorSelection: function(event, color, index = false, array = false) {
       let isSelected = color.isSelected;
 
-      if (!event) {
-        event = window.event;
+      // ctrl selection
+      if (event.ctrlKey) {
+        color.isSelected = !isSelected;
+        return;
       }
 
-      if (event.ctrlKey) {
-        // ctrl selection
-        color.isSelected = !isSelected;
-      } else if (event.shiftKey) {
-        // shift selection
+      // shift selection
+      if (event.shiftKey) {
         if (!this.selection_origin || !this.selection_origin.array === array) {
           return;
         }
 
-        console.log("yolo");
-
-        for (let i = 0; i < array.length; i++) {
-          console.log("i", i);
-          console.log(
-            "this.selection_origin.index",
-            this.selection_origin.index
-          );
-          console.log("index", index);
-          console.log(
-            "between",
-            between(this.selection_origin.index, index, true)
-          );
-          if (between(this.selection_origin.index, index, true)) {
+        array.forEach((color, i) => {
+          if (between(i, this.selection_origin.index, index)) {
             array[i].isSelected = true;
-          } else {
-            array[i].isSelected = false;
+            return;
           }
-        }
-        event.stopPropagation();
-      } else {
-        // Single selection
-        this.deselectAll();
-        color.isSelected = !isSelected;
-        this.selection_origin = {
-          index: index,
-          array: array
+          array[i].isSelected = false;
+        });
+
+        return;
+      }
+
+      // Single selection
+      this.deselectAll();
+      color.isSelected = !isSelected;
+      this.selection_origin = {
+        index: index,
+        array: array
+      };
+
+      // Update displayed color.
+      if (!isSelected) {
+        color.isSelected = true;
+
+        // @TODO refactor
+        const colorToSave = {};
+        colorToSave.value = {
+          hex: color.hex,
+          r: color.r,
+          g: color.g,
+          b: color.b,
+          h: color.h,
+          s: color.s,
+          l: color.l
         };
 
-        // Update displayed color.
-        if (!isSelected) {
-          color.isSelected = true;
-
-          // @TODO refactor
-          let colorToSave = {};
-          colorToSave.value = {
-            hex: color.hex,
-            r: color.r,
-            g: color.g,
-            b: color.b,
-            h: color.h,
-            s: color.s,
-            l: color.l
-          };
-
-          this.$store.commit("setColor", colorToSave);
-        }
+        this.$store.commit("setColor", colorToSave);
       }
     },
 
@@ -428,16 +407,16 @@ export default {
      * Deselect all colors and folders
      */
     deselectAll: function() {
-      for (let i = 0; i < this.colors.length; i++) {
-        this.colors[i].isSelected = false;
-      }
+      this.colors.forEach(color => {
+        color.isSelected = false;
+      });
 
-      for (let i = 0; i < this.colorFolders.length; i++) {
-        this.colorFolders[i].isSelected = false;
-        for (let j = 0; j < this.colorFolders[i].content.length; j++) {
-          this.colorFolders[i].content[j].isSelected = false;
-        }
-      }
+      this.colorFolders.forEach(folder => {
+        folder.isSelected = false;
+        folder.content.forEach(color => {
+          color.isSelected = false;
+        });
+      });
     },
 
     /**
@@ -447,35 +426,35 @@ export default {
       // @TODO rework/refactor this block
       let arrays = [this.colors, this.colorFolders];
 
-      for (let h in this.colorFolders) {
-        arrays.push(this.colorFolders[h].content);
-      }
+      this.colorFolders.forEach(folder => {
+        arrays.push(folder.content);
+      });
 
-      for (let i in arrays) {
-        let array = arrays[i];
-
+      arrays.forEach(array => {
         // Build array of selected element indexes.
         let selectedIndexes = [];
-        for (let j in array) {
-          if (array[j].isSelected) {
-            selectedIndexes.push(j);
+        array.forEach(color, index => {
+          if (color.isSelected) {
+            selectedIndexes.push(index);
           }
-        }
+        });
 
-        // Splice origin array.
+        // Splice origin array (backward to keep indexes correct).
         for (let k = selectedIndexes.length - 1; k >= 0; k--) {
           array.splice(selectedIndexes[k], 1);
         }
-      }
+      });
     },
 
     /**
      * Reset user colors and folders
      */
-    deleteAll: function(event) {
+    deleteAll: function() {
       let ask = confirm(
-        "You are about to delete all your colors and folders. Please confirm to proceed."
+        `You are about to delete all your colors and folders.
+        Please confirm to proceed.`
       );
+
       if (!ask) {
         return;
       }
@@ -488,35 +467,21 @@ export default {
      * Create an empty folder
      */
     addFolder: function() {
-      let item = {
+      this.colorFolders.push({
         content: [],
         isSelected: false
-      };
-      this.colorFolders.push(item);
+      });
     },
 
-    toggleFolderSelection: function(event, folder, index = false) {
-      // @todo refactor
-      let isSelected = folder.isSelected ? true : false;
-
-      if (!event) {
-        event = window.event;
-      }
-
-      if (event.ctrlKey) {
-        // ctrl is down
-        folder.isSelected = !isSelected;
-      } else if (event.shiftKey) {
-        // shift is down
-      } else {
-        // Single selection
+    toggleFolderSelection: function(event, folder) {
+      // CTRL is down
+      if (!event.ctrlKey) {
         this.deselectAll();
-
-        folder.isSelected = !isSelected;
-        this.colorFolders[index].isSelected = !isSelected;
-
-        this.$store.commit("setColorFolders", this.colorFolders);
       }
+
+      // Single selection
+      folder.isSelected = !folder.isSelected;
+      this.$store.commit("setColorFolders", this.colorFolders);
     },
 
     /**
@@ -524,9 +489,11 @@ export default {
      */
     onClick: function(event) {
       // Deselect all if user clicks outside a color or folder.
-      if (!event.target.hasAttribute("data-maintain-selection")) {
-        this.deselectAll();
+      if (event.target.hasAttribute("data-maintain-selection")) {
+        return;
       }
+
+      this.deselectAll();
     },
 
     /**
@@ -583,15 +550,11 @@ export default {
       }
 
       let formattedColor = {
-        name: "R=" + color.r + "G=" + color.g + "B=" + color.b,
+        name: `R=${color.r}G=${color.g}B=${color.b}`,
         model: "RGB",
-        color: [],
+        color: [color.r / 255, color.g / 255, color.b / 255],
         type: "global"
       };
-
-      formattedColor.color.push(color.r / 255);
-      formattedColor.color.push(color.g / 255);
-      formattedColor.color.push(color.b / 255);
 
       return formattedColor;
     },
