@@ -1,24 +1,10 @@
 <template>
-  <div
-    class="cursor-overlay"
-    v-bind:class="[{ '-visible': isVisible }, '-' + cursor]"
-    @mousemove="handleEvent($event)"
-    @mousedown="handleEvent($event)"
-  ></div>
+  <div class="cursor-overlay" @mousemove="handleEvent($event)" @mousedown="handleEvent($event)"></div>
 </template>
 
 <script>
 export default {
   computed: {
-    isVisible() {
-      return this.$store.getters.getCursorVisibility;
-    },
-    activeTab() {
-      return this.$store.getters.getActiveTab;
-    },
-    cursor() {
-      return this.$store.getters.getCursorType;
-    },
     port() {
       return this.$store.getters.getPort;
     }
@@ -26,7 +12,7 @@ export default {
 
   methods: {
     handleEvent(event) {
-      if (this.activeTab != "color" || event.which !== 1) {
+      if (event.which !== 1) {
         return;
       }
 
@@ -43,7 +29,7 @@ export default {
 @import "../sass/abstracts/variables";
 
 .cursor-overlay {
-  display: none;
+  display: block;
   position: fixed;
   top: 0;
   right: 0;
@@ -53,17 +39,11 @@ export default {
 
   user-select: none;
 
-  &.-visible {
-    display: block;
-  }
+  // @todo Use SVG format
+  cursor: url("../assets/img/cursor-eyeDropper.png") 0 22, pointer;
 
-  &.-eyeDropper {
-    // @todo Use SVG format
-    cursor: url("../assets/img/cursor-eyeDropper.png") 0 22, pointer;
-
-    &:active {
-      cursor: url("../assets/img/cursor-eyeDropper-filled.png") 0 22, pointer;
-    }
+  &:active {
+    cursor: url("../assets/img/cursor-eyeDropper-filled.png") 0 22, pointer;
   }
 }
 </style>

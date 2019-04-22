@@ -28,10 +28,12 @@ export default {
       ]
     };
   },
+  props: {
+    isMoving: {
+      default: false
+    }
+  },
   computed: {
-    isMoving() {
-      return this.$store.getters.getMovingStatus;
-    },
     port() {
       return this.$store.getters.getPort;
     }

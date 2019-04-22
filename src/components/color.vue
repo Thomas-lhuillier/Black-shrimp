@@ -5,108 +5,23 @@ This component represent the entire color panel
 
 <template>
   <div class="panel panel--color">
-    <div class="colorPicker">
-      <div class="colorViewer" v-bind:style="{ backgroundColor: hex }"></div>
-
-      <!-- Color inputs -->
-      <div class="valueWrapper">
-        <div class="hexWrapper" v-bind:class="[{ active: color.hex.isActive }]">
-          <input
-            type="text"
-            class="value_hex"
-            v-model="hex"
-            spellcheck="false"
-            @click="selectInputText($event)"
-          >
-        </div>
-
-        <div class="rgbWrapper" v-bind:class="[{ active: color.rgb.isActive }]">
-          <input
-            type="text"
-            class="value_r"
-            v-model="r"
-            @click="selectInputText($event)"
-            spellcheck="false"
-          >
-          <input
-            type="text"
-            class="value_g"
-            v-model="g"
-            @click="selectInputText($event)"
-            spellcheck="false"
-          >
-          <input
-            type="text"
-            class="value_b"
-            v-model="b"
-            spellcheck="false"
-            @click="selectInputText($event)"
-          >
-        </div>
-
-        <div class="hslWrapper" v-bind:class="[{ active: color.hsl.isActive }]">
-          <input
-            type="text"
-            class="value_h"
-            v-model="h"
-            @click="selectInputText($event)"
-            spellcheck="false"
-          >
-          <input
-            type="text"
-            class="value_s"
-            v-model="s"
-            @click="selectInputText($event)"
-            spellcheck="false"
-          >
-          <input
-            type="text"
-            class="value_l"
-            v-model="l"
-            spellcheck="false"
-            @click="selectInputText($event)"
-          >
-        </div>
-      </div>
-
-      <!-- Color mode select -->
-      <SelectComponent
-        :options="[
-        { text: 'hex', value: 1, isSelected: true  },
-        { text: 'rgb', value: 2, isSelected: false },
-        { text: 'hsl', value: 3, isSelected: false },
-      ]"
-        v-on:change="changeColorMode($event)"
-      ></SelectComponent>
-    </div>
+    <colorPickerComponent></colorPickerComponent>
 
     <!-- Color swatches -->
     <div class="colorSwatches">
-      <draggable
-        class="color-collection"
-        v-model="colors"
-        :tag="'ul'"
+      <colorGroupComponent
         :move="onMove"
-        @end="deselectAll"
-        group="colors"
-      >
-        <li
-          v-for="(color, index) in colors"
-          :key="index"
-          class="btn-square -color"
-          :class="[{ '-selected': color.isSelected }]"
-          :style="{ 'background-color': color.hex }"
-          @click="toggleColorSelection($event, color, index, colors)"
-          data-maintain-selection
-        ></li>
-      </draggable>
+        @end="onEnd"
+        :colors="colors"
+        @color-click="handleColorClick"
+      ></colorGroupComponent>
 
       <draggable
         class="folder-collection"
         v-model="colorFolders"
         :tag="'ul'"
         :move="onMove"
-        @end="deselectAll"
+        @end="onEnd"
         group="folders"
       >
         <li
@@ -115,25 +30,13 @@ This component represent the entire color panel
           :class="[{ '-selected': folder.isSelected }]"
           class="folder"
         >
-          <draggable
-            v-model="colorFolders[index].content"
-            :tag="'ul'"
-            group="colors"
+          <colorGroupComponent
             :move="onMove"
-            @end="deselectAll"
-            @click.self.native="toggleFolderSelection($event, folder)"
-            data-maintain-selection
-          >
-            <li
-              v-for="(color, subIndex) in folder.content"
-              :key="subIndex"
-              class="btn-square -color"
-              :class="[{ '-selected': color.isSelected }]"
-              :style="{ 'background-color': color.hex }"
-              @click="toggleColorSelection($event, color, subIndex, folder.content)"
-              data-maintain-selection
-            ></li>
-          </draggable>
+            @end="onEnd"
+            :colors="colorFolders[index].content"
+            @color-click="handleColorClick"
+            @click.self.native="handleFolderClick($event, folder)"
+          ></colorGroupComponent>
         </li>
       </draggable>
 
@@ -141,7 +44,7 @@ This component represent the entire color panel
       <div class="button-wrapper">
         <button
           class="btn-square"
-          v-on:click="addCurrentColor($event)"
+          v-on:click="addColor($event)"
           title="Add color [Alt + Shift + A]"
         >
           <i class="icon icon-plus"></i>
@@ -161,7 +64,7 @@ This component represent the entire color panel
           <i class="icon icon-trash"></i>
         </button>
 
-        <button class="btn-square">
+        <button class="btn-square" title="Export [Alt + Shift + E]">
           <i class="icon icon-binoculars"></i>
         </button>
       </div>
@@ -170,7 +73,9 @@ This component represent the entire color panel
 </template>
 
 <script>
-import SelectComponent from "./select-block.vue";
+import ColorSwatchComponent from "./color-swatch.vue";
+import ColorGroupComponent from "./color-group.vue";
+import ColorPickerComponent from "./color-picker.vue";
 import draggable from "vuedraggable";
 import save from "save-file";
 import ase from "ase-utils";
@@ -178,18 +83,14 @@ import { between } from "../utilities/number";
 
 export default {
   components: {
-    SelectComponent,
+    ColorSwatchComponent,
+    ColorGroupComponent,
+    ColorPickerComponent,
     draggable
   },
 
   data: () => ({
     isActive: true,
-    currentColorType: "hex",
-    color: {
-      hex: { isActive: true },
-      rgb: { isActive: false },
-      hsl: { isActive: false }
-    },
     selection: null,
     selection_origin: false,
     editable: true,
@@ -201,27 +102,7 @@ export default {
     port() {
       return this.$store.getters.getPort;
     },
-    hex() {
-      return this.getColor("hex").toString();
-    },
-    r() {
-      return this.getColor("r").toString();
-    },
-    g() {
-      return this.getColor("g").toString();
-    },
-    b() {
-      return this.getColor("b").toString();
-    },
-    h() {
-      return this.getColor("h").toString();
-    },
-    s() {
-      return this.getColor("s").toString();
-    },
-    l() {
-      return this.getColor("l").toString();
-    },
+
     colors: {
       get() {
         return this.$store.getters.getColors;
@@ -230,6 +111,7 @@ export default {
         this.$store.commit("setColors", data);
       }
     },
+
     colorFolders: {
       get() {
         return this.$store.getters.getColorFolders;
@@ -240,30 +122,7 @@ export default {
     }
   },
 
-  watch: {
-    colorFolders: {
-      handler: function(val, oldVal) {
-        chrome.storage.sync.set(
-          { colorFolders: this.colorFolders },
-          function() {}
-        );
-      },
-      deep: true
-    },
-
-    colors: {
-      handler: function(val, oldVal) {
-        chrome.storage.sync.set({ colors: this.colors }, function() {});
-      },
-      deep: true
-    }
-  },
-
   methods: {
-    getColor(key) {
-      return this.$store.getters.getColorState.value[key];
-    },
-
     onMove({ relatedContext, draggedContext }) {
       const relatedElement = relatedContext.element;
       const draggedElement = draggedContext.element;
@@ -272,88 +131,109 @@ export default {
       );
     },
 
-    // @todo Maybe we can refactor to mutualize the following code
-    getStoredColors: function() {
-      chrome.storage.sync.get("colors", storage => {
-        const colors = storage.colors.map((color, index) => {
-          return {
-            ...color,
-            id: index,
-            isSelected: false
-          };
-        });
-
-        this.$store.commit("setColors", colors);
-      });
-
-      chrome.storage.sync.get("colorFolders", storage => {
-        const folders = storage.colorFolders.map((folder, index) => {
-          return {
-            ...folder,
-            id: index,
-            isSelected: false
-          };
-        });
-
-        this.$store.commit("setColorFolders", folders);
-      });
+    onEnd() {
+      this.deselectAll();
+      this.colors = [...this.colors];
+      this.colorFolders = [...this.colorFolders];
     },
 
-    changeColorMode: function(event) {
-      for (let text in this.color) {
-        this.color[text].isActive = text == event.text;
-      }
-    },
-
-    selectInputText: function(event) {
-      event.target.select();
-    },
-
-    onChromeDataChange: function(changes, namespace) {
-      if (changes["colors"]) {
-        this.$store.commit("setColors", changes["colors"].newValue);
-      }
-
-      if (changes["colorFolders"]) {
-        this.$store.commit("setColorFolders", changes["colorFolders"].newValue);
-      }
-    },
-
-    /**
-     *  Save current color to swatch
-     */
-    addCurrentColor: function(event) {
-      if (!this.hex) {
+    addColor(event) {
+      const color = this.$store.getters.getColor.value;
+      if (!color.hex) {
         return;
       }
 
-      let color = {};
       color.type = "color";
       color.id = this.colors.length;
-
-      color.hex = this.hex;
-
-      color.r = this.r;
-      color.g = this.g;
-      color.b = this.b;
-
-      color.h = this.h;
-      color.s = this.s;
-      color.l = this.l;
-
       color.isSelected = false;
 
-      this.colors.push(color);
+      this.colors = [...this.colors, color];
+    },
+
+    setActiveColor(color) {
+      const colorToSave = {};
+      colorToSave.value = {
+        hex: color.hex,
+        r: color.r,
+        g: color.g,
+        b: color.b,
+        h: color.h,
+        s: color.s,
+        l: color.l
+      };
+
+      this.$store.commit("setColor", colorToSave);
+    },
+
+    deselectAll: function() {
+      this.colors.forEach(color => {
+        color.isSelected = false;
+      });
+
+      this.colorFolders.forEach(folder => {
+        folder.isSelected = false;
+        folder.content.forEach(color => {
+          color.isSelected = false;
+        });
+      });
+    },
+
+    deleteSelection: function(event) {
+      // @TODO rework/refactor this block
+      let arrays = [this.colors, this.colorFolders];
+
+      this.colorFolders.forEach(folder => {
+        arrays.push(folder.content);
+      });
+
+      arrays.forEach(array => {
+        // Build array of selected element indexes.
+        let selectedIndexes = [];
+        array.forEach((color, index) => {
+          if (color.isSelected) {
+            selectedIndexes.push(index);
+          }
+        });
+
+        // Splice origin array (backward to keep indexes correct).
+        for (let k = selectedIndexes.length - 1; k >= 0; k--) {
+          array.splice(selectedIndexes[k], 1);
+        }
+      });
+
+      this.colors = [...this.colors];
+      this.colorFolders = [...this.colorFolders];
+    },
+
+    deleteAll: function() {
+      let ask = confirm(
+        `You are about to delete all your colors and folders.
+        Please confirm to proceed.`
+      );
+
+      if (!ask) {
+        return;
+      }
+
+      this.colors = [];
+      this.colorFolders = [];
+    },
+
+    addFolder: function() {
+      this.colorFolders.push({
+        content: [],
+        isSelected: false
+      });
     },
 
     /**
      * Select clicked color
      */
-    toggleColorSelection: function(event, color, index = false, array = false) {
+    handleColorClick: function(event, color, index = false, array = false) {
       let isSelected = color.isSelected;
 
-      // ctrl selection
-      if (event.ctrlKey) {
+      // CTRL or ALT is down : multi selection
+      if (event.ctrlKey || event.altKey) {
         color.isSelected = !isSelected;
         return;
       }
@@ -378,116 +258,34 @@ export default {
       // Single selection
       this.deselectAll();
       color.isSelected = !isSelected;
+
+      // Set selection origin for eventual shift selections afterward
       this.selection_origin = {
         index: index,
         array: array
       };
 
       // Update displayed color.
-      if (!isSelected) {
-        color.isSelected = true;
-
-        // @TODO refactor
-        const colorToSave = {};
-        colorToSave.value = {
-          hex: color.hex,
-          r: color.r,
-          g: color.g,
-          b: color.b,
-          h: color.h,
-          s: color.s,
-          l: color.l
-        };
-
-        this.$store.commit("setColor", colorToSave);
+      if (color.isSelected) {
+        this.setActiveColor(color);
       }
     },
 
-    /**
-     * Deselect all colors and folders
-     */
-    deselectAll: function() {
-      this.colors.forEach(color => {
-        color.isSelected = false;
-      });
+    handleFolderClick: function(event, folder) {
+      const isSelected = folder.isSelected;
 
-      this.colorFolders.forEach(folder => {
-        folder.isSelected = false;
-        folder.content.forEach(color => {
-          color.isSelected = false;
-        });
-      });
-    },
-
-    /**
-     * Delete selected color
-     */
-    deleteSelection: function(event) {
-      // @TODO rework/refactor this block
-      let arrays = [this.colors, this.colorFolders];
-
-      this.colorFolders.forEach(folder => {
-        arrays.push(folder.content);
-      });
-
-      arrays.forEach(array => {
-        // Build array of selected element indexes.
-        let selectedIndexes = [];
-        array.forEach((color, index) => {
-          if (color.isSelected) {
-            selectedIndexes.push(index);
-          }
-        });
-
-        // Splice origin array (backward to keep indexes correct).
-        for (let k = selectedIndexes.length - 1; k >= 0; k--) {
-          array.splice(selectedIndexes[k], 1);
-        }
-      });
-    },
-
-    /**
-     * Reset user colors and folders
-     */
-    deleteAll: function() {
-      let ask = confirm(
-        `You are about to delete all your colors and folders.
-        Please confirm to proceed.`
-      );
-
-      if (!ask) {
-        return;
-      }
-
-      this.colors = [];
-      this.colorFolders = [];
-    },
-
-    /**
-     * Create an empty folder
-     */
-    addFolder: function() {
-      this.colorFolders.push({
-        content: [],
-        isSelected: false
-      });
-    },
-
-    toggleFolderSelection: function(event, folder) {
-      // CTRL is down
-      if (!event.ctrlKey) {
+      // CTRL or ALT is down : multi selection
+      if (!event.ctrlKey || !event.AltKey) {
         this.deselectAll();
       }
 
       // Single selection
-      folder.isSelected = !folder.isSelected;
-      this.$store.commit("setColorFolders", this.colorFolders);
+      folder.isSelected = !isSelected;
+      this.colorFolders = [...this.colorFolders];
     },
 
-    /**
-     * Keyboard shortcuts
-     */
     onClick: function(event) {
+      console.log("onClick");
       // Deselect all if user clicks outside a color or folder.
       if (event.target.hasAttribute("data-maintain-selection")) {
         return;
@@ -502,7 +300,7 @@ export default {
     onKeyDown: function(event) {
       if (event.altKey && event.shiftKey && event.keyCode == 65) {
         // Alt + Shift + A
-        this.addCurrentColor();
+        this.addColor();
       } else if (event.altKey && event.shiftKey && event.keyCode == 70) {
         // Alt + Shift + F
         this.addFolder();
@@ -576,14 +374,17 @@ export default {
   mounted: function() {
     this.$root.window.addEventListener("click", this.onClick);
     this.$root.window.addEventListener("keydown", this.onKeyDown);
-    chrome.storage.onChanged.addListener(this.onChromeDataChange);
-    this.getStoredColors();
+  },
+
+  created: function() {
+    this.$store.dispatch("fetchColors");
+    this.$store.dispatch("fetchColorFolders");
+    this.$store.dispatch("registerColorsListener");
   },
 
   beforeDestroy: function() {
     this.$root.window.removeEventListener("click", this.onClick);
     this.$root.window.removeEventListener("keydown", this.onKeyDown);
-    chrome.storage.onChanged.removeListener(this.onChromeDataChange);
   }
 };
 </script>
@@ -597,84 +398,6 @@ export default {
   font-size: 10px;
   color: $gray-lighter;
   background-color: $gray;
-}
-
-.colorPicker {
-  display: flex;
-  font-size: 0;
-  line-height: 0;
-
-  > * {
-    vertical-align: top;
-    min-width: 0; // allow flex children to shrink bellow initial size
-  }
-
-  > * + * {
-    margin-left: $spacer;
-  }
-
-  > .select-block {
-    flex-shrink: 0;
-    width: 52px; // We set the width to avoid chaging width when setting value
-  }
-}
-
-.colorViewer {
-  flex-shrink: 0;
-  position: relative;
-  width: 22px;
-  height: 22px;
-
-  border-radius: 100%;
-  border: 1px solid $gray-light;
-  box-sizing: border-box;
-}
-
-.hexWrapper {
-  display: none;
-
-  &.active {
-    display: block;
-  }
-}
-
-.rgbWrapper,
-.hslWrapper {
-  display: none;
-
-  &.active {
-    display: flex;
-  }
-
-  input {
-    width: 44px;
-  }
-
-  input + input {
-    margin-left: 4px;
-  }
-}
-
-input[type="text"] {
-  display: inline-block;
-  height: 22px;
-  padding: 4px;
-  width: 100%;
-
-  font-family: "Poppins", monospace !important;
-  font-size: 11px;
-  line-height: 14px;
-  text-align: center;
-
-  color: $soft-white;
-  background-color: $gray-dark;
-  border: solid 1px $gray-light;
-  border-radius: $border-radius-sm;
-  box-sizing: border-box;
-
-  &:focus {
-    border-color: $gray-darker;
-  }
 }
 
 .colorSwatches {

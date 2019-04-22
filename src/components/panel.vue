@@ -10,7 +10,7 @@
     @mouseup="stopMoving($event)"
     @mousemove="move($event)"
   >
-    <MenuComponent></MenuComponent>
+    <MenuComponent :isMoving="isMoving"></MenuComponent>
     <ColorComponent></ColorComponent>
   </div>
 </template>
@@ -37,13 +37,9 @@ export default {
         top: 10,
         cursor: "default"
       },
-      tempPos: {}
+      tempPos: {},
+      isMoving: false
     };
-  },
-  computed: {
-    isMoving() {
-      return this.$store.getters.getMovingStatus;
-    }
   },
   methods: {
     // Store initial position and set moving cursor before moving the main box
@@ -60,7 +56,7 @@ export default {
       this.tempPos.mouseX = event.clientX;
       this.tempPos.mouseY = event.clientY;
 
-      this.$store.commit("setMovingStatus", true);
+      this.isMoving = true;
     },
 
     // Moves the main box when dragged
@@ -131,7 +127,7 @@ export default {
     // Set back normal cursor, and moving status after moving the main box
     stopMoving: function(event) {
       this.styleObject.cursor = "default";
-      this.$store.commit("setMovingStatus", false);
+      this.isMoving = false;
     }
   }
 };

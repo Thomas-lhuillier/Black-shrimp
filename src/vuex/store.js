@@ -13,9 +13,9 @@ Vue.use(Vuex);
 // root state object.
 // each Vuex instance is just a single state tree.
 const state = {
+  port: chrome.runtime.connect(),
   isVisible: true,
-  isMoving: false,
-  activeTab: 'color',
+
   color: {
     value: {
       hex: '',
@@ -27,13 +27,9 @@ const state = {
       l: ''
     }
   },
+
   colors: [],
-  colorFolders: [],
-  cursorOverlay: {
-    isVisible: true,
-    cursor: 'eyeDropper'
-  },
-  port: chrome.runtime.connect()
+  colorFolders: []
 };
 
 // mutations are operations that actually mutates the state.
@@ -45,46 +41,86 @@ const mutations = {
   setVisibility(state, val) {
     state.isVisible = val;
   },
-  setActiveTab(state, val) {
-    state.activeTab = val;
-  },
+
   setColor(state, val) {
     state.color.value = val.value;
   },
-  setMovingStatus(state, val) {
-    state.isMoving = val;
-  },
+
   setHex(state, val) {
     state.color.value.hex = val;
   },
-  setColors(state, arr) {
-    state.colors = arr;
-    // Save colors in chrome storage.
-    chrome.storage.sync.set({ colors: arr }, () => {});
-    console.log('sync chrome storage');
+
+  setColors(state, data) {
+    state.colors = data;
+
+    chrome.storage.sync.set({ colors: data }, () => {
+      console.log('sync chrome storage - colors');
+    });
   },
-  setColorFolders(state, arr) {
-    state.colorFolders = arr;
-    // Save color folders in chrome storage.
-    chrome.storage.sync.set({ colorFolders: arr }, () => {});
-    console.log('sync chrome storage');
+
+  setColorFolders(state, data) {
+    state.colorFolders = data;
+
+    chrome.storage.sync.set({ colorFolders: data }, () => {
+      console.log('sync chrome storage - colorFolders');
+    });
   }
 };
 
 // actions are functions that causes side effects and can involve
 // asynchronous operations.
-const actions = {};
+const actions = {
+  fetchColors(context) {
+    chrome.storage.sync.get('colors', storage => {
+      const colors = storage.colors.map((color, index) => {
+        return {
+          ...color,
+          id: index,
+          isSelected: false
+        };
+      });
+
+      context.commit('setColors', colors);
+    });
+  },
+
+  fetchColorFolders(context) {
+    chrome.storage.sync.get('colorFolders', storage => {
+      const folders = storage.colorFolders.map((folder, index) => {
+        return {
+          ...folder,
+          id: index,
+          isSelected: false
+        };
+      });
+
+      context.commit('setColorFolders', folders);
+    });
+  },
+
+  registerColorsListener(context) {
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+      if (changes['colors']) {
+        context.commit('setColors', changes['colors'].newValue);
+      }
+
+      if (changes['colorFolders']) {
+        context.commit('setColorFolders', changes['colorFolders'].newValue);
+      }
+    });
+  }
+};
 
 // getters are functions
 const getters = {
   getVisibility: state => state.isVisible,
-  getMovingStatus: state => state.isMoving,
-  getActiveTab: state => state.activeTab,
-  getColorState: state => state.color,
-  getCursorVisibility: state => state.cursorOverlay.isVisible,
-  getCursorType: state => state.cursorOverlay.cursor,
+
+  getColor: state => state.color,
+
   getPort: state => state.port,
+
   getColors: state => state.colors,
+
   getColorFolders: state => state.colorFolders
 };
 
