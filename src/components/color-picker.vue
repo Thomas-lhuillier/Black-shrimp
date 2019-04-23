@@ -132,7 +132,7 @@ input[type="text"] {
   padding: 4px;
   width: 100%;
 
-  font-family: "Poppins", monospace !important;
+  font-family: $font-family-base !important;
   font-size: 11px;
   line-height: 14px;
   text-align: center;

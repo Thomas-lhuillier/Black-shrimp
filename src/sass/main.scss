@@ -1,13 +1,17 @@
 @import './abstracts/variables';
+@import './abstracts/mixins';
 
 @import 'reset-css/sass/_reset.scss';
-@import './base/typography';
 
 @import './components/icons';
 
+button {
+  font-family: $font-family-base;
+}
+
 body {
   margin: 0;
-  font-family: 'Poppins', monospace;
+  font-family: $font-family-base;
 }
 
 .window {
@@ -30,14 +34,17 @@ button {
 }
 
 .btn {
-  color: #b3b3b3;
-  background-color: #666666;
+  color: $soft-white;
+  background-color: $gray-light;
   border-width: 0;
-  border-radius: 2px;
+  border-radius: $border-radius-sm;
 
   &:hover {
-    color: #f0f0f0;
-    background-color: #333333;
+    background-color: $gray-darker;
+  }
+
+  .icon {
+    color: $gray-lighter;
   }
 }
 

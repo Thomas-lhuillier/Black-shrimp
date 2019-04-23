@@ -126,9 +126,7 @@ export default {
     padding-right: $spacer;
 
     font-size: 10px;
-    font-weight: 600;
     line-height: 22px;
-    text-transform: uppercase;
 
     user-select: none;
 
