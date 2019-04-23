@@ -12,7 +12,7 @@
       :key="index"
       :hex="color.hex"
       :isSelected="color.isSelected"
-      @click.self.native="onClick($event, color, index, colors)"
+      @click.self.native="onClick($event, {color, index, colors, groupID})"
       data-maintain-selection
     ></ColorSwatchComponent>
   </draggable>
@@ -32,12 +32,16 @@ export default {
     colors: {
       required: true,
       type: Array
+    },
+    groupID: {
+      required: false,
+      default: null
     }
   },
 
   methods: {
-    onClick: function(colors, color, index) {
-      this.$emit("color-click", colors, color, index);
+    onClick: function(event, payload) {
+      this.$emit("color-click", event, payload);
     },
 
     onEnd: function() {

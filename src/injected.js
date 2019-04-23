@@ -27,7 +27,7 @@ port.onMessage.addListener(function(request, sender, sendResponse) {
       break;
 
     case 'color':
-      app.setColor({ value: request.data });
+      app.setColor(request.data);
       break;
 
     case 'destroy':

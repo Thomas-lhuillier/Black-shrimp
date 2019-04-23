@@ -96,6 +96,7 @@ export default {
 
   mounted() {
     const _window = this.$el.contentDocument.defaultView;
+    _window.focus();
     _window.addEventListener("keyup", this.onKeyPressed);
   },
 

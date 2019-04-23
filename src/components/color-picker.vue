@@ -1,24 +1,24 @@
 <template>
   <div class="colorPicker">
     <!-- Color Viewer -->
-    <div class="colorViewer" v-bind:style="{ backgroundColor: hex }"></div>
+    <div class="colorViewer" v-bind:style="{ backgroundColor: color.hex }"></div>
 
     <!-- Color inputs -->
     <div class="valueWrapper">
-      <div class="hexWrapper" v-bind:class="[{ active: color.hex.isActive }]">
-        <input type="text" v-model="hex" @click="selectInputText($event)" spellcheck="false">
+      <div class="hexWrapper" v-bind:class="[{ active: colorMode == 'hex' }]">
+        <input type="text" v-model="color.hex" @click="selectInputText($event)" spellcheck="false">
       </div>
 
-      <div class="rgbWrapper" v-bind:class="[{ active: color.rgb.isActive }]">
-        <input type="text" v-model="r" @click="selectInputText($event)" spellcheck="false">
-        <input type="text" v-model="g" @click="selectInputText($event)" spellcheck="false">
-        <input type="text" v-model="b" @click="selectInputText($event)" spellcheck="false">
+      <div class="rgbWrapper" v-bind:class="[{ active: colorMode == 'rgb' }]">
+        <input type="text" v-model="color.r" @click="selectInputText($event)" spellcheck="false">
+        <input type="text" v-model="color.g" @click="selectInputText($event)" spellcheck="false">
+        <input type="text" v-model="color.b" @click="selectInputText($event)" spellcheck="false">
       </div>
 
-      <div class="hslWrapper" v-bind:class="[{ active: color.hsl.isActive }]">
-        <input type="text" v-model="h" @click="selectInputText($event)" spellcheck="false">
-        <input type="text" v-model="s" @click="selectInputText($event)" spellcheck="false">
-        <input type="text" v-model="l" @click="selectInputText($event)" spellcheck="false">
+      <div class="hslWrapper" v-bind:class="[{ active: colorMode == 'hsl' }]">
+        <input type="text" v-model="color.h" @click="selectInputText($event)" spellcheck="false">
+        <input type="text" v-model="color.s" @click="selectInputText($event)" spellcheck="false">
+        <input type="text" v-model="color.l" @click="selectInputText($event)" spellcheck="false">
       </div>
     </div>
 
@@ -44,47 +44,19 @@ export default {
 
   data() {
     return {
-      currentColorType: "hex",
-      color: {
-        hex: { isActive: true },
-        rgb: { isActive: false },
-        hsl: { isActive: false }
-      }
+      colorMode: "hex"
     };
   },
 
   computed: {
-    hex() {
-      return this.getColor("hex").toString();
-    },
-    r() {
-      return this.getColor("r").toString();
-    },
-    g() {
-      return this.getColor("g").toString();
-    },
-    b() {
-      return this.getColor("b").toString();
-    },
-    h() {
-      return this.getColor("h").toString();
-    },
-    s() {
-      return this.getColor("s").toString();
-    },
-    l() {
-      return this.getColor("l").toString();
+    color() {
+      return this.$store.getters.getColor;
     }
   },
-  methods: {
-    getColor(key) {
-      return this.$store.getters.getColor.value[key];
-    },
 
+  methods: {
     changeColorMode(event) {
-      for (let text in this.color) {
-        this.color[text].isActive = text == event.text;
-      }
+      this.colorMode = event.text;
     },
 
     selectInputText(event) {

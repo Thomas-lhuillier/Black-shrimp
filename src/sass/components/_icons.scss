@@ -1,11 +1,22 @@
+// Icons
+$icons: (
+  carret-up: '\e907',
+  carret-down: '\e908',
+  carret-left: '\e909',
+  carret-right: '\e90a',
+  close: '\e906',
+  binoculars: '\e900',
+  eyeDropper: '\e901',
+  folder: '\e902',
+  plus: '\e903',
+  ruler: '\e904',
+  trash: '\e905'
+);
+
 @font-face {
   font-family: 'Black-shrimp';
-  src: url('#{$font-folder}Black-shrimp/Black-shrimp.ttf?o1kej0')
-      format('truetype'),
-    url('#{$font-folder}Black-shrimp/Black-shrimp.svg?o1kej0#Black-shrimp')
-      format('svg'),
-    url('chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/Black-shrimp/Black-shrimp.woff')
-      format('woff');
+  src: url('chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets/fonts/Black-shrimp/Black-shrimp.woff')
+    format('woff');
   font-weight: normal;
   font-style: normal;
 }

@@ -15,21 +15,9 @@ Vue.use(Vuex);
 const state = {
   port: chrome.runtime.connect(),
   isVisible: true,
-
-  color: {
-    value: {
-      hex: '',
-      r: '',
-      g: '',
-      b: '',
-      h: '',
-      s: '',
-      l: ''
-    }
-  },
-
+  color: {},
   colors: [],
-  colorFolders: []
+  groups: []
 };
 
 // mutations are operations that actually mutates the state.
@@ -38,31 +26,53 @@ const state = {
 // mutations must be synchronous and can be recorded by plugins
 // for debugging purposes.
 const mutations = {
-  setVisibility(state, val) {
-    state.isVisible = val;
+  setVisibility(state, payload) {
+    state.isVisible = payload;
   },
 
-  setColor(state, val) {
-    state.color.value = val.value;
+  setColor(state, payload) {
+    state.color = payload;
   },
 
-  setHex(state, val) {
-    state.color.value.hex = val;
-  },
+  /**
+   * Set colors collection
+   *
+   * Passing `silent: true` in the payload object will not sync the data with `chrome.storage`,
+   * usefull when the mutation is iniated by the storage itself.
+   *
+   * @param {Object} state
+   * @param {Object} payload
+   */
+  setColors(state, payload) {
+    state.colors = payload.colors;
 
-  setColors(state, data) {
-    state.colors = data;
+    if (payload.silent) {
+      return;
+    }
 
-    chrome.storage.sync.set({ colors: data }, () => {
+    chrome.storage.sync.set({ colors: state.colors }, () => {
       console.log('sync chrome storage - colors');
     });
   },
 
-  setColorFolders(state, data) {
-    state.colorFolders = data;
+  /**
+   * Set groups collections
+   *
+   * Passing `silent: true` in the payload object will not sync the data with `chrome.storage`,
+   * usefull when the mutation is iniated by the storage itself.
+   *
+   * @param {Object} state
+   * @param {Object} payload
+   */
+  setGroups(state, payload) {
+    state.groups = payload.groups;
 
-    chrome.storage.sync.set({ colorFolders: data }, () => {
-      console.log('sync chrome storage - colorFolders');
+    if (payload.silent) {
+      return;
+    }
+
+    chrome.storage.sync.set({ groups: state.groups }, () => {
+      console.log('sync chrome storage - groups');
     });
   }
 };
@@ -70,8 +80,19 @@ const mutations = {
 // actions are functions that causes side effects and can involve
 // asynchronous operations.
 const actions = {
+  /**
+   * Fetch colors collection
+   *
+   * When this action is dispatched, we fetch the data from `chrome.storage`
+   * and hydrate the state.
+   *
+   * @param {Object} context
+   */
   fetchColors(context) {
     chrome.storage.sync.get('colors', storage => {
+      if (!storage.colors) {
+        return;
+      }
       const colors = storage.colors.map((color, index) => {
         return {
           ...color,
@@ -80,32 +101,58 @@ const actions = {
         };
       });
 
-      context.commit('setColors', colors);
+      context.commit({ type: 'setColors', colors });
     });
   },
 
-  fetchColorFolders(context) {
-    chrome.storage.sync.get('colorFolders', storage => {
-      const folders = storage.colorFolders.map((folder, index) => {
+  /**
+   * Fetch groups collections
+   *
+   * When this action is dispatched, we fetch the data from `chrome.storage`
+   * and hydrate the state.
+   *
+   * @param {Object} context
+   */
+  fetchgroups(context) {
+    chrome.storage.sync.get('groups', storage => {
+      if (!storage.groups) {
+        return;
+      }
+      const groups = storage.groups.map((group, index) => {
         return {
-          ...folder,
+          ...group,
           id: index,
           isSelected: false
         };
       });
 
-      context.commit('setColorFolders', folders);
+      context.commit({ type: 'setGroups', groups });
     });
   },
 
-  registerColorsListener(context) {
+  /**
+   * Register Collections listener
+   *
+   * Dispatch this action to listen for changes comming from `chrome.storage`.
+   *
+   * @param {Object} context
+   */
+  registerCollectionsListener(context) {
     chrome.storage.onChanged.addListener((changes, namespace) => {
       if (changes['colors']) {
-        context.commit('setColors', changes['colors'].newValue);
+        context.commit({
+          type: 'setColors',
+          colors: changes['colors'].newValue,
+          silent: true
+        });
       }
 
-      if (changes['colorFolders']) {
-        context.commit('setColorFolders', changes['colorFolders'].newValue);
+      if (changes['groups']) {
+        context.commit({
+          type: 'setGroups',
+          groups: changes['groups'].newValue,
+          silent: true
+        });
       }
     });
   }
@@ -114,14 +161,10 @@ const actions = {
 // getters are functions
 const getters = {
   getVisibility: state => state.isVisible,
-
   getColor: state => state.color,
-
   getPort: state => state.port,
-
   getColors: state => state.colors,
-
-  getColorFolders: state => state.colorFolders
+  getgroups: state => state.groups
 };
 
 // A Vuex instance is created by combining the state, mutations, actions,
