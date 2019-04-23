@@ -11,7 +11,12 @@
       <span data-js-draggable>{{item.name}}</span>
     </span>
 
-    <span class="ml-auto item" :class="{'-moving': isMoving}" @click="destroy()" data-js-draggable>
+    <span
+      class="ml-auto item item-close"
+      :class="{'-moving': isMoving}"
+      @click="destroy()"
+      data-js-draggable
+    >
       <i class="icon icon-close" data-js-draggable></i>
     </span>
   </div>
@@ -28,16 +33,19 @@ export default {
       ]
     };
   },
+
   props: {
     isMoving: {
       default: false
     }
   },
+
   computed: {
     port() {
       return this.$store.getters.getPort;
     }
   },
+
   methods: {
     destroy: function() {
       this.port.postMessage({
@@ -63,12 +71,13 @@ $height: 28px;
 
   .item {
     display: flex;
-    padding: 0 8px;
+    padding: 0 12px;
 
     font-size: 12px;
     font-weight: 600;
     line-height: $height;
 
+    border-top-right-radius: $border-radius;
     cursor: pointer;
     transition: color 0.3s linear, background-color 0.3s linear;
 
@@ -93,6 +102,16 @@ $height: 28px;
 
     .icon {
       font-size: 18px;
+      color: $gray-lighter;
+
+      &:not(:last-child) {
+        margin-right: 5px;
+        margin-left: -5px;
+      }
+    }
+
+    &.item-close {
+      padding: 0 8px;
     }
   }
 }

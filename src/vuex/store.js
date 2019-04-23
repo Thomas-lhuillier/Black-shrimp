@@ -50,9 +50,7 @@ const mutations = {
       return;
     }
 
-    chrome.storage.sync.set({ colors: state.colors }, () => {
-      console.log('sync chrome storage - colors');
-    });
+    chrome.storage.sync.set({ colors: state.colors }, () => {});
   },
 
   /**
@@ -71,9 +69,7 @@ const mutations = {
       return;
     }
 
-    chrome.storage.sync.set({ groups: state.groups }, () => {
-      console.log('sync chrome storage - groups');
-    });
+    chrome.storage.sync.set({ groups: state.groups }, () => {});
   }
 };
 

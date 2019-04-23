@@ -1,29 +1,33 @@
 <template>
-  <div class="colorMode select-block" v-bind:class="[{'-opened': isOpen }]" v-on-clickaway="close">
-    <button class="btn value" v-on:click="toggleDropdown">
+  <div class="colorMode select-block" v-bind:class="[{'-opened': isOpen }]">
+    <button class="btn value" v-on:click="toggle">
       <span class="text">{{text}}</span>
       <i class="icon icon-carret-down"></i>
     </button>
+
     <ul class="options">
       <li
         class="option"
-        v-for="(item, index) in mutableOptions"
-        v-bind:class="[{'-selected': item.isSelected }]"
-        v-on:click="updateValue(item)"
-        v-on:keyup.enter="updateValue(item)"
+        v-for="(option, index) in mutableOptions"
+        v-bind:class="[{'-selected': option.isSelected }]"
+        v-on:click="setValue(option)"
+        v-on:keyup.enter="setValue(option)"
         v-bind:key="index"
         tabindex="0"
-      >{{item.text}}</li>
+      >{{option.text}}</li>
     </ul>
   </div>
 </template>
 
 <script>
-import { mixin as clickaway } from "vue-clickaway";
-
 export default {
-  mixins: [clickaway],
-  props: ["options"],
+  props: {
+    options: {
+      required: true,
+      type: Array
+    }
+  },
+
   data() {
     return {
       isOpen: false,
@@ -34,51 +38,77 @@ export default {
     };
   },
 
+  watch: {
+    mutableOptions: {
+      handler(options) {
+        if (!options) return;
+
+        options.forEach(option => {
+          if (option.isSelected) {
+            this.value = option.value;
+            this.text = option.text;
+          }
+        });
+      },
+      deep: true,
+      immediate: true
+    }
+  },
+
   methods: {
-    toggleDropdown: function() {
-      this.isOpen = !this.isOpen;
+    setValue(option) {
+      if (option.isSelected) return;
+
+      this.mutableOptions = this.mutableOptions.map(item => {
+        return {
+          ...item,
+          isSelected: item === option
+        };
+      });
+
+      this.$emit("change", { value: option.value, text: option.text });
+      this.toggle();
     },
 
-    updateValue: function(val) {
-      let index = 0;
-      this.toggleDropdown();
-
-      if (val.value == this.value) {
-        return;
-      }
-
-      this.value = val.value;
-      this.text = val.text;
-
-      for (let option of this.mutableOptions) {
-        if (val == option) {
-          this.mutableOptions[index].isSelected = true;
-        } else {
-          this.mutableOptions[index].isSelected = false;
-        }
-        index++;
-      }
-
-      this.$emit("change", { value: val.value, text: val.text });
-    },
-
-    close: function() {
+    toggle() {
       if (this.isOpen) {
-        this.isOpen = false;
+        return this.close();
+      }
+
+      return this.open();
+    },
+
+    open() {
+      this.bindEvents();
+      this.isOpen = true;
+    },
+
+    close() {
+      this.unbindEvents();
+      this.isOpen = false;
+    },
+
+    bindEvents() {
+      const doc = this.$el.ownerDocument;
+      doc.addEventListener("click", this.onClickOutside);
+      doc.addEventListener("touchstart", this.onClickOutside);
+    },
+
+    unbindEvents() {
+      const doc = this.$el.ownerDocument;
+      doc.removeEventListener("click", this.onClickOutside);
+      doc.removeEventListener("touchstart", this.onClickOutside);
+    },
+
+    onClickOutside(event) {
+      if (!this.$el.contains(event.target)) {
+        this.close();
       }
     }
   },
 
-  created: function() {
-    let index = 0;
-    for (let option of this.options) {
-      if (option.isSelected) {
-        this.value = option.value;
-        this.text = option.text;
-        this.selectedOption = index;
-      }
-      index++;
-    }
+  beforeDestroy() {
+    this.unbindEvents();
   }
 };
 </script>

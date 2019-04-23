@@ -37,7 +37,6 @@
     "url-loader": "latest",
     "vue": "^2.6.10",
     "vue-cli": "latest",
-    "vue-clickaway": "latest",
     "vue-hot-reload-api": "latest",
     "vue-loader": "^15.7.0",
     "vue-style-loader": "^4.1.2",
