@@ -1,10 +1,10 @@
 {
   "name": "black-shrimp",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "A color picker extension that allow you to pick, save and organise color swatches while browsing. You can also export your collection to use it in programs like Illustrator or Photoshop.",
   "author": "Thomas L'huillier <lhuillier.tom@gmail.com>",
   "scripts": {
-    "webpack": "webpack --mode=development --watch --colors --display=normal"
+    "watch": "webpack --mode=development --watch --colors --display=normal"
   },
   "main": "contentscript.js",
   "repository": {
