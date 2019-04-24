@@ -28,6 +28,7 @@
   },
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "file://*/*"
   ]
 }
