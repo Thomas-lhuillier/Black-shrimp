@@ -62,7 +62,7 @@ This component represent the entire color panel
           <i class="icon icon-trash"></i>
         </button>
 
-        <button class="btn-square" title="Export [Alt + Shift + E]">
+        <button class="btn-square" title="Export [Alt + Shift + E]" @click.exact="exportColors">
           <i class="icon icon-carret-down"></i>
         </button>
       </div>
@@ -152,7 +152,7 @@ export default {
       this.colors = [...this.colors, color];
     },
 
-    addGroup: function() {
+    addGroup() {
       this.groups = [
         ...this.groups,
         {
@@ -162,7 +162,7 @@ export default {
       ];
     },
 
-    deselectAll: function() {
+    deselectAll() {
       this.colors.forEach(color => {
         color.isSelected = false;
       });
@@ -175,7 +175,7 @@ export default {
       });
     },
 
-    deleteSelection: function(event) {
+    deleteSelection(event) {
       const arrays = [this.colors, this.groups];
 
       this.groups.forEach(group => {
@@ -201,7 +201,7 @@ export default {
       this.groups = [...this.groups];
     },
 
-    deleteAll: function() {
+    deleteAll() {
       let ask = confirm(
         `You are about to delete all your colors and groups.
         Please confirm to proceed.`
@@ -218,7 +218,7 @@ export default {
     /**
      * Select clicked color
      */
-    handleColorClick: function(event, payload) {
+    handleColorClick(event, payload) {
       const { color, index, colors, groupID } = payload;
       let isSelected = color.isSelected;
 
@@ -262,7 +262,7 @@ export default {
       }
     },
 
-    handleGroupClick: function(event, group) {
+    handleGroupClick(event, group) {
       const isSelected = group.isSelected;
 
       // CTRL or ALT is down : multi selection
@@ -275,7 +275,7 @@ export default {
       this.groups = [...this.groups];
     },
 
-    onClick: function(event) {
+    onClick(event) {
       // Deselect all if user clicks outside a color or group.
       if (event.target.hasAttribute("data-maintain-selection")) {
         return;
@@ -284,7 +284,7 @@ export default {
       this.deselectAll();
     },
 
-    onKeyDown: function(event) {
+    onKeyDown(event) {
       if (event.altKey && event.shiftKey && event.keyCode == 65) {
         // Alt + Shift + A
         this.addColor();
@@ -296,7 +296,6 @@ export default {
         this.deleteSelection();
       } else if (event.altKey && event.shiftKey && event.keyCode == 69) {
         // Alt + Shift + E
-        // Export swatches .ase
         this.exportColors();
       }
     },
@@ -304,6 +303,9 @@ export default {
     onMove({ relatedContext, draggedContext }) {
       const relatedElement = relatedContext.element;
       const draggedElement = draggedContext.element;
+
+      this.deselectAll();
+
       return (
         (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
       );
@@ -316,34 +318,30 @@ export default {
     },
 
     // Export colors to .ase
-    // see npm ase-utils
-    exportColors: function(event) {
+    // @see npm ase-utils
+    exportColors(event) {
       let input = {
         version: "1.0",
         groups: [],
         colors: []
       };
 
-      for (let i in this.colors) {
-        let color = this.colors[i];
-        let formattedColor = this.formatColor(color);
-        input.colors.push(formattedColor);
-      }
+      input.colors
+        .push(...this.colors.map(color => {
+          return this.formatColor(color);
+        }));
 
-      for (let j in this.groups) {
-        let group = this.groups[j];
-
-        for (let k in group.content) {
-          let color = group.content[k];
-          let formattedColor = this.formatColor(color);
-          input.colors.push(formattedColor);
-        }
-      }
+      for (const group of this.groups) {
+        input.colors
+          .push(...group.content.map(color => {
+            return this.formatColor(color);
+          }));
+      };
 
       this.convertToASE(input);
     },
 
-    formatColor: function(color) {
+    formatColor(color) {
       if (!color) {
         return null;
       }
@@ -358,12 +356,12 @@ export default {
       return formattedColor;
     },
 
-    convertToASE: function(data) {
+    convertToASE(data) {
       let encodedData = ase.encode(data);
       this.saveFile(encodedData);
     },
 
-    saveFile: function(fileEntry) {
+    saveFile(fileEntry) {
       save(fileEntry, "swatches.ase", (err, data) => {
         if (err) {
           throw err;
@@ -372,18 +370,18 @@ export default {
     }
   },
 
-  mounted: function() {
+  mounted() {
     this.$root.window.addEventListener("click", this.onClick);
     this.$root.window.addEventListener("keydown", this.onKeyDown);
   },
 
-  created: function() {
+  created() {
     this.$store.dispatch("fetchColors");
     this.$store.dispatch("fetchgroups");
     this.$store.dispatch("registerCollectionsListener");
   },
 
-  beforeDestroy: function() {
+  beforeDestroy() {
     this.$root.window.removeEventListener("click", this.onClick);
     this.$root.window.removeEventListener("keydown", this.onKeyDown);
   }
