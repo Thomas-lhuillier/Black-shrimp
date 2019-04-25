@@ -33,10 +33,10 @@ export default {
       required: true,
       type: Array
     },
+    // eslint-disable-next-line vue/require-prop-types
     groupID: {
       required: false,
-      default: null,
-      type: Number
+      default: null
     }
   },
 
@@ -50,9 +50,11 @@ export default {
     },
 
     onMove ({ relatedContext, draggedContext }) {
-      console.log('onMove')
       const relatedElement = relatedContext.element
       const draggedElement = draggedContext.element
+
+      this.$emit('move')
+
       return (
         (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
       )

@@ -8,7 +8,7 @@
         :colors="colors"
         :group-i-d="'default'"
         @end="onEnd"
-        @start="onStart"
+        @move="deselectAll"
         @color-click="handleColorClick"
       />
 
@@ -18,7 +18,7 @@
         :tag="'ul'"
         group="groups"
         @end="onEnd"
-        @start="onStart"
+        @move="deselectAll"
       >
         <li
           v-for="(group, index) in groups"
@@ -30,7 +30,7 @@
             :colors="group.content"
             :group-i-d="index"
             @end="onEnd"
-            @change="console.log('move')"
+            @move="deselectAll"
             @color-click="handleColorClick"
             @click.self.native="handleGroupClick($event, group)"
           />
@@ -172,7 +172,6 @@ export default {
     },
 
     deselectAll () {
-      console.log('deselectA')
       this.colors.forEach(color => {
         color.isSelected = false
       })
@@ -310,12 +309,7 @@ export default {
       }
     },
 
-    onStart () {
-      console.log('onStart')
-    },
-
     onEnd () {
-      console.log('onEnd')
       this.deselectAll()
       this.colors = [...this.colors]
       this.groups = [...this.groups]
