@@ -11,7 +11,7 @@
       v-for="(color, index) in colors"
       :key="index"
       :hex="color.hex"
-      :isSelected="color.isSelected"
+      :is-selected="color.isSelected"
       data-maintain-selection
       @click.self.native="onClick($event, {color, index, colors, groupID})"
     />
@@ -35,7 +35,8 @@ export default {
     },
     groupID: {
       required: false,
-      default: null
+      default: null,
+      type: Number
     }
   },
 

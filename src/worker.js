@@ -6,6 +6,7 @@ let width, height
 
 // In this file we can process the image data we received
 // operating on a Uint8ClampedArray
+// @todo Check for new type of shared array for workers
 
 onmessage = function (event) {
   switch (event.data.type) {
@@ -31,7 +32,7 @@ onmessage = function (event) {
       break
 
     case 'mousePos':
-      let coord = event.data.coord
+      const coord = event.data.coord
       processMousePos(coord)
       break
   }

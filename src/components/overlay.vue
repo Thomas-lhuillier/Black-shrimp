@@ -1,5 +1,5 @@
 <template>
-  <div class="cursor-overlay" @mousemove="handleEvent($event)" @mousedown="handleEvent($event)"></div>
+  <div class="cursor-overlay" @mousemove="handleEvent($event)" @mousedown="handleEvent($event)" />
 </template>
 
 <script>

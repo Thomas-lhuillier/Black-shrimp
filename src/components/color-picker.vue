@@ -1,7 +1,7 @@
 <template>
   <div class="colorPicker">
     <!-- Color Viewer -->
-    <div class="colorViewer" :style="{ backgroundColor: color.hex }"/>
+    <div class="colorViewer" :style="{ backgroundColor: color.hex }" />
 
     <!-- Color inputs -->
     <div class="valueWrapper">

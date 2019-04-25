@@ -15,5 +15,15 @@ module.exports = {
     SharedArrayBuffer: 'readonly',
     chrome: 'readonly'
   },
-  rules: {}
+  rules: {
+    "prettier/prettier": "off",
+    'vue/max-attributes-per-line': [2, {
+      'singleline': 20,
+      'multiline': {
+         'max': 1,
+         'allowFirstLine': false
+       }
+    }],
+    "vue/multiline-html-element-content-newline": "off"
+  }
 }

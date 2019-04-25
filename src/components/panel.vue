@@ -10,8 +10,8 @@
     @mouseup="stopMoving($event)"
     @mousemove="move($event)"
   >
-    <MenuComponent :is-moving="isMoving"/>
-    <ColorComponent/>
+    <MenuComponent :is-moving="isMoving" />
+    <ColorComponent />
   </div>
 </template>
 

@@ -1,20 +1,20 @@
 <template>
-  <div class="colorMode select-block" v-bind:class="[{'-opened': isOpen }]">
-    <button class="btn value" v-on:click="toggle">
-      <span class="text">{{text}}</span>
-      <i class="icon icon-carret-down"></i>
+  <div class="colorMode select-block" :class="[{'-opened': isOpen }]">
+    <button class="btn value" @click="toggle">
+      <span class="text">{{ text }}</span>
+      <i class="icon icon-carret-down" />
     </button>
 
     <ul class="options">
       <li
-        class="option"
         v-for="(option, index) in mutableOptions"
-        v-bind:class="[{'-selected': option.isSelected }]"
-        v-on:click="setValue(option)"
-        v-on:keyup.enter="setValue(option)"
-        v-bind:key="index"
+        :key="index"
+        class="option"
+        :class="[{'-selected': option.isSelected }]"
         tabindex="0"
-      >{{option.text}}</li>
+        @click="setValue(option)"
+        @keyup.enter="setValue(option)"
+      >{{ option.text }}</li>
     </ul>
   </div>
 </template>
@@ -28,89 +28,89 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       isOpen: false,
       selectedOption: false,
-      value: "",
-      text: "",
+      value: '',
+      text: '',
       mutableOptions: this.options
-    };
+    }
   },
 
   watch: {
     mutableOptions: {
-      handler(options) {
-        if (!options) return;
+      handler (options) {
+        if (!options) return
 
         options.forEach(option => {
           if (option.isSelected) {
-            this.value = option.value;
-            this.text = option.text;
+            this.value = option.value
+            this.text = option.text
           }
-        });
+        })
       },
       deep: true,
       immediate: true
     }
   },
 
+  beforeDestroy () {
+    this.unbindEvents()
+  },
+
   methods: {
-    setValue(option) {
-      if (option.isSelected) return;
+    setValue (option) {
+      if (option.isSelected) return
 
       this.mutableOptions = this.mutableOptions.map(item => {
         return {
           ...item,
           isSelected: item === option
-        };
-      });
+        }
+      })
 
-      this.$emit("change", { value: option.value, text: option.text });
-      this.toggle();
+      this.$emit('change', { value: option.value, text: option.text })
+      this.toggle()
     },
 
-    toggle() {
+    toggle () {
       if (this.isOpen) {
-        return this.close();
+        return this.close()
       }
 
-      return this.open();
+      return this.open()
     },
 
-    open() {
-      this.bindEvents();
-      this.isOpen = true;
+    open () {
+      this.bindEvents()
+      this.isOpen = true
     },
 
-    close() {
-      this.unbindEvents();
-      this.isOpen = false;
+    close () {
+      this.unbindEvents()
+      this.isOpen = false
     },
 
-    bindEvents() {
-      const doc = this.$el.ownerDocument;
-      doc.addEventListener("click", this.onClickOutside);
-      doc.addEventListener("touchstart", this.onClickOutside);
+    bindEvents () {
+      const doc = this.$el.ownerDocument
+      doc.addEventListener('click', this.onClickOutside)
+      doc.addEventListener('touchstart', this.onClickOutside)
     },
 
-    unbindEvents() {
-      const doc = this.$el.ownerDocument;
-      doc.removeEventListener("click", this.onClickOutside);
-      doc.removeEventListener("touchstart", this.onClickOutside);
+    unbindEvents () {
+      const doc = this.$el.ownerDocument
+      doc.removeEventListener('click', this.onClickOutside)
+      doc.removeEventListener('touchstart', this.onClickOutside)
     },
 
-    onClickOutside(event) {
+    onClickOutside (event) {
       if (!this.$el.contains(event.target)) {
-        this.close();
+        this.close()
       }
     }
-  },
-
-  beforeDestroy() {
-    this.unbindEvents();
   }
-};
+}
 </script>
 
 <style lang="scss">

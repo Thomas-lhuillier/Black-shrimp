@@ -2,25 +2,6 @@
 import Vue from 'vue'
 
 export default {
-  render (h) {
-    return h('iframe', {
-      style: {
-        all: 'initial',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        'z-index': 1000000001
-      },
-      on: {
-        load: () => {
-          this.injectCSS()
-          this.renderChildren()
-        }
-      }
-    })
-  },
 
   computed: {
     isVisible () {
@@ -44,6 +25,17 @@ export default {
     this.iApp.children = Object.freeze(this.$slots.default)
   },
 
+  mounted () {
+    const _window = this.$el.contentDocument.defaultView
+    _window.focus()
+    _window.addEventListener('keyup', this.onKeyPressed)
+  },
+
+  beforeDestroy () {
+    const _window = this.$el.contentDocument.defaultView
+    _window.removeEventListener('keyup', this.onKeyPressed)
+  },
+
   methods: {
     renderChildren () {
       // We will mount the iframe children as a nested app inside it
@@ -54,7 +46,7 @@ export default {
       body.appendChild(el)
 
       const iApp = new Vue({
-        name: 'iApp',
+        name: 'IApp',
 
         // Pass the store to every descendents
         store: self.$store,
@@ -93,16 +85,24 @@ export default {
       }
     }
   },
-
-  mounted () {
-    const _window = this.$el.contentDocument.defaultView
-    _window.focus()
-    _window.addEventListener('keyup', this.onKeyPressed)
-  },
-
-  beforeDestroy () {
-    const _window = this.$el.contentDocument.defaultView
-    _window.removeEventListener('keyup', this.onKeyPressed)
+  render (h) {
+    return h('iframe', {
+      style: {
+        all: 'initial',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        'z-index': 1000000001
+      },
+      on: {
+        load: () => {
+          this.injectCSS()
+          this.renderChildren()
+        }
+      }
+    })
   }
 }
 </script>
