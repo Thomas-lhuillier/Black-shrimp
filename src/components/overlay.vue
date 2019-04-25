@@ -5,24 +5,24 @@
 <script>
 export default {
   computed: {
-    port() {
-      return this.$store.getters.getPort;
+    port () {
+      return this.$store.getters.getPort
     }
   },
 
   methods: {
-    handleEvent(event) {
+    handleEvent (event) {
       if (event.which !== 1) {
-        return;
+        return
       }
 
       this.port.postMessage({
-        type: "mousePos",
+        type: 'mousePos',
         coord: { x: event.clientX, y: event.clientY }
-      });
+      })
     }
   }
-};
+}
 </script>
 
 <style lang="scss">

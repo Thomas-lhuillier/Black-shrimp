@@ -1,71 +1,70 @@
 <template>
   <div class="colorPicker">
     <!-- Color Viewer -->
-    <div class="colorViewer" v-bind:style="{ backgroundColor: color.hex }"></div>
+    <div class="colorViewer" :style="{ backgroundColor: color.hex }"/>
 
     <!-- Color inputs -->
     <div class="valueWrapper">
-      <div class="hexWrapper" v-bind:class="[{ active: colorMode == 'hex' }]">
-        <input type="text" v-model="color.hex" @click="selectInputText($event)" spellcheck="false">
+      <div class="hexWrapper" :class="[{ active: colorMode == 'hex' }]">
+        <input v-model="color.hex" type="text" spellcheck="false" @click="selectInputText($event)">
       </div>
 
-      <div class="rgbWrapper" v-bind:class="[{ active: colorMode == 'rgb' }]">
-        <input type="text" v-model="color.r" @click="selectInputText($event)" spellcheck="false">
-        <input type="text" v-model="color.g" @click="selectInputText($event)" spellcheck="false">
-        <input type="text" v-model="color.b" @click="selectInputText($event)" spellcheck="false">
+      <div class="rgbWrapper" :class="[{ active: colorMode == 'rgb' }]">
+        <input v-model="color.r" type="text" spellcheck="false" @click="selectInputText($event)">
+        <input v-model="color.g" type="text" spellcheck="false" @click="selectInputText($event)">
+        <input v-model="color.b" type="text" spellcheck="false" @click="selectInputText($event)">
       </div>
 
-      <div class="hslWrapper" v-bind:class="[{ active: colorMode == 'hsl' }]">
-        <input type="text" v-model="color.h" @click="selectInputText($event)" spellcheck="false">
-        <input type="text" v-model="color.s" @click="selectInputText($event)" spellcheck="false">
-        <input type="text" v-model="color.l" @click="selectInputText($event)" spellcheck="false">
+      <div class="hslWrapper" :class="[{ active: colorMode == 'hsl' }]">
+        <input v-model="color.h" type="text" spellcheck="false" @click="selectInputText($event)">
+        <input v-model="color.s" type="text" spellcheck="false" @click="selectInputText($event)">
+        <input v-model="color.l" type="text" spellcheck="false" @click="selectInputText($event)">
       </div>
     </div>
 
     <!-- Color mode select -->
     <SelectComponent
       :options="[
-        { text: 'hex', value: 1, isSelected: true  },
+        { text: 'hex', value: 1, isSelected: true },
         { text: 'rgb', value: 2, isSelected: false },
         { text: 'hsl', value: 3, isSelected: false },
       ]"
-      v-on:change="changeColorMode($event)"
-    ></SelectComponent>
+      @change="changeColorMode($event)"
+    />
   </div>
 </template>
 
 <script>
-import SelectComponent from "./select-block.vue";
+import SelectComponent from './select-block.vue'
 
 export default {
   components: {
     SelectComponent
   },
 
-  data() {
+  data () {
     return {
-      colorMode: "hex"
-    };
+      colorMode: 'hex'
+    }
   },
 
   computed: {
-    color() {
-      return this.$store.getters.getColor;
+    color () {
+      return this.$store.getters.getColor
     }
   },
 
   methods: {
-    changeColorMode(event) {
-      this.colorMode = event.text;
+    changeColorMode (event) {
+      this.colorMode = event.text
     },
 
-    selectInputText(event) {
-      event.target.select();
+    selectInputText (event) {
+      event.target.select()
     }
   }
-};
+}
 </script>
-
 
 <style lang="scss">
 @import "../sass/abstracts/variables";

@@ -3,7 +3,7 @@
     class="btn-square -color"
     :class="[{ '-selected': isSelected }]"
     :style="{ 'background-color': hex }"
-  ></li>
+  />
 </template>
 
 <script>
@@ -19,5 +19,5 @@ export default {
       default: false
     }
   }
-};
+}
 </script>

@@ -12,15 +12,15 @@
       :key="index"
       :hex="color.hex"
       :isSelected="color.isSelected"
-      @click.self.native="onClick($event, {color, index, colors, groupID})"
       data-maintain-selection
-    ></ColorSwatchComponent>
+      @click.self.native="onClick($event, {color, index, colors, groupID})"
+    />
   </draggable>
 </template>
 
 <script>
-import draggable from "vuedraggable";
-import ColorSwatchComponent from "./color-swatch.vue";
+import draggable from 'vuedraggable'
+import ColorSwatchComponent from './color-swatch.vue'
 
 export default {
   components: {
@@ -40,21 +40,22 @@ export default {
   },
 
   methods: {
-    onClick: function(event, payload) {
-      this.$emit("color-click", event, payload);
+    onClick (event, payload) {
+      this.$emit('color-click', event, payload)
     },
 
-    onEnd: function() {
-      this.$emit("end");
+    onEnd () {
+      this.$emit('end')
     },
 
-    onMove({ relatedContext, draggedContext }) {
-      const relatedElement = relatedContext.element;
-      const draggedElement = draggedContext.element;
+    onMove ({ relatedContext, draggedContext }) {
+      console.log('onMove')
+      const relatedElement = relatedContext.element
+      const draggedElement = draggedContext.element
       return (
         (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
-      );
+      )
     }
   }
-};
+}
 </script>

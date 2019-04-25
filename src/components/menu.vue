@@ -2,36 +2,36 @@
   <nav class="menu" data-js-draggable>
     <button
       v-for="(item, index) in items"
+      :key="index"
       class="item"
-      v-bind:class="[{active: item.isActive }, {'-moving': isMoving}, 'item--' + item.name]"
+      :class="[{active: item.isActive }, {'-moving': isMoving}, 'item--' + item.name]"
       data-js-draggable
-      v-bind:key="index"
     >
-      <i class="icon" v-bind:class="['icon-' + item.icon]" data-js-draggable></i>
-      <span data-js-draggable>{{item.name}}</span>
+      <i class="icon" :class="['icon-' + item.icon]" data-js-draggable/>
+      <span data-js-draggable>{{ item.name }}</span>
     </button>
 
     <button
       class="ml-auto item item-close"
       :class="{'-moving': isMoving}"
-      @click="destroy()"
       data-js-draggable
+      @click="destroy()"
     >
-      <i class="icon icon-close" data-js-draggable></i>
+      <i class="icon icon-close" data-js-draggable/>
     </button>
   </nav>
 </template>
 
 <script>
 export default {
-  data() {
+  data () {
     return {
       items: [
-        { name: "Color", icon: "eyeDropper", isActive: true }
+        { name: 'Color', icon: 'eyeDropper', isActive: true }
         // {name: 'Ruler', icon: 'ruler', isActive: false},
         // {name: 'Info' , icon: 'binoculars', isActive: false}
       ]
-    };
+    }
   },
 
   props: {
@@ -41,19 +41,19 @@ export default {
   },
 
   computed: {
-    port() {
-      return this.$store.getters.getPort;
+    port () {
+      return this.$store.getters.getPort
     }
   },
 
   methods: {
-    destroy: function() {
+    destroy: function () {
       this.port.postMessage({
-        type: "destroy"
-      });
+        type: 'destroy'
+      })
     }
   }
-};
+}
 </script>
 
 <style lang="scss">

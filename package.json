@@ -5,7 +5,7 @@
   "author": "Thomas L'huillier <lhuillier.tom@gmail.com>",
   "scripts": {
     "watch": "webpack --mode=development --watch --colors --display=normal --display-chunks=false",
-    "lint-js": "eslint --cache --cache-location .cache/.eslintcache src/"
+    "lint-js": "eslint --cache --cache-location .cache/.eslintcache --ext .js,.vue src/"
   },
   "main": "contentscript.js",
   "repository": {
