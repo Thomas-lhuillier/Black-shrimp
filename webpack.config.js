@@ -1,11 +1,11 @@
-const webpack = require('webpack');
-const path = require('path');
-const { VueLoaderPlugin } = require('vue-loader');
-const autoprefixer = require('autoprefixer');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const webpack = require('webpack')
+const path = require('path')
+const { VueLoaderPlugin } = require('vue-loader')
+const autoprefixer = require('autoprefixer')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
-process.traceDeprecation = true;
+process.traceDeprecation = true
 
 module.exports = {
   context: path.join(__dirname, '/src'),
@@ -17,7 +17,7 @@ module.exports = {
   },
 
   output: {
-    path: __dirname + '/package',
+    path: path.join(__dirname, '/package'),
     filename: './[name].js'
   },
 
@@ -28,16 +28,12 @@ module.exports = {
         loader: 'vue-loader',
         options: {
           extractCSS: false,
-          cssModules: {
-            localIdentName: '[path][name]---[local]---[hash:base64:5]',
-            camelCase: true
-          },
-          fallback: 'vue-style-loader',
           loaders: {
             scss:
               'vue-style-loader!css-loader?-autoprefixer!postcss-loader!sass-loader', // <style lang="scss">
             sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax' // <style lang="sass">
-          }
+          },
+          fallback: 'vue-style-loader'
         }
       },
 
@@ -106,14 +102,14 @@ module.exports = {
       // Generates the manifest file using the package.json description and version
       {
         from: 'manifest.json',
-        transform: function(content, path) {
+        transform: function (content, path) {
           return Buffer.from(
             JSON.stringify({
               description: process.env.npm_package_description,
               version: process.env.npm_package_version,
               ...JSON.parse(content.toString())
             })
-          );
+          )
         }
       },
       {
@@ -122,4 +118,4 @@ module.exports = {
       }
     ])
   ]
-};
+}

@@ -5,10 +5,10 @@
  * to be shared with application components.
  */
 
-import Vue from 'vue';
-import Vuex from 'vuex';
+import Vue from 'vue'
+import Vuex from 'vuex'
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
 // root state object.
 // each Vuex instance is just a single state tree.
@@ -18,7 +18,7 @@ const state = {
   color: {},
   colors: [],
   groups: []
-};
+}
 
 // mutations are operations that actually mutates the state.
 // each mutation handler gets the entire state tree as the
@@ -26,12 +26,12 @@ const state = {
 // mutations must be synchronous and can be recorded by plugins
 // for debugging purposes.
 const mutations = {
-  setVisibility(state, payload) {
-    state.isVisible = payload;
+  setVisibility (state, payload) {
+    state.isVisible = payload
   },
 
-  setColor(state, payload) {
-    state.color = payload;
+  setColor (state, payload) {
+    state.color = payload
   },
 
   /**
@@ -43,14 +43,14 @@ const mutations = {
    * @param {Object} state
    * @param {Object} payload
    */
-  setColors(state, payload) {
-    state.colors = payload.colors;
+  setColors (state, payload) {
+    state.colors = payload.colors
 
     if (payload.silent) {
-      return;
+      return
     }
 
-    chrome.storage.sync.set({ colors: state.colors }, () => {});
+    chrome.storage.sync.set({ colors: state.colors }, () => {})
   },
 
   /**
@@ -62,16 +62,16 @@ const mutations = {
    * @param {Object} state
    * @param {Object} payload
    */
-  setGroups(state, payload) {
-    state.groups = payload.groups;
+  setGroups (state, payload) {
+    state.groups = payload.groups
 
     if (payload.silent) {
-      return;
+      return
     }
 
-    chrome.storage.sync.set({ groups: state.groups }, () => {});
+    chrome.storage.sync.set({ groups: state.groups }, () => {})
   }
-};
+}
 
 // actions are functions that causes side effects and can involve
 // asynchronous operations.
@@ -84,21 +84,21 @@ const actions = {
    *
    * @param {Object} context
    */
-  fetchColors(context) {
+  fetchColors (context) {
     chrome.storage.sync.get('colors', storage => {
       if (!storage.colors) {
-        return;
+        return
       }
       const colors = storage.colors.map((color, index) => {
         return {
           ...color,
           id: index,
           isSelected: false
-        };
-      });
+        }
+      })
 
-      context.commit({ type: 'setColors', colors });
-    });
+      context.commit({ type: 'setColors', colors })
+    })
   },
 
   /**
@@ -109,21 +109,21 @@ const actions = {
    *
    * @param {Object} context
    */
-  fetchgroups(context) {
+  fetchgroups (context) {
     chrome.storage.sync.get('groups', storage => {
       if (!storage.groups) {
-        return;
+        return
       }
       const groups = storage.groups.map((group, index) => {
         return {
           ...group,
           id: index,
           isSelected: false
-        };
-      });
+        }
+      })
 
-      context.commit({ type: 'setGroups', groups });
-    });
+      context.commit({ type: 'setGroups', groups })
+    })
   },
 
   /**
@@ -133,14 +133,14 @@ const actions = {
    *
    * @param {Object} context
    */
-  registerCollectionsListener(context) {
+  registerCollectionsListener (context) {
     chrome.storage.onChanged.addListener((changes, namespace) => {
       if (changes['colors']) {
         context.commit({
           type: 'setColors',
           colors: changes['colors'].newValue,
           silent: true
-        });
+        })
       }
 
       if (changes['groups']) {
@@ -148,11 +148,11 @@ const actions = {
           type: 'setGroups',
           groups: changes['groups'].newValue,
           silent: true
-        });
+        })
       }
-    });
+    })
   }
-};
+}
 
 // getters are functions
 const getters = {
@@ -161,7 +161,7 @@ const getters = {
   getPort: state => state.port,
   getColors: state => state.colors,
   getgroups: state => state.groups
-};
+}
 
 // A Vuex instance is created by combining the state, mutations, actions,
 // and getters.
@@ -170,4 +170,4 @@ export default new Vuex.Store({
   getters,
   actions,
   mutations
-});
+})

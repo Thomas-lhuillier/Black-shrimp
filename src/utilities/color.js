@@ -7,37 +7,39 @@
  *
  * @returns {number[]} [h, s, l] The HSL color
  */
-function rgbToHsl(r, g, b) {
-  (r /= 255), (g /= 255), (b /= 255);
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h,
-    s,
-    l = (max + min) / 2;
+function rgbToHsl (r, g, b) {
+  r /= 255
+  g /= 255
+  b /= 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  let h
+  let s
+  let l = (max + min) / 2
 
   if (max === min) {
-    h = s = 0; // achromatic
+    h = s = 0 // achromatic
   } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
 
     switch (max) {
       case r:
-        h = (g - b) / d + (g < b ? 6 : 0);
-        break;
+        h = (g - b) / d + (g < b ? 6 : 0)
+        break
 
       case g:
-        h = (b - r) / d + 2;
-        break;
+        h = (b - r) / d + 2
+        break
 
       case b:
-        h = (r - g) / d + 4;
-        break;
+        h = (r - g) / d + 4
+        break
     }
-    h /= 6;
+    h /= 6
   }
 
-  return [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)];
+  return [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)]
 }
 
 /**
@@ -49,8 +51,8 @@ function rgbToHsl(r, g, b) {
  *
  * @returns {string} The hexadecimal color
  */
-function rgbToHex(r, g, b) {
-  return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
+function rgbToHex (r, g, b) {
+  return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b)
 }
 
 /**
@@ -60,9 +62,9 @@ function rgbToHex(r, g, b) {
  *
  * @returns {string} A two character string representing the hexadecimal value of RGB color component
  */
-function componentToHex(c) {
-  const hex = c.toString(16);
-  return hex.length == 1 ? '0' + hex : hex;
+function componentToHex (c) {
+  const hex = c.toString(16)
+  return hex.length === 1 ? '0' + hex : hex
 }
 
-export { rgbToHsl, rgbToHex };
+export { rgbToHsl, rgbToHex }

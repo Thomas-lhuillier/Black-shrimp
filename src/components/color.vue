@@ -1,8 +1,3 @@
-<!--
-This component represent the entire color panel
-@todo Should be refactored and splitted.
--->
-
 <template>
   <div class="panel panel--color">
     <colorPickerComponent></colorPickerComponent>
@@ -11,9 +6,9 @@ This component represent the entire color panel
     <div class="colorSwatches">
       <colorGroupComponent
         :colors="colors"
-        :move="onMove"
         :groupID="'default'"
         @end="onEnd"
+        @start="onStart"
         @color-click="handleColorClick"
       ></colorGroupComponent>
 
@@ -21,8 +16,8 @@ This component represent the entire color panel
         v-model="groups"
         class="group-collection"
         :tag="'ul'"
-        :move="onMove"
         @end="onEnd"
+        @start="onStart"
         group="groups"
       >
         <li
@@ -33,9 +28,9 @@ This component represent the entire color panel
         >
           <colorGroupComponent
             :colors="group.content"
-            :move="onMove"
             :groupID="index"
             @end="onEnd"
+            @change="console.log('move')"
             @color-click="handleColorClick"
             @click.self.native="handleGroupClick($event, group)"
           ></colorGroupComponent>
@@ -163,6 +158,7 @@ export default {
     },
 
     deselectAll() {
+      console.log('deselectA')
       this.colors.forEach(color => {
         color.isSelected = false;
       });
@@ -300,18 +296,12 @@ export default {
       }
     },
 
-    onMove({ relatedContext, draggedContext }) {
-      const relatedElement = relatedContext.element;
-      const draggedElement = draggedContext.element;
-
-      this.deselectAll();
-
-      return (
-        (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
-      );
+    onStart() {
+      console.log('onStart');
     },
 
     onEnd() {
+      console.log('onEnd');
       this.deselectAll();
       this.colors = [...this.colors];
       this.groups = [...this.groups];
