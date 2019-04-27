@@ -27,6 +27,7 @@
     "128": "assets/img/icon128.png"
   },
   "permissions": [
+    "downloads",
     "activeTab",
     "storage",
     "file://*/*"

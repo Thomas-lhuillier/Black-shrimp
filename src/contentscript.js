@@ -1,3 +1,5 @@
+import 'babel-polyfill'
+
 const tabs = {}
 
 function toggle (tab) {
@@ -18,26 +20,25 @@ function deactivateTab (id) {
 }
 
 function clearTab (id) {
-  for (let tabId in tabs) {
-    if (tabId === id) {
+  for (const tabId in tabs) {
+    if (parseInt(tabId, 10) === id) {
       delete tabs[tabId]
     }
   }
 }
 
 // Icon click listener
-chrome.browserAction.onClicked.addListener(function (tab) {
+chrome.browserAction.onClicked.addListener(tab => {
   toggle(tab)
 })
 
 // Runtime port connexion
-chrome.runtime.onConnect.addListener(function (port) {
+chrome.runtime.onConnect.addListener(port => {
   tabs[port.sender.tab.id].connect(port)
 })
 
-chrome.runtime.onSuspend.addListener(function () {
+chrome.runtime.onSuspend.addListener(() => {
   for (let tabId in tabs) {
-    console.log('tab ', tabId, ' deactive')
     tabs[tabId].deactivate(true)
   }
 })
@@ -114,19 +115,50 @@ const Blackshrimp = {
       case 'destroy':
         this.destroy()
         break
+
+      case 'saveASE':
+        this.saveFile(event.url)
+
+        break
     }
   },
 
   onWorkerMessage: function (event) {
     let forward = ['color', 'screenshot processed', 'mousePos']
-    console.log(
-      `received worker message, forward to port ${this.port} :`,
-      event
-    )
-
     if (forward.indexOf(event.data.type) > -1) {
       this.port.postMessage(event.data)
     }
+  },
+
+  async saveFile (url) {
+    const handler = this.setFilename
+    chrome.downloads.onDeterminingFilename.addListener(handler)
+
+    const currentId = await this.download(url)
+    const success = await this.onDownloadComplete(currentId).then(() => {
+      chrome.downloads.onDeterminingFilename.removeListener(handler)
+    })
+
+    return success
+  },
+
+  setFilename (item, suggest) {
+    suggest({ filename: 'black_shrimp-swatches.ase', overwrite: true })
+  },
+
+  download (url) {
+    return new Promise(resolve => chrome.downloads.download({ url, saveAs: true }, resolve))
+  },
+
+  onDownloadComplete (itemId) {
+    return new Promise(resolve => {
+      chrome.downloads.onChanged.addListener(function onChanged ({ id, state }) {
+        if (id === itemId && state && state.current !== 'in_progress') {
+          chrome.downloads.onChanged.removeListener(onChanged)
+          resolve(state.current === 'complete')
+        }
+      })
+    })
   },
 
   setIcon: function (type = 'default') {

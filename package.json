@@ -19,6 +19,7 @@
     "ase-utils": "latest",
     "autoprefixer": "^9.5.1",
     "babel-loader": "latest",
+    "babel-polyfill": "^6.26.0",
     "bourbon": "latest",
     "copy-webpack-plugin": "^5.0.2",
     "css-loader": "latest",

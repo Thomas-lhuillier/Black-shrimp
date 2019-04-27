@@ -356,7 +356,16 @@ export default {
 
     convertToASE (data) {
       let encodedData = ase.encode(data)
-      this.saveFile(encodedData)
+
+      // this.saveFile(encodedData)
+      const blob = new Blob([encodedData], { type: 'application/octet-stream' })
+      const url = this.$root.window.URL.createObjectURL(blob)
+      // chrome.downloads.download({ url: url })
+
+      this.port.postMessage({
+        type: 'saveASE',
+        url: url
+      })
     },
 
     saveFile (fileEntry) {
