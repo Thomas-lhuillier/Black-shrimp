@@ -23,7 +23,7 @@
     </div>
 
     <!-- Color mode select -->
-    <SelectComponent
+    <customSelect
       :options="[
         { text: 'hex', value: 1, isSelected: true },
         { text: 'rgb', value: 2, isSelected: false },
@@ -35,11 +35,11 @@
 </template>
 
 <script>
-import SelectComponent from './select-block.vue'
+import customSelect from './select-block.vue'
 
 export default {
   components: {
-    SelectComponent
+    customSelect
   },
 
   data () {

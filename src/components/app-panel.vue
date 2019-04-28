@@ -10,8 +10,8 @@
     @mouseup="stopMoving($event)"
     @mousemove="move($event)"
   >
-    <MenuComponent :is-moving="isMoving" />
-    <ColorComponent />
+    <appMenu :is-moving="isMoving" />
+    <colorPanel />
   </div>
 </template>
 
@@ -20,13 +20,13 @@
 </style>
 
 <script>
-import MenuComponent from './menu.vue'
-import ColorComponent from './color.vue'
+import appMenu from './app-menu.vue'
+import colorPanel from './color-panel.vue'
 
 export default {
   components: {
-    MenuComponent,
-    ColorComponent
+    appMenu,
+    colorPanel
   },
   data () {
     return {

@@ -1,10 +1,10 @@
 <template>
   <div class="panel panel--color">
-    <colorPickerComponent />
+    <colorPicker />
 
     <!-- Color swatches -->
     <div class="colorSwatches">
-      <colorGroupComponent
+      <colorGroup
         :colors="colors"
         :group-i-d="'default'"
         @end="onEnd"
@@ -26,7 +26,7 @@
           :class="[{ '-selected': group.isSelected }]"
           class="group"
         >
-          <colorGroupComponent
+          <colorGroup
             :colors="group.content"
             :group-i-d="index"
             @end="onEnd"
@@ -66,8 +66,8 @@
 </template>
 
 <script>
-import ColorGroupComponent from './color-group.vue'
-import ColorPickerComponent from './color-picker.vue'
+import colorGroup from './color-group.vue'
+import colorPicker from './color-picker.vue'
 import draggable from 'vuedraggable'
 import save from 'save-file'
 import ase from 'ase-utils'
@@ -75,8 +75,8 @@ import { between } from '../utilities/number'
 
 export default {
   components: {
-    ColorGroupComponent,
-    ColorPickerComponent,
+    colorGroup,
+    colorPicker,
     draggable
   },
 

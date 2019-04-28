@@ -7,7 +7,7 @@
     group="colors"
     @end="onEnd"
   >
-    <ColorSwatchComponent
+    <colorSwatch
       v-for="(color, index) in colors"
       :key="index"
       :hex="color.hex"
@@ -20,12 +20,12 @@
 
 <script>
 import draggable from 'vuedraggable'
-import ColorSwatchComponent from './color-swatch.vue'
+import colorSwatch from './color-swatch.vue'
 
 export default {
   components: {
     draggable,
-    ColorSwatchComponent
+    colorSwatch
   },
 
   props: {

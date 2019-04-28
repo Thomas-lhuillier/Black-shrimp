@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import store from './vuex/store'
-import IframeComponent from './components/iframe.vue'
-import OverlayComponent from './components/overlay.vue'
-import PanelComponent from './components/panel.vue'
+import appIframe from './components/app-iframe.vue'
+import appOverlay from './components/app-overlay.vue'
+import appPannel from './components/app-panel.vue'
 
 Vue.use(Vuex)
 
@@ -38,9 +38,9 @@ const createApp = () => {
     el: '#black-shrimp-root',
 
     components: {
-      IframeComponent,
-      PanelComponent,
-      OverlayComponent
+      appIframe,
+      appPannel,
+      appOverlay
     },
 
     // Inject store to all children
@@ -108,9 +108,9 @@ const createApp = () => {
     },
 
     template: `
-    <IframeComponent>
-      <PanelComponent/>
-      <OverlayComponent/>
-    </IframeComponent>`
+    <appIframe>
+      <appPannel />
+      <appOverlay />
+    </appIframe>`
   })
 }
