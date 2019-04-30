@@ -1,6 +1,6 @@
 <template>
   <button class="btn" v-on="$listeners">
-    <slot />
+    <slot/>
   </button>
 </template>
 
@@ -39,6 +39,7 @@
 
   &.--selected {
     outline: $outline-dashed;
+    outline-color: $soft-white;
     box-shadow: inset 0 0 0px 1px $gray-dark;
   }
 }
