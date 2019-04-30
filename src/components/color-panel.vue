@@ -1,66 +1,56 @@
 <template>
-  <div class="panel panel--color">
-    <colorPicker />
+  <div class="panel">
+    <!-- Color picker -->
+    <colorPicker class="panel-item"/>
 
     <!-- Color swatches -->
-    <div class="colorSwatches">
+    <div class="panel-item">
       <colorGroup
         :colors="colors"
-        :group-i-d="'default'"
         @end="onEnd"
         @move="deselectAll"
         @color-click="handleColorClick"
       />
 
-      <draggable
-        v-model="groups"
-        class="group-collection"
-        :tag="'ul'"
-        group="groups"
-        @end="onEnd"
-        @move="deselectAll"
-      >
-        <li
+      <!-- class="group-collection" -->
+      <draggable v-model="groups" :tag="'ul'" group="groups" @end="onEnd" @move="deselectAll">
+        <colorGroup
           v-for="(group, index) in groups"
           :key="index"
-          :class="[{ '-selected': group.isSelected }]"
-          class="group"
-        >
-          <colorGroup
-            :colors="group.content"
-            :group-i-d="index"
-            @end="onEnd"
-            @move="deselectAll"
-            @color-click="handleColorClick"
-            @click.self.native="handleGroupClick($event, group)"
-          />
-        </li>
+          class="--group"
+          :class="[{ '--selected': group.isSelected }]"
+          :colors="group.content"
+          @end="onEnd"
+          @move="deselectAll"
+          @color-click="handleColorClick"
+          @click.self.native="handleGroupClick($event, group)"
+        />
       </draggable>
+    </div>
 
-      <!-- Action buttons -->
-      <div class="button-wrapper">
-        <button class="btn-square" title="Add color [Alt + Shift + A]" @click="addColor()">
-          <i class="icon icon-plus" />
-        </button>
+    <!-- Action buttons -->
+    <div class="panel-footer">
+      <button class="btn btn-square" title="Add color [Alt + Shift + A]" @click="addColor()">
+        <i class="icon icon-plus"/>
+      </button>
 
-        <button class="btn-square" title="Add Group [Alt + Shift + F]" @click="addGroup($event)">
-          <i class="icon icon-folder" />
-        </button>
+      <button class="btn btn-square" title="Add Group [Alt + Shift + F]" @click="addGroup($event)">
+        <i class="icon icon-folder"/>
+      </button>
 
-        <button
-          class="btn-square"
-          title="Delete selection [Alt + Shift + D]"
-          data-maintain-selection
-          @click.exact="deleteSelection($event)"
-          @click.shift.exact="deleteAll($event)"
-        >
-          <i class="icon icon-trash" />
-        </button>
+      <button
+        class="btn btn-square"
+        title="Delete selection [Alt + Shift + D]"
+        data-maintain-selection
+        @click.exact="deleteSelection($event)"
+        @click.shift.exact="deleteAll($event)"
+      >
+        <i class="icon icon-trash"/>
+      </button>
 
-        <button class="btn-square" title="Export [Alt + Shift + E]" @click.exact="exportColors">
-          <i class="icon icon-carret-down" />
-        </button>
-      </div>
+      <button class="btn btn-square" title="Export [Alt + Shift + E]" @click.exact="exportColors">
+        <i class="icon icon-carret-down"/>
+      </button>
     </div>
   </div>
 </template>
@@ -383,142 +373,33 @@ export default {
 @import "../sass/abstracts/variables";
 
 .panel {
-  position: relative;
-  padding: 8px;
-  font-size: 10px;
+  padding: $spacer;
   color: $gray-lighter;
   background-color: $gray;
 }
 
-.colorSwatches {
-  position: relative;
-  display: block;
-  margin-top: $spacer;
-  margin-right: -$spacer / 2;
-  padding-top: $spacer;
+.panel-item {
+  &:not(:first-child) {
+    margin-top: $spacer;
 
-  &:before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: -$spacer;
-    right: -$spacer / 2;
-    border-top: solid 1px $gray-light;
-  }
-
-  & > .button-wrapper {
-    display: block;
-    text-align: right;
-
-    & > .btn-square {
-      border: none;
-      margin-bottom: 0;
-    }
-  }
-
-  & > .color-collection {
-    display: block;
-    margin-left: -($spacer / 2);
-    padding-left: $spacer / 2;
-
-    &:not(:empty) {
-      margin-bottom: $spacer / 2;
-    }
-  }
-
-  & > .group-collection {
-    display: block;
-
-    &:not(:empty) {
-      margin-bottom: $spacer / 2;
-    }
-
-    & > .group {
+    &:before {
+      content: "";
       display: block;
-      position: relative;
-      margin-top: -($spacer / 2);
-      margin-bottom: $spacer / 2;
-      margin-left: -($spacer / 2);
-      padding-top: $spacer / 2;
-      padding-left: $spacer / 2;
-
-      -webkit-user-drag: element;
-      user-select: none;
-
-      &.-selected {
-        outline-style: dashed;
-        outline-width: 1px;
-        outline-color: $gray-lighter;
-
-        & > ul:before {
-          background-color: $gray-darker;
-          color: $soft-white;
-        }
-      }
-
-      & > ul {
-        display: block;
-        position: relative;
-
-        &:before {
-          @extend .btn-square;
-          display: block;
-          content: "\e902";
-          font-size: 18px;
-          font-family: "Black-shrimp";
-          outline-width: 0 !important;
-          border-width: 0 !important;
-        }
-      }
+      margin-left: -$spacer;
+      margin-right: -$spacer;
+      margin-bottom: $spacer;
+      border-top: solid $border-width $gray-light;
     }
-  }
-
-  .btn-square {
-    margin-right: $spacer / 2;
-    margin-bottom: $spacer / 2;
   }
 }
 
-.btn-square {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
+.panel-footer {
+  display: flex;
+  justify-content: flex-end;
 
-  font-size: 18px;
-  background-color: $gray-light;
-
-  border-radius: 2px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: transparent;
-
-  box-sizing: border-box;
-  vertical-align: middle;
-  cursor: pointer;
-
-  -webkit-user-drag: element;
-  user-select: none;
-
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: $gray-dark;
-    color: $soft-white;
-  }
-
-  &.-selected {
-    outline-style: dashed;
-    outline-width: 1px;
-    outline-color: $soft-white;
-  }
-
-  &:active {
-    background-color: $gray-darker;
-    > .icon {
-      margin-top: -1px !important;
-      margin-left: -1px !important;
-    }
+  & > .btn-square {
+    border: none;
+    margin-left: $spacer;
   }
 }
 </style>

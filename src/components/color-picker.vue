@@ -1,21 +1,21 @@
 <template>
-  <div class="colorPicker">
+  <div class="color-picker">
     <!-- Color Viewer -->
-    <div class="colorViewer" :style="{ backgroundColor: color.hex }" />
+    <div class="color-viewer" :style="{ backgroundColor: color.hex }" />
 
     <!-- Color inputs -->
     <div class="valueWrapper">
-      <div class="hexWrapper" :class="[{ active: colorMode == 'hex' }]">
+      <div class="hex-wrapper" :class="[{ '--active': colorMode == 'hex' }]">
         <input v-model="color.hex" type="text" spellcheck="false" @click="selectInputText($event)">
       </div>
 
-      <div class="rgbWrapper" :class="[{ active: colorMode == 'rgb' }]">
+      <div class="rgb-wrapper" :class="[{ '--active': colorMode == 'rgb' }]">
         <input v-model="color.r" type="text" spellcheck="false" @click="selectInputText($event)">
         <input v-model="color.g" type="text" spellcheck="false" @click="selectInputText($event)">
         <input v-model="color.b" type="text" spellcheck="false" @click="selectInputText($event)">
       </div>
 
-      <div class="hslWrapper" :class="[{ active: colorMode == 'hsl' }]">
+      <div class="hsl-wrapper" :class="[{ '--active': colorMode == 'hsl' }]">
         <input v-model="color.h" type="text" spellcheck="false" @click="selectInputText($event)">
         <input v-model="color.s" type="text" spellcheck="false" @click="selectInputText($event)">
         <input v-model="color.l" type="text" spellcheck="false" @click="selectInputText($event)">
@@ -23,7 +23,7 @@
     </div>
 
     <!-- Color mode select -->
-    <customSelect
+    <baseSelect
       :options="[
         { text: 'hex', value: 1, isSelected: true },
         { text: 'rgb', value: 2, isSelected: false },
@@ -35,11 +35,11 @@
 </template>
 
 <script>
-import customSelect from './select-block.vue'
+import baseSelect from './base-select.vue'
 
 export default {
   components: {
-    customSelect
+    baseSelect
   },
 
   data () {
@@ -69,7 +69,7 @@ export default {
 <style lang="scss">
 @import "../sass/abstracts/variables";
 
-.colorPicker {
+.color-picker {
   display: flex;
   font-size: 0;
   line-height: 0;
@@ -89,56 +89,51 @@ export default {
   }
 }
 
-.colorViewer {
+.color-viewer {
   flex-shrink: 0;
   position: relative;
   width: 22px;
   height: 22px;
 
   border-radius: 100%;
-  border: 1px solid $gray-light;
+  border: $border-width solid $gray-light;
   box-sizing: border-box;
 }
 
-.hexWrapper {
+.hex-wrapper {
   display: none;
 
-  &.active {
+  &.--active {
     display: block;
   }
 }
 
-.rgbWrapper,
-.hslWrapper {
+.rgb-wrapper,
+.hsl-wrapper {
   display: none;
 
-  &.active {
+  &.--active {
     display: flex;
   }
 
-  input {
-    width: 44px;
-  }
-
   input + input {
-    margin-left: 4px;
+    margin-left: ($spacer / 2);
   }
 }
 
 input[type="text"] {
   display: inline-block;
   height: 22px;
-  padding: 4px;
+  padding: ($spacer / 2);
   width: 100%;
 
-  font-family: $font-family-base !important;
-  font-size: 11px;
-  line-height: 14px;
+  font-family: $font-family-base;
+  font-size: 0.75rem;
   text-align: center;
 
   color: $soft-white;
   background-color: $gray-dark;
-  border: solid 1px $gray-light;
+  border: solid $border-width $gray-light;
   border-radius: $border-radius-sm;
   box-sizing: border-box;
 

@@ -18,6 +18,43 @@
   </draggable>
 </template>
 
+<style lang="scss">
+@import "../sass/abstracts/variables";
+
+.color-collection {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -($spacer / 2);
+  margin-bottom: $spacer;
+
+  &.--group {
+    margin-top: -($spacer / 2);
+    padding-top: ($spacer / 2);
+
+    &:before {
+      display: block;
+      margin-left: ($spacer / 2);
+      margin-bottom: ($spacer / 2);
+      font-size: 1.125em;
+      line-height: 1;
+      font-family: $font-family-icon;
+      cursor: pointer;
+      content: "\e902";
+    }
+  }
+
+  &.--selected {
+    background-color: #333333;
+    outline: $outline-dashed;
+  }
+
+  .btn {
+    margin-left: ($spacer / 2);
+    margin-bottom: ($spacer / 2);
+  }
+}
+</style>
+
 <script>
 import draggable from 'vuedraggable'
 import colorSwatch from './color-swatch.vue'

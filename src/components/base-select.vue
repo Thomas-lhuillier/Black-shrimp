@@ -1,16 +1,16 @@
 <template>
-  <div class="colorMode select-block" :class="[{'-opened': isOpen }]">
-    <button class="btn value" @click="toggle">
+  <div class="colorMode select-block" :class="[{'--opened': isOpen }]">
+    <baseButton class="select-value" @click="toggle">
       <span class="text">{{ text }}</span>
       <i class="icon icon-carret-down" />
-    </button>
+    </baseButton>
 
-    <ul class="options">
+    <ul class="select-options">
       <li
         v-for="(option, index) in mutableOptions"
         :key="index"
-        class="option"
-        :class="[{'-selected': option.isSelected }]"
+        class="select-option"
+        :class="[{'--selected': option.isSelected }]"
         tabindex="0"
         @click="setValue(option)"
         @keyup.enter="setValue(option)"
@@ -20,7 +20,13 @@
 </template>
 
 <script>
+import baseButton from './base-button.vue'
+
 export default {
+  components: {
+    baseButton
+  },
+
   props: {
     options: {
       required: true,
@@ -120,82 +126,69 @@ export default {
   position: relative;
   cursor: pointer;
 
-  > .value {
-    display: flex;
-    padding-left: $spacer;
-    padding-right: $spacer;
-
-    font-size: 10px;
-    line-height: 22px;
-
-    user-select: none;
-
-    > .icon {
-      width: 22px;
-      height: 22px;
-      font-size: 14px;
-      vertical-align: middle;
-      line-height: inherit;
-
-      &.icon-carret-down {
-        display: inline-block;
-        margin-right: -$spacer;
-        vertical-align: top;
-        transition: transform 0.2s ease;
-
-        &:before {
-          display: block;
-          text-align: center;
-        }
-      }
-    }
-  }
-
-  &.-opened {
-    > .value {
-      .icon-carret-down {
+  &.--opened {
+    > .select-value {
+      .icon {
         transform: rotateZ(-90deg);
       }
     }
-    > .options {
+
+    > .select-options {
       display: block;
     }
   }
+}
 
-  > .options {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    box-shadow: $shadow;
-    z-index: 1;
+.select-value {
+  display: flex;
+  width: 100%;
+  padding-left: $spacer;
+  padding-right: $spacer;
 
-    > .option {
+  font-size: 0.75rem;
+  line-height: 22px;
+
+  user-select: none;
+
+  > .icon {
+    width: 22px;
+    height: 22px;
+    margin-right: -$spacer;
+    line-height: inherit;
+
+    transition: transform $transition-duration ease;
+
+    &:before {
       display: block;
-      padding-left: $spacer;
-      padding-right: $spacer;
-      font-size: 10px;
-      line-height: 22px;
-      background-color: $gray;
+      text-align: center;
+    }
+  }
+}
 
-      &:hover,
-      &.-focused {
-        color: $soft-white;
-        background-color: $gray-dark;
-      }
+.select-options {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  box-shadow: $shadow;
+  z-index: 1;
 
-      &.-selected {
-        color: $soft-white;
-        background-color: $gray-light;
-        &:before {
-          content: "";
-          position: absolute;
-          left: 0;
-          top: 50%;
-          width: 3px;
-          height: 3px;
-        }
-      }
+  > .select-option {
+    display: block;
+    padding-left: $spacer;
+    padding-right: $spacer;
+    font-size: 10px;
+    line-height: 22px;
+    background-color: $gray;
+
+    &:hover {
+      color: $soft-white;
+      background-color: $gray-dark;
+    }
+
+    &.--selected {
+      color: $soft-white;
+      background-color: $gray-light;
     }
   }
 }

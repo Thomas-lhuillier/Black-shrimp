@@ -1,7 +1,7 @@
 <template>
   <li
-    class="btn-square -color"
-    :class="[{ '-selected': isSelected }]"
+    class="btn btn-square --color"
+    :class="[{ '--selected': isSelected }]"
     :style="{ 'background-color': hex }"
   />
 </template>

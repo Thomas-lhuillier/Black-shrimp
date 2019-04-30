@@ -17,6 +17,18 @@
 
 <style lang="scss">
 @import "../sass/main";
+
+.window {
+  position: fixed;
+  z-index: 10;
+  top: 1rem;
+  left: 1rem;
+  width: 235px;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: $border-radius;
+  box-shadow: $shadow;
+}
 </style>
 
 <script>
@@ -28,17 +40,19 @@ export default {
     appMenu,
     colorPanel
   },
+
   data () {
     return {
       styleObject: {
-        left: 10,
-        top: 10,
+        left: '1rem',
+        top: '1rem',
         cursor: 'default'
       },
       tempPos: {},
       isMoving: false
     }
   },
+
   methods: {
     // Store initial position and set moving cursor before moving the main box
     startMoving: function (event) {
@@ -49,8 +63,8 @@ export default {
 
       this.styleObject.cursor = 'move'
 
-      this.tempPos.left = this.styleObject.left
-      this.tempPos.top = this.styleObject.top
+      this.tempPos.left = this.$el.offsetLeft
+      this.tempPos.top = this.$el.offsetTop
       this.tempPos.mouseX = event.clientX
       this.tempPos.mouseY = event.clientY
 

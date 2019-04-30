@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import store from './vuex/store'
 import appIframe from './components/app-iframe.vue'
 import appOverlay from './components/app-overlay.vue'
-import appPannel from './components/app-panel.vue'
+import appWindow from './components/app-window.vue'
 
 Vue.use(Vuex)
 
@@ -39,7 +39,7 @@ const createApp = () => {
 
     components: {
       appIframe,
-      appPannel,
+      appWindow,
       appOverlay
     },
 
@@ -109,7 +109,7 @@ const createApp = () => {
 
     template: `
     <appIframe>
-      <appPannel />
+      <appWindow />
       <appOverlay />
     </appIframe>`
   })

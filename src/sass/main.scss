@@ -5,50 +5,17 @@
 
 @import './components/icons';
 
-button {
-  font-family: $font-family-base;
+html {
+  font-size: 16px;
 }
 
 body {
   margin: 0;
   font-family: $font-family-base;
+  line-height: $line-height-base;
 }
 
-.window {
-  position: fixed;
-  z-index: 10;
-  top: 10px;
-  left: 10px;
-  width: 235px;
-  overflow: hidden;
-  box-sizing: border-box;
-  border-radius: $border-radius;
-  box-shadow: $shadow;
-}
-
-// resets
-button {
-  padding: 0;
-  color: inherit;
-  cursor: pointer;
-}
-
-.btn {
-  color: $soft-white;
-  background-color: $gray-light;
-  border-width: 0;
-  border-radius: $border-radius-sm;
-
-  &:hover {
-    background-color: $gray-darker;
-  }
-
-  .icon {
-    color: $gray-lighter;
-  }
-}
-
-// Utilitie
+// Utilities
 .ml-auto {
   margin-left: auto !important;
 }

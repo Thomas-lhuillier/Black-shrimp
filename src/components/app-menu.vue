@@ -61,7 +61,7 @@ export default {
 @import "../sass/abstracts/variables";
 @import "../sass/abstracts/mixins";
 
-$height: 28px;
+$height: 1.75rem;
 
 .menu {
   position: relative;
@@ -73,10 +73,10 @@ $height: 28px;
 
   .item {
     display: flex;
-    padding: 0 12px;
+    padding: 0 ($spacer * 2);
 
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: $font-weight-bold;
     line-height: $height;
 
     border-top-right-radius: $border-radius;
@@ -103,17 +103,17 @@ $height: 28px;
     }
 
     .icon {
-      font-size: 18px;
+      font-size: 1.125rem; // 1.125 * 16px = 18px
       color: $gray-lighter;
 
       &:not(:last-child) {
-        margin-right: 5px;
-        margin-left: -5px;
+        margin-right: $spacer;
+        margin-left: -$spacer;
       }
     }
 
     &.item-close {
-      padding: 0 8px;
+      padding: 0 $spacer;
       background-color: transparent;
       outline: none;
 
@@ -122,12 +122,11 @@ $height: 28px;
         z-index: 0;
         display: block;
         content: "";
-        width: 18px;
-        height: 18px;
-        top: 5px;
-        border-radius: 4px;
-        border-width: 1px;
-        box-sizing: border-box;
+        width: 1.125rem;
+        height: 1.125rem;
+        top: ($height - 1.125rem) / 2;
+        border-radius: $border-radius-sm;
+        border-width: $border-width;
       }
 
       .icon {
@@ -136,7 +135,7 @@ $height: 28px;
 
       &:focus {
         &:after {
-          @include outline;
+          @include outline-chrome;
           background-color: $gray-light;
         }
       }
