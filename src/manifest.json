@@ -11,7 +11,7 @@
     }
   },
   "background": {
-    "scripts": ["contentscript.js"],
+    "scripts": ["background.js"],
     "persistent": false
   },
   "web_accessible_resources": ["*.woff", "*.css"],

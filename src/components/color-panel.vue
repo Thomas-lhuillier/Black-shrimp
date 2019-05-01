@@ -1,7 +1,7 @@
 <template>
   <div class="panel">
     <!-- Color picker -->
-    <colorPicker class="panel-item"/>
+    <colorPicker class="panel-item" />
 
     <!-- Color swatches -->
     <div class="panel-item">
@@ -31,11 +31,11 @@
     <!-- Action buttons -->
     <div class="panel-footer">
       <button class="btn btn-square" title="Add color [Alt + Shift + A]" @click="addColor()">
-        <i class="icon icon-plus"/>
+        <i class="icon icon-plus" />
       </button>
 
       <button class="btn btn-square" title="Add Group [Alt + Shift + F]" @click="addGroup($event)">
-        <i class="icon icon-folder"/>
+        <i class="icon icon-folder" />
       </button>
 
       <button
@@ -45,11 +45,11 @@
         @click.exact="deleteSelection($event)"
         @click.shift.exact="deleteAll($event)"
       >
-        <i class="icon icon-trash"/>
+        <i class="icon icon-trash" />
       </button>
 
       <button class="btn btn-square" title="Export [Alt + Shift + E]" @click.exact="exportColors">
-        <i class="icon icon-carret-down"/>
+        <i class="icon icon-carret-down" />
       </button>
     </div>
   </div>

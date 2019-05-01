@@ -4,15 +4,20 @@ const { VueLoaderPlugin } = require('vue-loader')
 const autoprefixer = require('autoprefixer')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const ChromeExtensionReloader = require('webpack-chrome-extension-reloader')
+
+const env = process.env.NODE_ENV
 
 process.traceDeprecation = true
 
-module.exports = {
+let options = {
+  mode: env || 'development',
+
   context: path.join(__dirname, '/src'),
 
   entry: {
     injected: './injected.js',
-    contentscript: './contentscript.js',
+    background: './background.js',
     worker: './worker.js'
   },
 
@@ -81,8 +86,6 @@ module.exports = {
     }
   },
 
-  devtool: 'inline-cheap-source-map',
-
   watchOptions: {
     poll: true
   },
@@ -119,3 +122,25 @@ module.exports = {
     ])
   ]
 }
+
+if (env === 'development') {
+  options.devtool = 'inline-cheap-source-map'
+
+  options.plugins.push(
+    // Auto reload Chrome extension
+    new ChromeExtensionReloader({
+      port: 9090,
+      reloadPage: true,
+      entries: {
+        background: 'background'
+      }
+    })
+  )
+}
+
+// @todo Prod mode
+// - create zip file
+// - drop console
+// - uglify
+
+module.exports = options
