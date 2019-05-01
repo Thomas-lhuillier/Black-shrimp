@@ -69,12 +69,10 @@ let options = {
           {
             loader: 'url-loader',
             options: {
-              limit: 9000,
+              limit: 100,
               name: '[name].[ext]',
               outputPath: 'assets',
-              publicPath:
-                'chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets'
-                // @todo We should be able to remove absolute path using chrome.getUrl
+              publicPath: '../assets'
             }
           }
         ]
@@ -95,7 +93,6 @@ let options = {
   },
 
   plugins: [
-    new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
       filename: 'assets/injected.css'
     }),
@@ -155,6 +152,7 @@ if (env === 'production') {
   }
 
   options.plugins.push(
+    new CleanWebpackPlugin(),
     new WebpackZipPlugin({
       initialFile: './package',
       endPath: './build',

@@ -1,5 +1,5 @@
 # Black-shrimp
-> A color picker Chrome extension that allow you to pick, save and organise color swatches.
+> A color picker to pick, save and organise color swatches. Export them as '.ase' files for programs like Illustrator or Photoshop.
 
 ![demo](https://raw.githubusercontent.com/Thomas-lhuillier/Black-shrimp/master/img/demo_screenshot.png)
 
