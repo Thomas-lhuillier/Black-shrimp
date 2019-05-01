@@ -4,6 +4,9 @@ const { VueLoaderPlugin } = require('vue-loader')
 const autoprefixer = require('autoprefixer')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+const WebpackZipPlugin = require('webpack-zip-plugin')
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader')
 
 const env = process.env.NODE_ENV
@@ -71,6 +74,7 @@ let options = {
               outputPath: 'assets',
               publicPath:
                 'chrome-extension://bnkdhmkcjmgoelciklkkdgmjadaeelkm/assets'
+                // @todo We should be able to remove absolute path using chrome.getUrl
             }
           }
         ]
@@ -91,16 +95,14 @@ let options = {
   },
 
   plugins: [
+    new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
       filename: 'assets/injected.css'
     }),
-
     new webpack.LoaderOptionsPlugin({
       options: { postcss: [autoprefixer] }
     }),
-
     new VueLoaderPlugin(),
-
     new CopyWebpackPlugin([
       // Generates the manifest file using the package.json description and version
       {
@@ -138,9 +140,27 @@ if (env === 'development') {
   )
 }
 
-// @todo Prod mode
-// - create zip file
-// - drop console
-// - uglify
+if (env === 'production') {
+  options.optimization = {
+    minimizer: [
+      new UglifyJsPlugin({
+        extractComments: true,
+        uglifyOptions: {
+          compress: {
+            drop_console: true
+          }
+        }
+      })
+    ]
+  }
+
+  options.plugins.push(
+    new WebpackZipPlugin({
+      initialFile: './package',
+      endPath: './build',
+      zipName: `black_shrimp-v${process.env.npm_package_version}.zip`
+    })
+  )
+}
 
 module.exports = options
