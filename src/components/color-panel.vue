@@ -29,6 +29,7 @@
     </div>
 
     <!-- Action buttons -->
+    <!-- @todo use base-button component -->
     <div class="panel-footer">
       <button class="btn btn-square" title="Add color [Alt + Shift + A]" @click="addColor()">
         <i class="icon icon-plus" />

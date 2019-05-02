@@ -7,7 +7,7 @@
       :class="[{'--active': item.isActive }, {'--moving': isMoving}, 'item--' + item.name]"
       data-js-draggable
     >
-      <i class="icon" :class="['icon-' + item.icon]" data-js-draggable/>
+      <i class="icon" :class="['icon-' + item.icon]" data-js-draggable />
       <span data-js-draggable>{{ item.name }}</span>
     </button>
 
@@ -17,7 +17,7 @@
       data-js-draggable
       @click="destroy()"
     >
-      <i class="icon icon-close" data-js-draggable/>
+      <i class="icon icon-close" data-js-draggable />
     </button>
   </nav>
 </template>

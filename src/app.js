@@ -2,8 +2,9 @@ const App = {
   image: new Image(),
   canvas: document.createElement('canvas'),
 
-  construct: function (tab) {
+  construct: function (tab, { clearTab }) {
     this.tab = tab
+    this.clearTab = clearTab
 
     this.onBrowserDisconnect = this.onBrowserDisconnect.bind(this)
     this.onPortMessage = this.onPortMessage.bind(this)
@@ -28,6 +29,7 @@ const App = {
     this.port.onDisconnect.removeListener(this.onBrowserDisconnect)
     this.worker.postMessage({ type: 'destroy' })
     this.setIcon('default')
+    this.clearTab(this.tab.id)
   },
 
   connect: function (port) {

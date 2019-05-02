@@ -3,7 +3,7 @@ import App from './app'
 
 const tabs = {}
 
-function toggle (tab) {
+const toggle = (tab) => {
   if (!tabs[tab.id]) {
     addTab(tab)
   } else {
@@ -11,17 +11,17 @@ function toggle (tab) {
   }
 }
 
-function addTab (tab) {
+const addTab = (tab) => {
   tabs[tab.id] = Object.create(App)
-  tabs[tab.id].construct(tab)
+  tabs[tab.id].construct(tab, { clearTab })
 }
 
-function deactivateTab (id) {
+const deactivateTab = (id) => {
   tabs[id].destroy()
   clearTab(id)
 }
 
-function clearTab (id) {
+const clearTab = (id) => {
   for (const tabId in tabs) {
     if (parseInt(tabId, 10) === id) {
       delete tabs[tabId]

@@ -1,16 +1,11 @@
 @import './abstracts/variables';
 @import './abstracts/mixins';
-
 @import 'reset-css/sass/_reset.scss';
-
 @import './components/icons';
-
-html {
-  font-size: 16px;
-}
 
 body {
   margin: 0;
+  font-size: $font-size-base;
   font-family: $font-family-base;
   line-height: $line-height-base;
 }
