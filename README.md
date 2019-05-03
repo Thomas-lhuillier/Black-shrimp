@@ -25,7 +25,7 @@ While open:
 - `ALT + SHIFT + E` — **E**xport swatches
 
 **Import `.ase` file in Photoshop, Illustrator and InDesign**  
-Black shrimp export your color swatches in Adobe Swatch Exchange files (.ase) and may be opened in InDesign, Illustrator, or Photoshop.
+Black shrimp exports your color swatches in Adobe Swatch Exchange files (.ase) than can be opened in Photoshop, Illustrator and InDesign.
 - [Photoshop](https://helpx.adobe.com/photoshop/using/customizing-color-pickers-swatches.html#manage_swatch_libraries#manage_swatch_libraries)
 - [Illustrator](https://helpx.adobe.com/illustrator/using/using-creating-swatches.html#import_swatches_from_another_document)
 - [Indesign](https://helpx.adobe.com/indesign/using/swatches.html#import_swatches)
@@ -34,7 +34,7 @@ Black shrimp export your color swatches in Adobe Swatch Exchange files (.ase) an
 ## Development
 
 **Requirements**  
-Node 10+  
+_Node_ 10+  
 
 **Installation**  
 Clone the repo, then run `npm install`.
