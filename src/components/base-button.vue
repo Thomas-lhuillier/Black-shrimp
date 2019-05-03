@@ -1,6 +1,6 @@
 <template>
   <button class="btn" v-on="$listeners">
-    <slot/>
+    <slot />
   </button>
 </template>
 

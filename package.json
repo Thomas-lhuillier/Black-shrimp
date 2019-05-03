@@ -5,7 +5,7 @@
   "author": "Thomas L'huillier <lhuillier.tom@gmail.com>",
   "scripts": {
     "watch": "NODE_ENV=development webpack --mode=development --watch --colors --display=normal --display-chunks=false",
-    "lint-js": "eslint --cache --cache-location .cache/.eslintcache --ext .js,.vue src/",
+    "lint": "eslint --cache --cache-location .cache/.eslintcache --ext .js,.vue src/",
     "build": "NODE_ENV=production webpack --mode=production --colors --display=normal --display-chunks=false"
   },
   "main": "background.js",
