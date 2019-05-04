@@ -1,6 +1,6 @@
 ## Black shrimp
 
-> An open source eyedropper extension for Chrome to **pick**, **save** and **organise color swatches**.  
+> An open source eyedropper extension for Chrome to **pick**, **save** and **organize color swatches**.  
   **Export** them as `.ase` files for programs like Illustrator or Photoshop.
 
 **Features**
