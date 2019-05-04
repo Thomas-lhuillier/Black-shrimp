@@ -4,7 +4,7 @@ const { VueLoaderPlugin } = require('vue-loader')
 const autoprefixer = require('autoprefixer')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const WebpackZipPlugin = require('webpack-zip-plugin')
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader')
@@ -159,9 +159,9 @@ if (env === 'development') {
 if (env === 'production') {
   options.optimization = {
     minimizer: [
-      new UglifyJsPlugin({
+      new TerserPlugin({
         extractComments: true,
-        uglifyOptions: {
+        terserOptions: {
           compress: {
             drop_console: true
           }
