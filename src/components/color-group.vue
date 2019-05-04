@@ -1,6 +1,6 @@
 <template>
   <draggable
-    class="color-collection"
+    class="color-group"
     :list="colors"
     :tag="'ul'"
     :move="onMove"
@@ -21,15 +21,22 @@
 <style lang="scss">
 @import "../sass/abstracts/variables";
 
-.color-collection {
+.color-group {
   display: flex;
   flex-wrap: wrap;
   margin-left: -($spacer / 2);
-  margin-bottom: $spacer;
+
+  &:not(:empty) {
+    margin-bottom: $spacer;
+  }
 
   &.--group {
     margin-top: -($spacer / 2);
     padding-top: ($spacer / 2);
+
+    &:last-child {
+      margin-bottom: $spacer;
+    }
 
     &:before {
       display: block;

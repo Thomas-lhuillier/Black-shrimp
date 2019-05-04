@@ -5,12 +5,25 @@
 
     <!-- Color swatches -->
     <div class="panel-item">
+      <!-- Empty state - no color and no groups -->
+      <div v-if="!colors.length && !groups.length" class="panel-empty-state">
+        Click on the screen with the<br>
+        eyedropper <span class="btn btn-square"><i class="icon icon-eyeDropper" /></span> to pick a color<br>
+        then click on <span class="btn btn-square"><i class="icon icon-plus" /></span> to save it
+      </div>
+
       <colorGroup
         :colors="colors"
         @end="onEnd"
         @move="deselectAll"
         @color-click="handleColorClick"
       />
+
+      <!-- Empty state - colors but no group yet -->
+      <div v-if="colors.length && !groups.length" class="panel-empty-state">
+        Click on <span class="btn btn-square"><i class="icon icon-folder" /></span> to add a group
+        then drag some colors inside
+      </div>
 
       <!-- class="group-collection" -->
       <draggable v-model="groups" :tag="'ul'" group="groups" @end="onEnd" @move="deselectAll">
@@ -383,6 +396,28 @@ export default {
   padding: $spacer;
   color: $gray-lighter;
   background-color: $gray;
+}
+
+.panel-empty-state {
+  margin-bottom: $spacer;
+  padding: (2 * $spacer) $spacer;
+  font-size: 0.75rem;
+  line-height: $line-height-lg;
+  letter-spacing: -0.5px;
+  text-align: center;
+  background-color: $gray-dark;
+  border-radius: $border-radius;
+
+  .btn-square {
+    display: inline-block;
+    vertical-align: middle;
+    background-color: $color-brand;
+    cursor: default;
+
+    > .icon {
+      color: $gray-dark;
+    }
+  }
 }
 
 .panel-item {
