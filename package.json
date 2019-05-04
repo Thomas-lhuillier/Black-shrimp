@@ -21,7 +21,6 @@
     "autoprefixer": "^9.5.1",
     "babel-loader": "latest",
     "babel-polyfill": "^6.26.0",
-    "bourbon": "latest",
     "clean-webpack-plugin": "^2.0.1",
     "copy-webpack-plugin": "^5.0.2",
     "css-loader": "latest",
