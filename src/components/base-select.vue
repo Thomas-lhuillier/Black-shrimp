@@ -170,6 +170,7 @@ export default {
   position: absolute;
   left: 0;
   right: 0;
+  margin-top: 1px;
   box-shadow: $shadow;
   z-index: 1;
 
@@ -189,6 +190,11 @@ export default {
     &.--selected {
       color: $soft-white;
       background-color: $gray-light;
+    }
+
+    &:focus {
+      z-index: 1;
+      position: relative;
     }
   }
 }

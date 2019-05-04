@@ -150,6 +150,9 @@ $height: 1.75rem;
     }
 
     &:focus {
+      box-shadow: none;
+      background-color: $soft-white;
+
       &:after {
         @include outline-chrome;
         background-color: $gray-light;

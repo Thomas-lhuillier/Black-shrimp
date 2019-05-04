@@ -10,6 +10,14 @@ body {
   line-height: $line-height-base;
 }
 
+:focus {
+  @include outline-chrome;
+}
+
+::selection {
+  background-color: rgba($color-brand, 0.75);
+}
+
 // Utilities
 .ml-auto {
   margin-left: auto !important;
