@@ -31,6 +31,10 @@
     <!-- Action buttons -->
     <!-- @todo use base-button component -->
     <div class="panel-footer">
+      <div class="mr-auto">
+        <logoSVG />
+      </div>
+
       <button class="btn btn-square" title="Add color [Alt + Shift + A]" @click="addColor()">
         <i class="icon icon-plus" />
       </button>
@@ -63,12 +67,14 @@ import draggable from 'vuedraggable'
 import save from 'save-file'
 import ase from 'ase-utils'
 import { between } from '../utilities/number'
+import logoSVG from '../assets/img/logo.svg?inline'
 
 export default {
   components: {
     colorGroup,
     colorPicker,
-    draggable
+    draggable,
+    logoSVG
   },
 
   data: () => ({
@@ -397,6 +403,7 @@ export default {
 .panel-footer {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
 
   & > .btn-square {
     border: none;

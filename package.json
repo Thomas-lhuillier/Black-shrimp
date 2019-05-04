@@ -52,6 +52,7 @@
     "vue-hot-reload-api": "latest",
     "vue-loader": "^15.7.0",
     "vue-style-loader": "^4.1.2",
+    "vue-svg-loader": "^0.12.0",
     "vue-template-compiler": "^2.6.10",
     "vuedraggable": "latest",
     "vuex": "latest",

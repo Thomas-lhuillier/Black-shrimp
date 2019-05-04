@@ -64,7 +64,26 @@ let options = {
       },
 
       {
-        test: /(\.woff|\.woff2|\.eot|\.ttf|\.svg|\.ico|\.png|\.gif)$/,
+        test: /\.svg$/,
+        oneOf: [
+          {
+            resourceQuery: /inline/,
+            loader: 'vue-svg-loader'
+          },
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 100,
+              name: '[name].[ext]',
+              outputPath: 'assets',
+              publicPath: '../assets'
+            }
+          }
+        ]
+      },
+
+      {
+        test: /(\.woff|\.woff2|\.eot|\.ttf|\.ico|\.png|\.gif)$/,
         use: [
           {
             loader: 'url-loader',
