@@ -71,7 +71,10 @@ export default {
 
   methods: {
     setValue (option) {
-      if (option.isSelected) return
+      if (option.isSelected) {
+        this.toggle()
+        return
+      }
 
       this.mutableOptions = this.mutableOptions.map(item => {
         return {
