@@ -28,12 +28,7 @@ const deactivateTab = (id) => {
 }
 
 const clearTab = (id) => {
-  // todo delete directly
-  for (const tabId in tabs) {
-    if (parseInt(tabId, 10) === id) {
-      delete tabs[tabId]
-    }
-  }
+  delete tabs[id]
 }
 
 // Icon click listener
