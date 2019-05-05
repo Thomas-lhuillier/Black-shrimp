@@ -41,11 +41,11 @@ class App {
   destroy (silent) {
     if (!silent) {
       this.port.postMessage({ type: 'destroy' })
+      this.setIcon('default')
     }
 
     this.port.onDisconnect.removeListener(this.onBrowserDisconnect)
     this.worker.postMessage({ type: 'destroy' })
-    this.setIcon('default')
     this.clearTab(this.tab.id)
   }
 
