@@ -11,9 +11,15 @@ const toggle = (tab) => {
   }
 }
 
-const addTab = (tab) => {
-  tabs[tab.id] = Object.create(App)
-  tabs[tab.id].construct(tab, { clearTab })
+const addTab = async (tab) => {
+  const app = new App(tab, clearTab)
+  tabs[tab.id] = app
+  await app.init()
+
+  if (app.error) {
+    console.warn(app.error.message)
+    clearTab(tab.id)
+  }
 }
 
 const deactivateTab = (id) => {
@@ -22,6 +28,7 @@ const deactivateTab = (id) => {
 }
 
 const clearTab = (id) => {
+  // todo delete directly
   for (const tabId in tabs) {
     if (parseInt(tabId, 10) === id) {
       delete tabs[tabId]
@@ -35,8 +42,9 @@ chrome.browserAction.onClicked.addListener(tab => {
 })
 
 // Runtime port connexion
-chrome.runtime.onConnect.addListener(port => {
-  tabs[port.sender.tab.id].connect(port)
+chrome.runtime.onConnect.addListener(async (port) => {
+  const app = tabs[port.sender.tab.id]
+  app.connect(port)
 })
 
 chrome.runtime.onSuspend.addListener(() => {

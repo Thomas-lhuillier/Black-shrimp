@@ -1,27 +1,44 @@
-const App = {
-  image: new Image(),
-  canvas: document.createElement('canvas'),
-
-  construct: function (tab, { clearTab }) {
+class App {
+  constructor (tab, clearTab) {
     this.tab = tab
     this.clearTab = clearTab
+  }
+
+  async init () {
+    this.canvas = document.createElement('canvas')
+    this.image = new Image()
 
     this.onBrowserDisconnect = this.onBrowserDisconnect.bind(this)
     this.onPortMessage = this.onPortMessage.bind(this)
 
-    chrome.tabs.executeScript(this.tab.id, { file: 'injected.js' })
+    try {
+      await this.injectScript()
+    } catch (err) {
+      this.error = err
+      return
+    }
 
     // Set active icon
     this.setIcon('active')
 
     this.worker = new Worker('worker.js')
     this.worker.onmessage = this.onWorkerMessage.bind(this)
-    this.worker.postMessage({
-      type: 'init'
-    })
-  },
+    this.worker.postMessage({ type: 'init' })
+  }
 
-  destroy: function (silent) {
+  async injectScript () {
+    return new Promise((resolve, reject) => {
+      chrome.tabs.executeScript(this.tab.id, { file: 'injected.js' }, () => {
+        const err = chrome.runtime.lastError
+        if (err) {
+          return reject(err)
+        }
+        resolve()
+      })
+    })
+  }
+
+  destroy (silent) {
     if (!silent) {
       this.port.postMessage({ type: 'destroy' })
     }
@@ -30,9 +47,9 @@ const App = {
     this.worker.postMessage({ type: 'destroy' })
     this.setIcon('default')
     this.clearTab(this.tab.id)
-  },
+  }
 
-  connect: function (port) {
+  connect (port) {
     this.port = port
     this.port.onMessage.addListener(this.onPortMessage)
     this.port.onDisconnect.addListener(this.onBrowserDisconnect)
@@ -42,13 +59,13 @@ const App = {
     })
 
     this.captureTab()
-  },
+  }
 
-  onBrowserDisconnect: function () {
+  onBrowserDisconnect () {
     this.destroy(true)
-  },
+  }
 
-  onPortMessage: function (event) {
+  onPortMessage (event) {
     switch (event.type) {
       case 'mousePos':
         this.worker.postMessage({
@@ -77,14 +94,14 @@ const App = {
 
         break
     }
-  },
+  }
 
-  onWorkerMessage: function (event) {
+  onWorkerMessage (event) {
     const forward = ['color', 'screenshot processed', 'mousePos']
     if (forward.indexOf(event.data.type) > -1) {
       this.port.postMessage(event.data)
     }
-  },
+  }
 
   async saveFile (url) {
     const handler = this.setFilename
@@ -96,15 +113,15 @@ const App = {
     })
 
     return success
-  },
+  }
 
   setFilename (item, suggest) {
     suggest({ filename: 'black_shrimp-swatches.ase', overwrite: true })
-  },
+  }
 
   download (url) {
     return new Promise(resolve => chrome.downloads.download({ url, saveAs: true }, resolve))
-  },
+  }
 
   onDownloadComplete (itemId) {
     return new Promise(resolve => {
@@ -115,11 +132,11 @@ const App = {
         }
       })
     })
-  },
+  }
 
-  setIcon: function (type = 'default') {
+  setIcon (icon = 'default') {
     let path
-    switch (type) {
+    switch (icon) {
       case 'active':
         path = 'assets/img/icon16_alt.png'
         break
@@ -135,18 +152,18 @@ const App = {
         16: path
       }
     })
-  },
+  }
 
-  captureTab: function () {
+  captureTab () {
     chrome.tabs.captureVisibleTab({ format: 'png' }, this.loadImage.bind(this))
-  },
+  }
 
-  loadImage: function (dataUrl) {
+  loadImage (dataUrl) {
     this.image.onload = this.processCapture.bind(this)
     this.image.src = dataUrl
-  },
+  }
 
-  processCapture: function () {
+  processCapture () {
     this.context = this.canvas.getContext('2d')
 
     // adjust the canvas size to the image size
@@ -170,9 +187,9 @@ const App = {
       this.canvas.height
     ).data
     this.sendImageData(imageData)
-  },
+  }
 
-  sendImageData: function (imageData) {
+  sendImageData (imageData) {
     this.worker.postMessage(
       {
         type: 'imageData',
