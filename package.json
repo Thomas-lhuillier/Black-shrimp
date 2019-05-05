@@ -1,7 +1,7 @@
 {
   "name": "black-shrimp",
   "version": "1.2.0",
-  "description": "A color picker to pick, save and organise color swatches. Export them as '.ase' files for programs like Illustrator or Photoshop.",
+  "description": "An open source eyedropper extension for Chrome to pick, save and organize color swatches. Export them as '.ase' files for programs like Illustrator or Photoshop.",
   "author": "Thomas L'huillier <lhuillier.tom@gmail.com>",
   "scripts": {
     "watch": "NODE_ENV=development webpack --mode=development --watch --colors --display=normal --display-chunks=false",

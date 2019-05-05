@@ -5,7 +5,7 @@
 
 **Features**
 - Pick colors by clicking on the page with the eyedropper
-- Create groups and organise your swatches
+- Create groups and organize your swatches
 - Switch between `hex`, `rgb` and `hsl` color modes
 - Export your collection in a `.ase` file and import it in *Photoshop* and *Illustrator*
 
