@@ -24,11 +24,8 @@
 
     <!-- Color mode select -->
     <baseSelect
-      :options="[
-        { text: 'hex', value: 1, isSelected: true },
-        { text: 'rgb', value: 2, isSelected: false },
-        { text: 'hsl', value: 3, isSelected: false },
-      ]"
+      :options="options"
+      :text="colorMode"
       @change="changeColorMode($event)"
     />
   </div>
@@ -44,19 +41,48 @@ export default {
 
   data () {
     return {
-      colorMode: 'hex'
+      colorMode: null
     }
   },
 
   computed: {
     color () {
       return this.$store.getters.getColor
+    },
+
+    options () {
+      return [
+        { text: 'hex', value: 1, isSelected: this.colorMode === 'hex' },
+        { text: 'rgb', value: 2, isSelected: this.colorMode === 'rgb' },
+        { text: 'hsl', value: 3, isSelected: this.colorMode === 'hsl' }
+      ]
     }
   },
 
+  created () {
+    this.fetchColorMode().then(colorMode => {
+      this.colorMode = colorMode
+    })
+  },
+
   methods: {
+    fetchColorMode () {
+      return new Promise((resolve, reject) => {
+        chrome.storage.sync.get('colorMode', storage => {
+          resolve(storage.colorMode || 'hex')
+        })
+      })
+    },
+
+    saveColorMode (value) {
+      chrome.storage.sync.set({ colorMode: value }, () => {
+      })
+    },
+
     changeColorMode (event) {
-      this.colorMode = event.text
+      const colorMode = event.text
+      this.colorMode = colorMode
+      this.saveColorMode(colorMode)
     },
 
     selectInputText (event) {
@@ -71,8 +97,6 @@ export default {
 
 .color-picker {
   display: flex;
-  font-size: 0;
-  line-height: 0;
 
   > * {
     vertical-align: top;

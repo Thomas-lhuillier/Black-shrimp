@@ -31,15 +31,19 @@ export default {
     options: {
       required: true,
       type: Array
+    },
+
+    text: {
+      required: false,
+      type: String,
+      default: ''
     }
   },
 
   data () {
     return {
       isOpen: false,
-      selectedOption: false,
       value: '',
-      text: '',
       mutableOptions: this.options
     }
   },
