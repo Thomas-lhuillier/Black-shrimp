@@ -175,7 +175,7 @@ export default {
   },
 
   methods: {
-    setActiveColor (color) {
+    setColor (color) {
       const colorToSave = {
         hex: color.hex,
         r: color.r,
@@ -190,6 +190,7 @@ export default {
     },
 
     addColor () {
+      // @todo maybe we should commit an action in the store instead
       const color = this.color
       if (!color.hex) {
         return
@@ -203,6 +204,7 @@ export default {
     },
 
     addGroup () {
+      // @todo maybe we should commit an action in the store instead
       this.groups = [
         ...this.groups,
         {
@@ -308,7 +310,7 @@ export default {
 
       // Update displayed color.
       if (color.isSelected) {
-        this.setActiveColor(color)
+        this.setColor(color)
       }
     },
 

@@ -24,13 +24,13 @@
 
 <script>
 export default {
-
   props: {
     isMoving: {
       default: false,
       type: Boolean
     }
   },
+
   data () {
     return {
       items: [
