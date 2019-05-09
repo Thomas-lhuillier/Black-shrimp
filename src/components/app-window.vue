@@ -4,7 +4,8 @@
     :style="{
       'left' : style.left + 'px',
       'top' : style.top + 'px',
-      'cursor' : isMoving ? 'move' : 'default'
+      'cursor' : isMoving ? 'move' : 'default',
+      'will-change' : isMoving ? 'top, left' : 'auto'
     }"
     @mousedown="onMouseDown($event)"
     @mouseup="onMouseUp($event)"

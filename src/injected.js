@@ -31,6 +31,7 @@ const createIframe = () => {
   iframe = document.createElement('iframe')
   iframe.id = 'black-shrimp-iframe'
   iframe.src = chrome.extension.getURL('index.html')
+  iframe.setAttribute('sandbox', 'allow-scripts')
   css(iframe, {
     all: 'initial',
     position: 'fixed',

@@ -176,6 +176,8 @@ const actions = {
 
   /**
    * Request color value at coordinates
+   * Once backend has processed the request, it will then update the store directly
+   * by committing the 'setColor' mutation.
    *
    * @param {*} payload An object containing the coordinates of the point: {x, y}
    */
