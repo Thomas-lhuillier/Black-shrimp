@@ -1,8 +1,9 @@
 import { rgbToHsl, rgbToHex } from './utilities/color'
 
 let imageData
-let workerImageData
-let width, height
+let width
+// eslint-disable-next-line no-unused-vars
+let height
 
 // In this file we can process the image data we received
 // operating on a Uint8ClampedArray
@@ -10,49 +11,34 @@ let width, height
 
 onmessage = function (event) {
   switch (event.data.type) {
-    case 'init':
-      break
-
     case 'imageData':
       imageData = new Uint8ClampedArray(event.data.imageData)
-      workerImageData = new Uint8ClampedArray(imageData)
 
       width = event.data.width
       height = event.data.height
-
-      postMessage(
-        {
-          type: 'screenshot processed',
-          imageData: imageData.buffer,
-          width: width,
-          height: height
-        },
-        [imageData.buffer]
-      )
       break
 
-    case 'mousePos':
-      const coord = event.data.coord
-      processMousePos(coord)
+    case 'getColor':
+      getColor(event.data.coord)
       break
   }
 }
 
-let centerPixel = {}
-
-function processMousePos (coord) {
-  centerPixel.x = coord.x
-  centerPixel.y = coord.y
-  Object.assign(centerPixel, getPixelValueAt(centerPixel.x, centerPixel.y))
+function getColor (coord) {
+  const { x, y } = coord
+  const color = getPixelValueAt(x, y)
 
   postMessage({
-    type: 'color',
-    data: centerPixel
+    channel: 'app',
+    data: {
+      type: 'color',
+      data: color
+    }
   })
 }
 
 function getPixelValueAt (x, y) {
-  let tempArray = new Uint8ClampedArray(workerImageData)
+  let tempArray = new Uint8ClampedArray(imageData)
   let n = y * width * 4 + x * 4
 
   let R = tempArray[n]

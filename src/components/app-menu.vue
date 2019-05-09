@@ -41,17 +41,9 @@ export default {
     }
   },
 
-  computed: {
-    port () {
-      return this.$store.getters.getPort
-    }
-  },
-
   methods: {
     destroy: function () {
-      this.port.postMessage({
-        type: 'destroy'
-      })
+      this.$store.dispatch('destroy')
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'babel-polyfill'
-import App from './app'
+import Tab from './tab'
+import MessagingService from './messagingService'
 
 const tabs = {}
 
@@ -12,7 +13,7 @@ const toggle = (tab) => {
 }
 
 const addTab = async (tab) => {
-  const app = new App(tab, clearTab)
+  const app = new Tab(tab, clearTab, MessagingService)
   tabs[tab.id] = app
   await app.init()
 
@@ -31,15 +32,36 @@ const clearTab = (id) => {
   delete tabs[id]
 }
 
-// Icon click listener
+// Listen for click events on the application button
 chrome.browserAction.onClicked.addListener(tab => {
   toggle(tab)
 })
 
-// Runtime port connexion
+// On port connection, we register it to the messagingService
+// to forward its messages to other part of the application,
+// and to post message to the port.
+// This way all the ports and workers can talk to each other.
 chrome.runtime.onConnect.addListener(async (port) => {
   const app = tabs[port.sender.tab.id]
-  app.connect(port)
+
+  // Subscribe to channel corresponding to port name
+  app.messagingService.on(port.name, (data) => {
+    port.postMessage(data)
+  })
+
+  // On port message, trigger message in messagingService
+  // to dispatch the message to other parts of the application
+  port.onMessage.addListener((message) => {
+    const { channel, data } = message
+    app.messagingService.trigger(channel, data)
+  })
+
+  // Destroy the application when a port is disconnected,
+  // this usually means the user has closed or refresh a page
+  // where the application was still opened.
+  port.onDisconnect.addListener(() => {
+    app.destroy(true)
+  })
 })
 
 chrome.runtime.onSuspend.addListener(() => {

@@ -10,20 +10,19 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-// root state object.
-// each Vuex instance is just a single state tree.
+// Root state object
 const state = {
-  port: chrome.runtime.connect(),
+  port: chrome.runtime.connect(null, { name: 'app' }),
   isVisible: true,
   color: {},
   colors: [],
   groups: []
 }
 
-// mutations are operations that actually mutates the state.
+// Mutations are operations that actually mutates the state.
 // each mutation handler gets the entire state tree as the
 // first argument, followed by additional payload arguments.
-// mutations must be synchronous and can be recorded by plugins
+// Mutations must be synchronous and can be recorded by plugins
 // for debugging purposes.
 const mutations = {
   setVisibility (state, payload) {
@@ -46,10 +45,7 @@ const mutations = {
   setColors (state, payload) {
     state.colors = payload.colors
 
-    if (payload.silent) {
-      return
-    }
-
+    if (payload.silent) { return }
     chrome.storage.sync.set({ colors: state.colors }, () => {})
   },
 
@@ -65,10 +61,7 @@ const mutations = {
   setGroups (state, payload) {
     state.groups = payload.groups
 
-    if (payload.silent) {
-      return
-    }
-
+    if (payload.silent) { return }
     chrome.storage.sync.set({ groups: state.groups }, () => {})
   }
 }
@@ -151,10 +144,52 @@ const actions = {
         })
       }
     })
+  },
+
+  /**
+   * Export the user color collection
+   *
+   * @param {*} payload The data URL to download
+   */
+  export (context, payload) {
+    state.port.postMessage({
+      channel: 'tab',
+      data: {
+        type: 'saveASE',
+        url: payload
+      }
+    })
+  },
+
+  /**
+   * Send destroy signal to tab
+   * Usefull to kill the application from inside the iframe
+   */
+  destroy () {
+    state.port.postMessage({
+      channel: 'tab',
+      data: {
+        type: 'destroy'
+      }
+    })
+  },
+
+  /**
+   * Request color value at coordinates
+   *
+   * @param {*} payload An object containing the coordinates of the point: {x, y}
+   */
+  getColor (context, payload) {
+    state.port.postMessage({
+      channel: 'worker',
+      data: {
+        type: 'getColor',
+        coord: payload
+      }
+    })
   }
 }
 
-// getters are functions
 const getters = {
   getVisibility: state => state.isVisible,
   getColor: state => state.color,
@@ -163,11 +198,19 @@ const getters = {
   getgroups: state => state.groups
 }
 
-// A Vuex instance is created by combining the state, mutations, actions,
-// and getters.
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state,
   getters,
   actions,
   mutations
 })
+
+state.port.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.type === 'color') {
+    store.commit('setColor', request.data)
+  }
+})
+
+store.dispatch('registerCollectionsListener')
+
+export default store

@@ -13,7 +13,7 @@
     "scripts": ["background.js"],
     "persistent": false
   },
-  "web_accessible_resources": ["*.png", "*.woff", "*.css"],
+  "web_accessible_resources": ["*.png", "*.woff", "*.css", "iframe.js", "index.html"],
   "browser_action": {
     "default_icon": {
       "16": "assets/img/icon16.png"

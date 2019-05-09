@@ -100,10 +100,6 @@ export default {
   }),
 
   computed: {
-    port () {
-      return this.$store.getters.getPort
-    },
-
     color () {
       return this.$store.getters.getColor
     },
@@ -128,19 +124,18 @@ export default {
   },
 
   mounted () {
-    this.$root.window.addEventListener('click', this.onClick)
-    this.$root.window.addEventListener('keydown', this.onKeyDown)
+    window.addEventListener('click', this.onClick)
+    window.addEventListener('keydown', this.onKeyDown)
   },
 
   created () {
     this.$store.dispatch('fetchColors')
     this.$store.dispatch('fetchgroups')
-    this.$store.dispatch('registerCollectionsListener')
   },
 
   beforeDestroy () {
-    this.$root.window.removeEventListener('click', this.onClick)
-    this.$root.window.removeEventListener('keydown', this.onKeyDown)
+    window.removeEventListener('click', this.onClick)
+    window.removeEventListener('keydown', this.onKeyDown)
   },
 
   methods: {
@@ -369,13 +364,10 @@ export default {
 
       // this.saveFile(encodedData)
       const blob = new Blob([encodedData], { type: 'application/octet-stream' })
-      const url = this.$root.window.URL.createObjectURL(blob)
+      const url = window.URL.createObjectURL(blob)
       // chrome.downloads.download({ url: url })
 
-      this.port.postMessage({
-        type: 'saveASE',
-        url: url
-      })
+      this.$store.dispatch('export', url)
     },
 
     saveFile (fileEntry) {

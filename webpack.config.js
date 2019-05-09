@@ -20,6 +20,7 @@ let options = {
 
   entry: {
     injected: './injected.js',
+    app: './app.js',
     background: './background.js',
     worker: './worker.js'
   },
@@ -136,6 +137,10 @@ let options = {
       {
         from: 'assets/',
         to: 'assets/'
+      },
+      {
+        from: 'index.html',
+        to: 'index.html'
       }
     ])
   ]

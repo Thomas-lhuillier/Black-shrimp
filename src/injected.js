@@ -1,116 +1,92 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import store from './vuex/store'
-import appIframe from './components/app-iframe.vue'
-import appOverlay from './components/app-overlay.vue'
-import appWindow from './components/app-window.vue'
 
-Vue.use(Vuex)
+const port = chrome.runtime.connect(null, { name: 'injected' })
 
-// Dispatch Chrome port messages
-const port = store.getters.getPort
-let app
-
+let iframe
 port.onMessage.addListener(function (request, sender, sendResponse) {
   switch (request.type) {
     case 'init':
-      app = createApp()
+      iframe = createIframe()
       break
 
-    case 'imageData':
-      app.showUI()
-      break
-
-    case 'color':
-      app.setColor(request.data)
+    // Once an image capture has been processed an instruction
+    // will be emitted to turn on the view ; as we hide the view
+    // before taking a new capture.
+    case 'captureDone':
+      iframe.style.display = 'block'
       break
 
     case 'destroy':
-      app.$destroy()
+      iframe.parentNode.removeChild(iframe)
+      unregisterEvents()
       break
   }
 })
 
-let scrollTimer
-
-const createApp = () => {
-  return new Vue({
-    el: '#black-shrimp-root',
-
-    components: {
-      appIframe,
-      appWindow,
-      appOverlay
-    },
-
-    // Inject store to all children
-    store,
-
-    beforeCreate () {
-      // Dynamically insert the root element in the body
-      const el = document.createElement('div')
-      el.id = 'black-shrimp-root'
-      document.body.appendChild(el)
-    },
-
-    mounted () {
-      window.addEventListener('scroll', this.handleViewportChange)
-      window.addEventListener('resize', this.handleViewportChange)
-    },
-
-    beforeDestroy () {
-      window.removeEventListener('scroll', this.handleViewportChange)
-      window.removeEventListener('resize', this.handleViewportChange)
-    },
-
-    destroyed () {
-      // Manually remove the root element, since Vue let the DOM untouched on destroy
-      this.$el.parentNode.removeChild(this.$el)
-    },
-
-    methods: {
-      setColor (val) {
-        store.commit('setColor', val)
-      },
-
-      hideUI () {
-        store.commit('setVisibility', false)
-      },
-
-      showUI () {
-        store.commit('setVisibility', true)
-      },
-
-      handleViewportChange (event) {
-        this.hideUI()
-
-        let self = this
-        clearTimeout(scrollTimer)
-        scrollTimer = setTimeout(function () {
-          self.processViewportChange(event)
-        }, 50)
-      },
-
-      processViewportChange (event) {
-        const doc = document.documentElement
-        const pageOffset = {}
-
-        pageOffset.x =
-          (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0)
-        pageOffset.y =
-          (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0)
-
-        port.postMessage({
-          type: 'viewportChange',
-          pageOffset: { x: pageOffset.x, y: pageOffset.y }
-        })
-      }
-    },
-
-    template: `
-    <appIframe>
-      <appWindow />
-      <appOverlay />
-    </appIframe>`
+/**
+ * Create and mount the application iframe
+ *
+ * @returns {Element} The mounted iframe element
+ */
+const createIframe = () => {
+  iframe = document.createElement('iframe')
+  iframe.id = 'black-shrimp-iframe'
+  iframe.src = chrome.extension.getURL('index.html')
+  css(iframe, {
+    all: 'initial',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    'z-index': 1000000001
   })
+  document.body.appendChild(iframe)
+
+  registerEvents()
+
+  return iframe
+}
+
+const registerEvents = () => {
+  window.addEventListener('scroll', onViewportChange)
+  window.addEventListener('resize', onViewportChange)
+}
+
+const unregisterEvents = () => {
+  window.removeEventListener('scroll', onViewportChange)
+  window.removeEventListener('resize', onViewportChange)
+}
+
+let scrollTimer
+const onViewportChange = () => {
+  iframe.style.display = 'none'
+
+  clearTimeout(scrollTimer)
+  scrollTimer = setTimeout(function () {
+    processViewportChange()
+  }, 50)
+}
+
+/**
+ * Recompute viewport position/dimensions on window resize
+ * and user scroll then request a new image capture.
+ */
+const processViewportChange = () => {
+  const doc = document.documentElement
+  const pageOffset = {}
+
+  pageOffset.x = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0)
+  pageOffset.y = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0)
+
+  port.postMessage({
+    channel: 'tab',
+    data: {
+      type: 'requestCapture',
+      pageOffset: { x: pageOffset.x, y: pageOffset.y }
+    }
+  })
+}
+
+const css = (el, styles) => {
+  for (const property in styles) { el.style[property] = styles[property] }
 }

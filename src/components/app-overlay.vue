@@ -4,22 +4,14 @@
 
 <script>
 export default {
-  computed: {
-    port () {
-      return this.$store.getters.getPort
-    }
-  },
-
   methods: {
     handleEvent (event) {
-      if (event.which !== 1) {
-        return
-      }
+      // Abort if left click is not pressed,
+      // tis way we can hold click and the move to trigger the events.
+      if (event.which !== 1) { return }
 
-      this.port.postMessage({
-        type: 'mousePos',
-        coord: { x: event.clientX, y: event.clientY }
-      })
+      const { clientX: x, clientY: y } = event
+      this.$store.dispatch('getColor', { x, y })
     }
   }
 }
