@@ -45,7 +45,7 @@
     <!-- @todo use base-button component -->
     <div class="panel-footer">
       <div class="mr-auto">
-        <logoSVG />
+        <logoSVG class="d-block" />
       </div>
 
       <button class="btn btn-square" title="Add color [Alt + Shift + A]" @click="addColor()">

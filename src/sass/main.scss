@@ -1,3 +1,5 @@
+@charset "uft-8";
+
 @import './abstracts/variables';
 @import './abstracts/mixins';
 @import 'reset-css/sass/_reset.scss';
@@ -25,4 +27,8 @@ body {
 
 .mr-auto {
   margin-right: auto !important;
+}
+
+.d-block {
+  display: block;
 }

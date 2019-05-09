@@ -25,6 +25,7 @@
   .icon {
     color: $gray-lighter;
     font-size: 1.125em; // 1.125 * 16px = 18px
+    vertical-align: text-bottom;
   }
 
   &.btn-square {
