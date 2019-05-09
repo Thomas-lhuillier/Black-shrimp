@@ -2,9 +2,31 @@
 
 @import './abstracts/variables';
 @import './abstracts/mixins';
-@import 'reset-css/sass/_reset.scss';
-@import './components/icons';
 
+@import 'reset-css/sass/_reset.scss';
+
+@import './components/icons';
+@import './components/tooltip';
+
+
+// Utilities
+.ml-auto {
+  margin-left: auto !important;
+}
+
+.mr-auto {
+  margin-right: auto !important;
+}
+
+.d-block {
+  display: block;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+// General
 body {
   margin: 0;
   font-size: $font-size-base;
@@ -20,15 +42,13 @@ body {
   background-color: rgba($color-brand, 0.75);
 }
 
-// Utilities
-.ml-auto {
-  margin-left: auto !important;
+kbd {
+  padding: ($spacer / 4) ($spacer / 2);
+  font-size: 0.75em;
+  line-height: $line-height-lg;
+  font-weight: $font-weight-bold;
+  color: $gray-darker;
+  background-color: $gray-lighter;
+  border-radius: $border-radius-sm;
 }
 
-.mr-auto {
-  margin-right: auto !important;
-}
-
-.d-block {
-  display: block;
-}

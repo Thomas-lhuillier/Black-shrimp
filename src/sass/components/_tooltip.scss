@@ -1,0 +1,97 @@
+$arrow-size: 4px;
+$background-color: $gray-darker;
+
+.tooltip {
+  display: block;
+  z-index: 10000;
+  font-size: 0.75rem;
+
+  .tooltip-inner {
+    padding: ($spacer / 2) ($spacer / 2) ($spacer / 4);
+    color: $soft-white;
+    background: $background-color;
+    border-radius: $border-radius;
+    box-shadow: $shadow;
+  }
+
+  .tooltip-arrow {
+    position: absolute;
+    margin: $arrow-size;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-color: $background-color;
+  }
+
+  &[x-placement^="top"] {
+    margin-bottom: $arrow-size;
+
+    .tooltip-arrow {
+      bottom: -$arrow-size;
+      left: calc(50% - #{$arrow-size});
+      margin-top: 0;
+      margin-bottom: 0;
+      border-width: $arrow-size $arrow-size 0 $arrow-size;
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-bottom-color: transparent;
+    }
+  }
+
+  &[x-placement^="bottom"] {
+    margin-top: $arrow-size;
+
+    .tooltip-arrow {
+      top: -$arrow-size;
+      left: calc(50% - #{$arrow-size});
+      margin-top: 0;
+      margin-bottom: 0;
+      border-width: 0 $arrow-size $arrow-size $arrow-size;
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-top-color: transparent;
+    }
+  }
+
+  &[x-placement^="right"] {
+    margin-left: $arrow-size;
+
+    .tooltip-arrow {
+      top: calc(50% - #{$arrow-size});
+      left: -$arrow-size;
+      margin-left: 0;
+      margin-right: 0;
+      border-width: $arrow-size $arrow-size $arrow-size 0;
+      border-left-color: transparent;
+      border-top-color: transparent;
+      border-bottom-color: transparent;
+    }
+  }
+
+  &[x-placement^="left"] {
+    margin-right: $arrow-size;
+
+    .tooltip-arrow {
+      top: calc(50% - #{$arrow-size});
+      right: -$arrow-size;
+      margin-left: 0;
+      margin-right: 0;
+      border-width: $arrow-size 0 $arrow-size $arrow-size;
+      border-top-color: transparent;
+      border-right-color: transparent;
+      border-bottom-color: transparent;
+    }
+  }
+
+  &[aria-hidden='true'] {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity $transition-duration, visibility $transition-duration;
+  }
+
+  &[aria-hidden='false'] {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity $transition-duration;
+  }
+}

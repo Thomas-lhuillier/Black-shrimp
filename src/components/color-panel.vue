@@ -48,15 +48,41 @@
         <logoSVG class="d-block" />
       </div>
 
-      <button class="btn btn-square" title="Add color [Alt + Shift + A]" @click="addColor()">
+      <button
+        v-tooltip="{
+          content: '<b>A</b>dd color<br><kbd>ALT + SHIFT + A</kbd>',
+          placement: 'bottom',
+          offset: 10,
+          classes: 'text-center'
+        }"
+        class="btn btn-square"
+        title="Add color [Alt + Shift + A]"
+        @click="addColor()"
+      >
         <i class="icon icon-plus" />
       </button>
 
-      <button class="btn btn-square" title="Add Group [Alt + Shift + F]" @click="addGroup($event)">
+      <button
+        v-tooltip="{
+          content: 'Add <b>G</b>roup<br><kbd>ALT + SHIFT + G</kbd>',
+          placement: 'bottom',
+          offset: 10,
+          classes: 'text-center'
+        }"
+        class="btn btn-square"
+        title="Add Group [Alt + Shift + G]"
+        @click="addGroup($event)"
+      >
         <i class="icon icon-folder" />
       </button>
 
       <button
+        v-tooltip="{
+          content: '<b>D</b>elete selection<br><kbd>ALT + SHIFT + D</kbd>',
+          placement: 'bottom',
+          offset: 10,
+          classes: 'text-center'
+        }"
         class="btn btn-square"
         title="Delete selection [Alt + Shift + D]"
         data-maintain-selection
@@ -66,7 +92,17 @@
         <i class="icon icon-trash" />
       </button>
 
-      <button class="btn btn-square" title="Export [Alt + Shift + E]" @click.exact="exportColors">
+      <button
+        v-tooltip="{
+          content: '<b>E</b>xport<br><kbd>ALT + SHIFT + E</kbd>',
+          placement: 'bottom',
+          offset: 10,
+          classes: 'text-center'
+        }"
+        class="btn btn-square"
+        title="Export [Alt + Shift + E]"
+        @click.exact="exportColors"
+      >
         <i class="icon icon-carret-down" />
       </button>
     </div>
@@ -302,8 +338,8 @@ export default {
       if (event.altKey && event.shiftKey && event.keyCode === 65) {
         // Alt + Shift + A
         this.addColor()
-      } else if (event.altKey && event.shiftKey && event.keyCode === 70) {
-        // Alt + Shift + F
+      } else if (event.altKey && event.shiftKey && event.keyCode === 71) {
+        // Alt + Shift + G
         this.addGroup()
       } else if (event.altKey && event.shiftKey && event.keyCode === 68) {
         // Alt + Shift + D
