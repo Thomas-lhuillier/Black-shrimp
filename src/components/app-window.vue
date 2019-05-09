@@ -46,8 +46,8 @@ export default {
         left: '1rem',
         top: '1rem'
       },
-      tempPos: {},
-      isMoving: false
+      isMoving: false,
+      tempPos: {}
     }
   },
 
@@ -99,7 +99,6 @@ export default {
     },
 
     // Prevents the main box from getting past window inner border
-    // @todo Trigger fitbounds on window resize, after checking window is big enough
     fitBounds: function () {
       const width = this.$el.clientWidth
       const height = this.$el.clientHeight

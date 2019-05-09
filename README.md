@@ -20,7 +20,7 @@
 
 While open:
 - `ALT + SHIFT + A` — **A**dd a color
-- `ALT + SHIFT + F` — create **F**older
+- `ALT + SHIFT + G` — Add **G**roup
 - `ALT + SHIFT + D` — **D**elete selection
 - `ALT + SHIFT + E` — **E**xport swatches
 
