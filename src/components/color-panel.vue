@@ -103,7 +103,7 @@
         title="Export [Alt + Shift + E]"
         @click.exact="exportColors"
       >
-        <i class="icon icon-carret-down" />
+        <i class="icon icon-download" />
       </button>
     </div>
   </div>
