@@ -23,6 +23,10 @@ window.onload = function () {
     // Inject store to all children
     store,
 
+    destroyed () {
+      store.dispatch('destroy')
+    },
+
     render: (createElement) => {
       return createElement('div', {}, [
         createElement(appWindow),

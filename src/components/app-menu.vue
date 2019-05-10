@@ -15,7 +15,7 @@
       class="ml-auto item item-close"
       :class="{'--moving': isMoving}"
       data-js-draggable
-      @click="destroy()"
+      @click="$root.$destroy()"
     >
       <i class="icon icon-close" data-js-draggable />
     </button>
@@ -38,12 +38,6 @@ export default {
         // {name: 'Ruler', icon: 'ruler', isActive: false},
         // {name: 'Info' , icon: 'binoculars', isActive: false}
       ]
-    }
-  },
-
-  methods: {
-    destroy: function () {
-      this.$store.dispatch('destroy')
     }
   }
 }
