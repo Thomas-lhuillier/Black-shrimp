@@ -17,6 +17,10 @@
   border-width: 0;
   border-radius: $border-radius-sm;
   cursor: pointer;
+  transition:
+    color $transition-duration,
+    background-color $transition-duration,
+    box-shadow $transition-duration;
 
   &:hover {
     background-color: $gray-darker;

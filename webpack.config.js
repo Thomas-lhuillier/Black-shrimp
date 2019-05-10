@@ -38,9 +38,7 @@ let options = {
         options: {
           extractCSS: false,
           loaders: {
-            scss:
-              'vue-style-loader!css-loader?-autoprefixer!postcss-loader!sass-loader', // <style lang="scss">
-            sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax' // <style lang="sass">
+            scss: 'vue-style-loader!css-loader?-autoprefixer!postcss-loader!sass-loader' // <style lang="scss">
           },
           fallback: 'vue-style-loader'
         }

@@ -25,19 +25,31 @@
         then drag some colors inside
       </div>
 
-      <!-- class="group-collection" -->
-      <draggable v-model="groups" :tag="'ul'" group="groups" @end="onEnd" @move="deselectAll">
+      <draggable
+        v-model="groups"
+        group="groups"
+        :animation="200"
+        @start="onStart"
+        @end="onEnd"
+        @move="deselectAll"
+      >
+        <!-- @todo Put back this transition group on after cleaning storage syncing -->
+        <!-- <transition-group
+          :name="isDragging ? 'flip-list' : 'fall'"
+          type="transition"
+        > -->
         <colorGroup
           v-for="(group, index) in groups"
-          :key="index"
-          class="--group"
-          :class="[{ '--selected': group.isSelected }]"
+          :key="`${group.id}-${index}`"
+          :is-group="true"
+          :is-group-selected="group.isSelected"
           :colors="group.content"
           @end="onEnd"
           @move="deselectAll"
           @color-click="handleColorClick"
-          @click.self.native="handleGroupClick($event, group)"
+          @select="handleGroupClick($event, group)"
         />
+        <!-- </transition-group> -->
       </draggable>
     </div>
 
@@ -352,7 +364,12 @@ export default {
       }
     },
 
+    onStart () {
+      this.isDragging = true
+    },
+
     onEnd () {
+      this.isDragging = false
       this.deselectAll()
       this.colors = [...this.colors]
       this.groups = [...this.groups]

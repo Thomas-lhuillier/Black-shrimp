@@ -146,7 +146,7 @@ $height: 1.75rem;
       background-color: $soft-white;
 
       &:after {
-        @include outline-chrome;
+        @include outline;
         background-color: $gray-light;
       }
     }

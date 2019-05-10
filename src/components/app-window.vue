@@ -1,22 +1,25 @@
 <template>
-  <div
-    class="window"
-    :style="{
-      'left' : style.left + 'px',
-      'top' : style.top + 'px',
-      'cursor' : isMoving ? 'move' : 'default',
-      'will-change' : isMoving ? 'top, left' : 'auto'
-    }"
-    @mousedown="onMouseDown($event)"
-    @mouseup="onMouseUp($event)"
-  >
-    <appMenu :is-moving="isMoving" />
-    <colorPanel />
-  </div>
+  <transition appear name="fall">
+    <div
+      class="window"
+      :style="{
+        'left' : style.left + 'px',
+        'top' : style.top + 'px',
+        'cursor' : isMoving ? 'move' : 'default',
+        'will-change' : isMoving ? 'top, left' : 'auto'
+      }"
+      @mousedown="onMouseDown($event)"
+      @mouseup="onMouseUp($event)"
+    >
+      <appMenu :is-moving="isMoving" />
+      <colorPanel />
+    </div>
+  </transition>
 </template>
 
 <style lang="scss">
-@import "../sass/main";
+@import "../sass/abstracts/variables";
+@import "../sass/abstracts/mixins";
 
 .window {
   position: fixed;
@@ -29,6 +32,8 @@
   border-radius: $border-radius;
   box-shadow: $shadow;
 }
+
+@include transition-fall;
 </style>
 
 <script>

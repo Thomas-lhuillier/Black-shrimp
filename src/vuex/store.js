@@ -37,7 +37,7 @@ const mutations = {
    * Set colors collection
    *
    * Passing `silent: true` in the payload object will not sync the data with `chrome.storage`,
-   * usefull when the mutation is iniated by the storage itself.
+   * usefull when the mutation is initiated by the storage itself.
    *
    * @param {Object} state
    * @param {Object} payload
@@ -79,9 +79,7 @@ const actions = {
    */
   fetchColors (context) {
     chrome.storage.sync.get('colors', storage => {
-      if (!storage.colors) {
-        return
-      }
+      if (!storage.colors) { return }
       const colors = storage.colors.map((color, index) => {
         return {
           ...color,
@@ -104,9 +102,7 @@ const actions = {
    */
   fetchgroups (context) {
     chrome.storage.sync.get('groups', storage => {
-      if (!storage.groups) {
-        return
-      }
+      if (!storage.groups) { return }
       const groups = storage.groups.map((group, index) => {
         return {
           ...group,

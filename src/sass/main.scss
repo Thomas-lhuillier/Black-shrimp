@@ -35,7 +35,7 @@ body {
 }
 
 :focus {
-  @include outline-chrome;
+  @include outline;
 }
 
 ::selection {
@@ -51,4 +51,3 @@ kbd {
   background-color: $gray-lighter;
   border-radius: $border-radius-sm;
 }
-

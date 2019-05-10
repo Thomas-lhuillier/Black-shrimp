@@ -1,5 +1,40 @@
-// Mimick default chrome outline on focus
-@mixin outline-chrome {
+@import "../sass/abstracts/variables";
+
+// outline on focus
+@mixin outline {
   outline: none;
   box-shadow: 0 0 0 1px $color-brand, 0 0 5px $color-brand;
+  transition: box-shadow $transition-duration;
+}
+
+// Transitions
+//
+// Fade - opacity
+@mixin transition-fade {
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity $transition-duration;
+  }
+
+  .fade-enter,
+  .fade-leave-active {
+    opacity: 0;
+  }
+}
+
+// Fall - opacity, elevation
+@mixin transition-fall {
+  .fall-enter-active,
+  .fall-leave-active {
+    transform: translateY(0);
+    transition:
+      opacity $transition-duration,
+      transform $transition-duration ease-out;
+  }
+
+  .fall-enter,
+  .fall-leave-active {
+    opacity: 0;
+    transform: translateY(-$spacer * 3);
+  }
 }
