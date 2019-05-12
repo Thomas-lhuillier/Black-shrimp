@@ -122,6 +122,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import colorGroup from './color-group.vue'
 import colorPicker from './color-picker.vue'
 import draggable from 'vuedraggable'
@@ -148,9 +149,7 @@ export default {
   }),
 
   computed: {
-    color () {
-      return this.$store.getters.getColor
-    },
+    ...mapState(['color']),
 
     colors: {
       get () {

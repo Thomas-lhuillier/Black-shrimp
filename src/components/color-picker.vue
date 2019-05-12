@@ -5,17 +5,17 @@
 
     <!-- Color inputs -->
     <div class="valueWrapper">
-      <div class="hex-wrapper" :class="[{ '--active': colorMode == 'hex' }]">
+      <div class="hex-wrapper" :class="[{ '--active': _colorMode === 'hex' }]">
         <input v-model="color.hex" type="text" spellcheck="false" @click="selectInputText($event)">
       </div>
 
-      <div class="rgb-wrapper" :class="[{ '--active': colorMode == 'rgb' }]">
+      <div class="rgb-wrapper" :class="[{ '--active': _colorMode === 'rgb' }]">
         <input v-model="color.r" type="text" spellcheck="false" @click="selectInputText($event)">
         <input v-model="color.g" type="text" spellcheck="false" @click="selectInputText($event)">
         <input v-model="color.b" type="text" spellcheck="false" @click="selectInputText($event)">
       </div>
 
-      <div class="hsl-wrapper" :class="[{ '--active': colorMode == 'hsl' }]">
+      <div class="hsl-wrapper" :class="[{ '--active': _colorMode === 'hsl' }]">
         <input v-model="color.h" type="text" spellcheck="false" @click="selectInputText($event)">
         <input v-model="color.s" type="text" spellcheck="false" @click="selectInputText($event)">
         <input v-model="color.l" type="text" spellcheck="false" @click="selectInputText($event)">
@@ -25,64 +25,40 @@
     <!-- Color mode select -->
     <baseSelect
       :options="options"
-      :text="colorMode"
-      @change="changeColorMode($event)"
+      :text="_colorMode"
+      @change="setColorMode($event.value)"
     />
   </div>
 </template>
 
 <script>
 import baseSelect from './base-select.vue'
+import { mapState } from 'vuex'
 
 export default {
   components: {
     baseSelect
   },
 
-  data () {
-    return {
-      colorMode: null
-    }
-  },
-
   computed: {
-    color () {
-      return this.$store.getters.getColor
+    ...mapState(['color', 'colorMode']),
+
+    _colorMode () {
+      return this.colorMode || 'hex'
     },
 
     options () {
       return [
-        { text: 'hex', value: 1, isSelected: this.colorMode === 'hex' },
-        { text: 'rgb', value: 2, isSelected: this.colorMode === 'rgb' },
-        { text: 'hsl', value: 3, isSelected: this.colorMode === 'hsl' }
+        { text: 'hex', value: 'hex', isSelected: this._colorMode === 'hex' },
+        { text: 'rgb', value: 'rgb', isSelected: this._colorMode === 'rgb' },
+        { text: 'hsl', value: 'hsl', isSelected: this._colorMode === 'hsl' }
       ]
     }
   },
 
-  created () {
-    this.fetchColorMode().then(colorMode => {
-      this.colorMode = colorMode
-    })
-  },
-
   methods: {
-    fetchColorMode () {
-      return new Promise((resolve, reject) => {
-        chrome.storage.sync.get('colorMode', storage => {
-          resolve(storage.colorMode || 'hex')
-        })
-      })
-    },
-
-    saveColorMode (value) {
-      chrome.storage.sync.set({ colorMode: value }, () => {
-      })
-    },
-
-    changeColorMode (event) {
-      const colorMode = event.text
-      this.colorMode = colorMode
-      this.saveColorMode(colorMode)
+    setColorMode (value) {
+      this.$store.commit('setColorMode', value)
     },
 
     selectInputText (event) {

@@ -1,7 +1,7 @@
 <template>
   <div class="colorMode select-block" :class="[{'--opened': isOpen }]">
     <baseButton class="select-value" @click="toggle">
-      <span class="text">{{ text }}</span>
+      <span class="text">{{ mutableText }}</span>
       <i class="icon icon-carret-down" />
     </baseButton>
 
@@ -44,9 +44,16 @@ export default {
     return {
       isOpen: false,
       value: '',
-      mutableOptions: this.options
+      mutableOptions: [...this.options],
+      mutableText: this.text
     }
   },
+
+  // computed: {
+  //   mutableText: function () {
+  //     return this.text
+  //   }
+  // },
 
   watch: {
     mutableOptions: {
@@ -56,7 +63,7 @@ export default {
         options.forEach(option => {
           if (option.isSelected) {
             this.value = option.value
-            this.text = option.text
+            this.mutableText = option.text
           }
         })
       },
