@@ -6,27 +6,29 @@
     <!-- Color swatches -->
     <div class="panel-item">
       <!-- Empty state - no color and no groups -->
-      <div v-if="!colors.length && !groups.length" class="panel-empty-state">
+      <div v-if="!colorCollection.length && !groupCollection.length" class="panel-empty-state">
         Click on the screen with the<br>
         eyedropper <span class="btn btn-square"><i class="icon icon-eyeDropper" /></span> to pick a color<br>
         then click on <span class="btn btn-square"><i class="icon icon-plus" /></span> to save it
       </div>
 
       <colorGroup
-        :colors="colors"
+        :list="colorCollection"
+        :selection="selectedColors"
         @end="onEnd"
         @move="deselectAll"
-        @color-click="handleColorClick"
+        @color-click="onColorClick"
+        @change="$store.commit('setColorCollection', { data: $event })"
       />
 
       <!-- Empty state - colors but no group yet -->
-      <div v-if="colors.length && !groups.length" class="panel-empty-state">
+      <div v-if="colorCollection.length && !groupCollection.length" class="panel-empty-state">
         Click on <span class="btn btn-square"><i class="icon icon-folder" /></span> to add a group
         then drag some colors inside
       </div>
 
       <draggable
-        v-model="groups"
+        v-model="groupCollectionLocal"
         group="groups"
         :animation="200"
         @start="onStart"
@@ -34,22 +36,24 @@
         @move="deselectAll"
       >
         <!-- @todo Put back this transition group on after cleaning storage syncing -->
-        <!-- <transition-group
+        <transition-group
           :name="isDragging ? 'flip-list' : 'fall'"
           type="transition"
-        > -->
-        <colorGroup
-          v-for="(group, index) in groups"
-          :key="`${group.id}-${index}`"
-          :is-group="true"
-          :is-group-selected="group.isSelected"
-          :colors="group.content"
-          @end="onEnd"
-          @move="deselectAll"
-          @color-click="handleColorClick"
-          @select="handleGroupClick($event, group)"
-        />
-        <!-- </transition-group> -->
+        >
+          <colorGroup
+            v-for="groupId in groupCollectionLocal"
+            :key="groupId"
+            :list="groups[groupId]"
+            :group-id="groupId"
+            :selection="selectedColors"
+            :is-group-selected="selectedGroups[groupId] === true"
+            @end="onEnd"
+            @move="deselectAll"
+            @color-click="onColorClick"
+            @select="onGroupClick($event, groupId)"
+            @change="$store.commit('setGroups', { data: {...groups, [groupId]: $event } })"
+          />
+        </transition-group>
       </draggable>
     </div>
 
@@ -126,7 +130,6 @@ import { mapState } from 'vuex'
 import colorGroup from './color-group.vue'
 import colorPicker from './color-picker.vue'
 import draggable from 'vuedraggable'
-import save from 'save-file'
 import ase from 'ase-utils'
 import { between } from '../utilities/number'
 import logoSVG from '../assets/img/logo.svg?inline'
@@ -140,32 +143,26 @@ export default {
   },
 
   data: () => ({
-    isActive: true,
-    selection: null,
-    selection_origin: false,
-    editable: true,
     isDragging: false,
-    delayedDragging: false
+
+    selectedColors: {},
+    selectedGroups: {},
+
+    lastSelection: {
+      index: null,
+      groupId: null
+    }
   }),
 
   computed: {
-    ...mapState(['color']),
+    ...mapState([ 'color', 'colors', 'colorCollection', 'groups', 'groupCollection' ]),
 
-    colors: {
+    groupCollectionLocal: {
       get () {
-        return this.$store.getters.getColors
+        return this.groupCollection
       },
-      set (colors) {
-        this.$store.commit('setColors', { colors: colors })
-      }
-    },
-
-    groups: {
-      get () {
-        return this.$store.getters.getgroups
-      },
-      set (groups) {
-        this.$store.commit('setGroups', { groups: groups })
+      set (groupCollection) {
+        this.$store.commit('setGroupCollection', { data: groupCollection })
       }
     }
   },
@@ -175,11 +172,6 @@ export default {
     window.addEventListener('keydown', this.onKeyDown)
   },
 
-  created () {
-    this.$store.dispatch('fetchColors')
-    this.$store.dispatch('fetchgroups')
-  },
-
   beforeDestroy () {
     window.removeEventListener('click', this.onClick)
     window.removeEventListener('keydown', this.onKeyDown)
@@ -187,81 +179,25 @@ export default {
 
   methods: {
     setColor (color) {
-      const colorToSave = {
-        hex: color.hex,
-        r: color.r,
-        g: color.g,
-        b: color.b,
-        h: color.h,
-        s: color.s,
-        l: color.l
-      }
-
-      this.$store.commit('setColor', colorToSave)
+      this.$store.commit('setColor', color)
     },
 
     addColor () {
-      // @todo maybe we should commit an action in the store instead
-      const color = this.color
-      if (!color.hex) {
-        return
-      }
-
-      color.type = 'color'
-      color.id = this.colors.length
-      color.isSelected = false
-
-      this.colors = [...this.colors, color]
+      if (typeof this.color.r === 'undefined') { return } // @Todo show indication to user ?
+      this.$store.dispatch('createColor', this.color)
     },
 
     addGroup () {
-      // @todo maybe we should commit an action in the store instead
-      this.groups = [
-        ...this.groups,
-        {
-          content: [],
-          isSelected: false
-        }
-      ]
-    },
-
-    deselectAll () {
-      this.colors.forEach(color => {
-        color.isSelected = false
-      })
-
-      this.groups.forEach(group => {
-        group.isSelected = false
-        group.content.forEach(color => {
-          color.isSelected = false
-        })
-      })
+      this.$store.dispatch('addGroup')
     },
 
     deleteSelection (event) {
-      const arrays = [this.colors, this.groups]
+      const colors = Object.keys(this.selectedColors)
+      const groups = Object.keys(this.selectedGroups)
 
-      this.groups.forEach(group => {
-        arrays.push(group.content)
-      })
-
-      arrays.forEach(array => {
-        // Build array of selected element indexes
-        let selectedIndexes = []
-        array.forEach((color, index) => {
-          if (color.isSelected) {
-            selectedIndexes.push(index)
-          }
-        })
-
-        // Splice original array (backward to keep indexes correct)
-        for (let k = selectedIndexes.length - 1; k >= 0; k--) {
-          array.splice(selectedIndexes[k], 1)
-        }
-      })
-
-      this.colors = [...this.colors]
-      this.groups = [...this.groups]
+      this.$store.dispatch('deleteColors', colors)
+      this.$store.dispatch('deleteGroups', groups)
+      this.deselectAll()
     },
 
     deleteAll () {
@@ -270,80 +206,138 @@ export default {
         Please confirm to proceed.`
       )
 
-      if (!ask) {
-        return
-      }
+      if (!ask) { return }
 
-      this.colors = []
-      this.groups = []
+      this.$store.dispatch('deleteAll')
+      this.deselectAll()
     },
 
     /**
-     * Select clicked color
+     * On click on color, select/deselect colors.
+     * Hotkeys:
+     *  - `CTRL` or `ALT` to toggle color
+     *  - `SHIFT` to select multiple items
      */
-    handleColorClick (event, payload) {
-      const { color, index, colors, groupID } = payload
-      let isSelected = color.isSelected
+    onColorClick (event, payload) {
+      const { colorId, groupId, index } = payload
+      const isSelected = this.selectedColors[colorId]
 
-      // CTRL or ALT is down : multi selection
-      if (event.ctrlKey || event.altKey) {
-        color.isSelected = !isSelected
-        this.selection_origin = { index, colors, groupID }
-        return
-      }
-
-      // shift selection
+      // When `SHIFT` is pressed, we select every colors
+      // between current and previously selected colors
       if (event.shiftKey) {
+        // Check that last previous selection is set and belongs to the current group
         if (
-          !this.selection_origin ||
-          !this.selection_origin.groupID === groupID
-        ) {
-          return
-        }
+          !typeof this.lastSelection.index === 'number' ||
+          this.lastSelection.groupId !== groupId
+        ) { return }
 
-        colors.forEach((color, i) => {
-          if (between(i, this.selection_origin.index, index)) {
-            colors[i].isSelected = true
-            return
-          }
-          colors[i].isSelected = false
+        // Get target collection
+        const collection = groupId
+          ? this.groups[groupId]
+          : this.colorCollection
+
+        // Filter items beetween target item and previous item
+        const targetIds = collection.filter((_colorId, _index) => {
+          return between(_index, this.lastSelection.index, index)
         })
 
-        return
-      }
+        // Add them to the selection
+        this.selectColor(targetIds)
+      } else {
+        // if `CTRL` or `ALT` is pressed we keep the selection
+        if (!event.ctrlKey && !event.altKey) {
+          this.deselectAll()
+        }
 
-      // Single selection
-      this.deselectAll()
-      color.isSelected = !isSelected
+        // Single selection
+        if (isSelected) {
+          this.deselectColors(colorId)
+        } else {
+          this.selectColor(colorId)
+        }
 
-      // Set selection origin for eventual shift selections afterward
-      this.selection_origin = { index, colors, groupID }
+        this.lastSelection = { index, groupId }
 
-      // Update displayed color.
-      if (color.isSelected) {
-        this.setColor(color)
+        // Update displayed color.
+        if (!isSelected) {
+          this.setColor(this.colors[colorId])
+        }
       }
     },
 
-    handleGroupClick (event, group) {
-      const isSelected = group.isSelected
+    /**
+     * Deselect colors and groups
+     */
+    deselectAll () {
+      this.selectedColors = {}
+      this.selectedGroups = {}
+      this.lastSelection = { index: null, groupId: null }
+    },
+
+    /**
+     * Select colors
+     *
+     * @param {Number|Array} colorIds The id(s) of colors to select
+     */
+    selectColor (colorIds) {
+      this.toggleSelectedColors(colorIds)
+    },
+
+    /**
+     * Deselect colors
+     *
+     * @param {Number|Array} colorIds The id(s) of colors to deselect
+     */
+    deselectColors (colorIds) {
+      this.toggleSelectedColors(colorIds, false)
+    },
+
+    /**
+     * Toggle colors selection
+     *
+     * @param {Number|Array} colorIds The id(s) of colors to toggle
+     * @param {Boolean} toggleOn If false, will deselect instead of selecting
+     */
+    toggleSelectedColors (colorIds, toggleOn = true) {
+      const selectedColors = { ...this.selectedColors }
+      const ids = colorIds.constructor === Array
+        ? colorIds
+        : [colorIds]
+
+      ids.forEach(colorId => {
+        if (toggleOn) {
+          selectedColors[colorId] = true
+        } else {
+          delete selectedColors[colorId]
+        }
+      })
+
+      this.selectedColors = selectedColors
+    },
+
+    onGroupClick (event, groupId) {
+      const isSelected = this.selectedGroups[groupId] === true
 
       // CTRL or ALT is down : multi selection
-      if (!event.ctrlKey || !event.AltKey) {
+      if (!event.ctrlKey && !event.altKey) {
         this.deselectAll()
       }
 
       // Single selection
-      group.isSelected = !isSelected
-      this.groups = [...this.groups]
+      if (isSelected) {
+        this.$delete(this.selectedGroups, groupId)
+      } else {
+        this.$set(this.selectedGroups, groupId, true)
+      }
     },
 
+    /**
+     * On click, deselect all if user clicks outside a color or group.
+     *
+     * @param {Event} event
+     */
     onClick (event) {
-      // Deselect all if user clicks outside a color or group.
-      if (event.target.hasAttribute('data-maintain-selection')) {
-        return
-      }
-
+      if (event.target.hasAttribute('data-maintain-selection')) { return }
       this.deselectAll()
     },
 
@@ -370,13 +364,23 @@ export default {
     onEnd () {
       this.isDragging = false
       this.deselectAll()
-      this.colors = [...this.colors]
-      this.groups = [...this.groups]
     },
 
-    // Export colors to .ase
-    // @see npm ase-utils
+    /**
+     * Export colors to .ase
+     * @see npm ase-utils
+     */
     exportColors (event) {
+      const data = this.getFormattedData()
+      const encodedData = ase.encode(data)
+      this.export(encodedData)
+    },
+
+    /**
+     * Format the whole color collection in order to encode it in ASE format
+     * @returns {Object}
+     */
+    getFormattedData () {
       let input = {
         version: '1.0',
         groups: [],
@@ -384,52 +388,51 @@ export default {
       }
 
       input.colors
-        .push(...this.colors.map(color => {
-          return this.formatColor(color)
+        .push(...Object.keys(this.colors).map(color => {
+          return this.formatColor(this.colors[color])
         }))
 
-      for (const group of this.groups) {
+      Object.entries(this.groups).map(group => {
         input.colors
-          .push(...group.content.map(color => {
+          .push(...group.map(color => {
             return this.formatColor(color)
           }))
-      };
+      })
 
-      this.convertToASE(input)
+      return input
     },
 
+    /**
+     * Format a color for ASE
+     *
+     * @param {Object} color The color to encode {r, g, b}
+     * @returns {Object}
+     */
     formatColor (color) {
-      if (!color) {
-        return null
-      }
+      if (!color) { return null }
+
+      const { r, g, b } = color
 
       let formattedColor = {
-        name: `R=${color.r}G=${color.g}B=${color.b}`,
+        name: `R=${r}G=${g}B=${b}`,
         model: 'RGB',
-        color: [color.r / 255, color.g / 255, color.b / 255],
+        color: [r / 255, g / 255, b / 255],
         type: 'global'
       }
 
       return formattedColor
     },
 
-    convertToASE (data) {
-      let encodedData = ase.encode(data)
-
-      // this.saveFile(encodedData)
-      const blob = new Blob([encodedData], { type: 'application/octet-stream' })
+    /**
+     * Export ArrayBuffer converting to objectURL
+     * and dispatch the 'export' state action to handle file saving
+     *
+     * @param {ArrayBuffer} data
+     */
+    export (data) {
+      const blob = new Blob([data], { type: 'application/octet-stream' })
       const url = window.URL.createObjectURL(blob)
-      // chrome.downloads.download({ url: url })
-
       this.$store.dispatch('export', url)
-    },
-
-    saveFile (fileEntry) {
-      save(fileEntry, 'swatches.ase', (err, data) => {
-        if (err) {
-          throw err
-        }
-      }).then(() => {})
     }
   }
 }

@@ -7,16 +7,29 @@
 </template>
 
 <script>
+import { rgbToHex } from '../utilities/color'
+
 export default {
   props: {
-    hex: {
+    id: {
       required: true,
       type: String
     },
 
     isSelected: {
+      required: false,
       type: Boolean,
       default: false
+    }
+  },
+
+  computed: {
+    hex: function () {
+      return rgbToHex(this.color)
+    },
+
+    color: function () {
+      return this.$store.getters._getColorById(this.id)
     }
   }
 }

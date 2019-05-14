@@ -1,5 +1,3 @@
-import { rgbToHsl, rgbToHex } from './utilities/color'
-
 let imageData
 let width
 // eslint-disable-next-line no-unused-vars
@@ -38,15 +36,12 @@ function getColor (coord) {
 }
 
 function getPixelValueAt (x, y) {
-  let tempArray = new Uint8ClampedArray(imageData)
+  const tempArray = new Uint8ClampedArray(imageData)
   let n = y * width * 4 + x * 4
 
-  let R = tempArray[n]
-  let G = tempArray[++n]
-  let B = tempArray[++n]
-  let HEX = rgbToHex(R, G, B)
-  let HSL = rgbToHsl(R, G, B)
+  const R = tempArray[n]
+  const G = tempArray[++n]
+  const B = tempArray[++n]
 
-  let pixel = { r: R, g: G, b: B, hex: HEX, h: HSL[0], s: HSL[1], l: HSL[2] }
-  return pixel
+  return { r: R, g: G, b: B }
 }

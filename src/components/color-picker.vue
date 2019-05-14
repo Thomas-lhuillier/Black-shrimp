@@ -1,12 +1,12 @@
 <template>
   <div class="color-picker">
     <!-- Color Viewer -->
-    <div class="color-viewer" :style="{ backgroundColor: color.hex }" />
+    <div class="color-viewer" :style="{ backgroundColor: hex }" />
 
     <!-- Color inputs -->
     <div class="valueWrapper">
       <div class="hex-wrapper" :class="[{ '--active': _colorMode === 'hex' }]">
-        <input v-model="color.hex" type="text" spellcheck="false" @click="selectInputText($event)">
+        <input v-model="hex" type="text" spellcheck="false" @click="selectInputText($event)">
       </div>
 
       <div class="rgb-wrapper" :class="[{ '--active': _colorMode === 'rgb' }]">
@@ -16,9 +16,9 @@
       </div>
 
       <div class="hsl-wrapper" :class="[{ '--active': _colorMode === 'hsl' }]">
-        <input v-model="color.h" type="text" spellcheck="false" @click="selectInputText($event)">
-        <input v-model="color.s" type="text" spellcheck="false" @click="selectInputText($event)">
-        <input v-model="color.l" type="text" spellcheck="false" @click="selectInputText($event)">
+        <input v-model="hsl.h" type="text" spellcheck="false" @click="selectInputText($event)">
+        <input v-model="hsl.s" type="text" spellcheck="false" @click="selectInputText($event)">
+        <input v-model="hsl.l" type="text" spellcheck="false" @click="selectInputText($event)">
       </div>
     </div>
 
@@ -32,6 +32,7 @@
 </template>
 
 <script>
+import { rgbToHsl, rgbToHex } from '../utilities/color'
 import baseSelect from './base-select.vue'
 import { mapState } from 'vuex'
 
@@ -45,6 +46,22 @@ export default {
 
     _colorMode () {
       return this.colorMode || 'hex'
+    },
+
+    hex () {
+      const hex = typeof this.color.r !== 'undefined'
+        ? rgbToHex(this.color)
+        : ''
+
+      return hex
+    },
+
+    hsl () {
+      const hsl = typeof this.color.r !== 'undefined'
+        ? rgbToHsl(this.color)
+        : { h: '', s: '', l: '' }
+
+      return hsl
     },
 
     options () {

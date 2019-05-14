@@ -15,7 +15,13 @@ import createChromeStorageSyncPlugin from './createChromeStorageSyncPlugin'
 
 Vue.use(Vuex)
 
-const filters = { 'colorMode': 'setColorMode' }
+const filters = {
+  'colorMode': 'setColorMode',
+  'colors': 'setColors',
+  'groups': 'setGroups',
+  'colorCollection': 'setColorCollection',
+  'groupCollection': 'setGroupCollection'
+}
 const chromeStorageSyncPlugin = createChromeStorageSyncPlugin(filters)
 
 const store = new Vuex.Store({

@@ -7,14 +7,14 @@
  *
  * @returns {number[]} [h, s, l] The HSL color
  */
-function rgbToHsl (r, g, b) {
+function rgbToHsl (rgb) {
+  let { r, g, b } = rgb
   r /= 255
   g /= 255
   b /= 255
   const max = Math.max(r, g, b)
   const min = Math.min(r, g, b)
-  let h
-  let s
+  let h, s
   let l = (max + min) / 2
 
   if (max === min) {
@@ -39,7 +39,11 @@ function rgbToHsl (r, g, b) {
     h /= 6
   }
 
-  return [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)]
+  h = Math.floor(h * 360)
+  s = Math.floor(s * 100)
+  l = Math.floor(l * 100)
+
+  return { h, s, l }
 }
 
 /**
@@ -51,7 +55,8 @@ function rgbToHsl (r, g, b) {
  *
  * @returns {string} The hexadecimal color
  */
-function rgbToHex (r, g, b) {
+function rgbToHex (rgb) {
+  const { r, g, b } = rgb
   return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b)
 }
 

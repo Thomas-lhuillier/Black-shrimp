@@ -1,10 +1,10 @@
 <template>
   <div>
     <draggable
-      :list="colors"
-      :move="onMove"
-      :animation="200"
+      v-model="listLocal"
       group="colors"
+      :animation="200"
+      :move="onMove"
       @start="onStart"
       @end="onEnd"
     >
@@ -12,17 +12,18 @@
         :name="isDragging ? 'flip-list' : 'fall'"
         type="transition"
         class="color-group"
-        :class="{'--group': isGroup, '--selected': isGroupSelected}"
+        :class="{'--group': groupId, '--selected': isGroupSelected}"
         :tag="'ul'"
+        data-maintain-selection
         @click.self.native="$emit('select', $event)"
       >
         <colorSwatch
-          v-for="(color, index) in colors"
-          :key="color.id"
-          :hex="color.hex"
-          :is-selected="color.isSelected"
+          v-for="(colorId, index) in listLocal"
+          :id="colorId"
+          :key="colorId"
           data-maintain-selection
-          @click.self.native="onClick($event, {color, index, colors, groupID})"
+          :is-selected="selection[colorId]"
+          @click.self.native="$emit('color-click', $event, {colorId, groupId, index})"
         />
       </transition-group>
     </draggable>
@@ -30,6 +31,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import draggable from 'vuedraggable'
 import colorSwatch from './color-swatch.vue'
 
@@ -40,21 +42,22 @@ export default {
   },
 
   props: {
-    colors: {
+    list: {
       type: Array,
       required: true
     },
 
     // eslint-disable-next-line vue/require-prop-types
-    groupID: {
+    groupId: {
+      type: String,
       required: false,
-      default: null
+      default: ''
     },
 
-    isGroup: {
-      type: Boolean,
+    selection: {
+      type: Object,
       required: false,
-      default: false
+      default: () => {}
     },
 
     isGroupSelected: {
@@ -70,11 +73,20 @@ export default {
     }
   },
 
-  methods: {
-    onClick (event, payload) {
-      this.$emit('color-click', event, payload)
-    },
+  computed: {
+    ...mapState(['colors']),
 
+    listLocal: {
+      get () {
+        return this.list
+      },
+      set (data) {
+        this.$emit('change', data)
+      }
+    }
+  },
+
+  methods: {
     onStart () {
       this.isDragging = true
     },
@@ -84,15 +96,8 @@ export default {
       this.$emit('end')
     },
 
-    onMove ({ relatedContext, draggedContext }) {
-      const relatedElement = relatedContext.element
-      const draggedElement = draggedContext.element
-
+    onMove () {
       this.$emit('move')
-
-      return (
-        (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
-      )
     }
   }
 }
