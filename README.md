@@ -15,7 +15,7 @@
 ![demo](https://raw.githubusercontent.com/Thomas-lhuillier/Black-shrimp/master/img/demo_screenshot.png)
 
 **Hotkeys**
-- `ALT + B` is the default key bidding to Open the Black shrimp  
+- `ALT + B` is the default key bidding to open Black shrimp  
   You can change it by browsing to `chrome://extensions/shortcuts`
 
 While open:
