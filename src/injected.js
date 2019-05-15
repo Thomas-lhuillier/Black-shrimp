@@ -12,12 +12,20 @@ port.onMessage.addListener(function (request, sender, sendResponse) {
     // will be emitted to turn on the view ; as we hide the view
     // before taking a new capture.
     case 'captureDone':
-      iframe.style.display = 'block'
+      showElement(iframe)
       break
 
     case 'destroy':
-      iframe.parentNode.removeChild(iframe)
+      port.postMessage({
+        channel: 'app',
+        data: {
+          type: 'destroy'
+        }
+      })
       unregisterEvents()
+      setTimeout(() => {
+        removeElement(iframe)
+      }, 200)
       break
   }
 })
@@ -28,7 +36,7 @@ port.onMessage.addListener(function (request, sender, sendResponse) {
  * @returns {Element} The mounted iframe element
  */
 const createIframe = () => {
-  iframe = document.createElement('iframe')
+  const iframe = document.createElement('iframe')
   iframe.id = 'black-shrimp-iframe'
   iframe.src = chrome.extension.getURL('index.html')
   iframe.setAttribute('sandbox', 'allow-scripts allow-modals')
@@ -60,12 +68,24 @@ const unregisterEvents = () => {
 
 let scrollTimer
 const onViewportChange = () => {
-  iframe.style.display = 'none'
+  hideElement(iframe)
 
   clearTimeout(scrollTimer)
   scrollTimer = setTimeout(function () {
     processViewportChange()
   }, 50)
+}
+
+const showElement = (el) => {
+  el.style.display = 'block'
+}
+
+const hideElement = (el) => {
+  el.style.display = 'none'
+}
+
+const removeElement = (el) => {
+  el.parentNode.removeChild(el)
 }
 
 /**

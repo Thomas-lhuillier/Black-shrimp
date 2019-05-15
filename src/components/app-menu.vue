@@ -15,7 +15,7 @@
       class="ml-auto item item-close"
       :class="{'--moving': isMoving}"
       data-js-draggable
-      @click="$root.$destroy()"
+      @click="$store.dispatch('destroy')"
     >
       <i class="icon icon-close" data-js-draggable />
     </button>

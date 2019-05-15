@@ -27,6 +27,22 @@ window.onload = function () {
       store.dispatch('destroy')
     },
 
+    mounted () {
+      window.addEventListener('keydown', this.onKeyDown)
+    },
+
+    beforeDestroy () {
+      window.removeEventListener('keydown', this.onKeyDown)
+    },
+
+    methods: {
+      onKeyDown: (e) => {
+        if (e.key === 'Escape') {
+          store.dispatch('destroy')
+        }
+      }
+    },
+
     render: (createElement) => {
       return createElement('div', {}, [
         createElement(appWindow),

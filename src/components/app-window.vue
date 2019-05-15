@@ -1,6 +1,7 @@
 <template>
   <transition appear name="fall">
     <div
+      v-if="isVisible"
       class="window"
       :style="{
         'left' : style.left + 'px',
@@ -37,6 +38,7 @@
 </style>
 
 <script>
+import { mapState } from 'vuex'
 import appMenu from './app-menu.vue'
 import colorPanel from './color-panel.vue'
 
@@ -55,6 +57,10 @@ export default {
       isMoving: false,
       tempPos: {}
     }
+  },
+
+  computed: {
+    ...mapState(['isVisible'])
   },
 
   mounted () {

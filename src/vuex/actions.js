@@ -147,12 +147,16 @@ const actions = {
    * @param {Object} context
    */
   destroy (context) {
-    context.state.port.postMessage({
-      channel: 'tab',
-      data: {
-        type: 'destroy'
-      }
-    })
+    context.commit('setVisibility', false)
+
+    setTimeout(() => {
+      context.state.port.postMessage({
+        channel: 'tab',
+        data: {
+          type: 'destroy'
+        }
+      })
+    }, 300)
   },
 
   /**

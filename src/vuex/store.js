@@ -36,6 +36,10 @@ state.port.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type === 'color') {
     store.dispatch('setColor', request.data)
   }
+
+  if (request.type === 'destroy') {
+    store.dispatch('destroy')
+  }
 })
 
 // store.dispatch('registerCollectionsListener')
