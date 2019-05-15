@@ -4,10 +4,20 @@
 // Mutations must be synchronous and can be recorded by plugins
 // for debugging purposes.
 const mutations = {
-  // Synced with chrome.storage
+  // Regular mutations
+  setVisibility (state, payload) {
+    state.isVisible = payload
+  },
+
+  setColor (state, payload) {
+    state.color = payload
+  },
+
+  // Mutations synced with chrome.storage
+  //
   // payload model: {
   //   data [Mixed] The mutation data
-  //   silent [Boolean] Prevent sync if true
+  //   silent [Boolean] Prevent sync if true (note that this key is not saved)
   // }
 
   setColors (state, payload) {
@@ -30,17 +40,9 @@ const mutations = {
     state.groupCollection = data
   },
 
-  // Regular mutations
-  setVisibility (state, payload) {
-    state.isVisible = payload
-  },
-
-  setColor (state, payload) {
-    state.color = payload
-  },
-
   setColorMode (state, payload) {
-    state.colorMode = payload
+    const { data } = payload
+    state.colorMode = data
   }
 }
 

@@ -75,7 +75,7 @@ export default {
 
   methods: {
     setColorMode (value) {
-      this.$store.commit('setColorMode', value)
+      this.$store.dispatch('setColorMode', value)
     },
 
     selectInputText (event) {

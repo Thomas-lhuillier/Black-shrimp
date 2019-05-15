@@ -13,21 +13,23 @@
       </div>
 
       <colorGroup
+        v-else
         :list="colorCollection"
         :selection="selectedColors"
         @end="onEnd"
         @move="deselectAll"
         @color-click="onColorClick"
-        @change="$store.commit('setColorCollection', { data: $event })"
+        @change="$store.dispatch('setColorCollection', $event)"
       />
 
       <!-- Empty state - colors but no group yet -->
-      <div v-if="colorCollection.length && !groupCollection.length" class="panel-empty-state">
+      <div v-if="colorCollection.length && !groupCollectionLocal.length" class="panel-empty-state">
         Click on <span class="btn btn-square"><i class="icon icon-folder" /></span> to add a group
         then drag some colors inside
       </div>
 
       <draggable
+        v-else
         v-model="groupCollectionLocal"
         group="groups"
         :animation="200"
@@ -35,10 +37,10 @@
         @end="onEnd"
         @move="deselectAll"
       >
-        <!-- @todo Put back this transition group on after cleaning storage syncing -->
         <transition-group
           :name="isDragging ? 'flip-list' : 'fall'"
           type="transition"
+          :tag="'div'"
         >
           <colorGroup
             v-for="groupId in groupCollectionLocal"
@@ -51,7 +53,7 @@
             @move="deselectAll"
             @color-click="onColorClick"
             @select="onGroupClick($event, groupId)"
-            @change="$store.commit('setGroups', { data: {...groups, [groupId]: $event } })"
+            @change="$store.dispatch('setGroups', {...groups, [groupId]: $event })"
           />
         </transition-group>
       </draggable>
@@ -162,7 +164,7 @@ export default {
         return this.groupCollection
       },
       set (groupCollection) {
-        this.$store.commit('setGroupCollection', { data: groupCollection })
+        this.$store.dispatch('setGroupCollection', groupCollection)
       }
     }
   },
@@ -179,7 +181,7 @@ export default {
 
   methods: {
     setColor (color) {
-      this.$store.commit('setColor', color)
+      this.$store.dispatch('setColor', color)
     },
 
     addColor () {

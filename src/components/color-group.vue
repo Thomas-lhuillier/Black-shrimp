@@ -1,33 +1,31 @@
 <template>
-  <div>
-    <draggable
-      v-model="listLocal"
-      group="colors"
-      :animation="200"
-      :move="onMove"
-      @start="onStart"
-      @end="onEnd"
+  <draggable
+    v-model="listLocal"
+    group="colors"
+    :animation="200"
+    :move="onMove"
+    @start="onStart"
+    @end="onEnd"
+  >
+    <transition-group
+      :name="isDragging ? 'flip-list' : 'fall'"
+      type="transition"
+      class="color-group"
+      :class="{'--group': groupId, '--selected': isGroupSelected}"
+      :tag="'ul'"
+      :data-maintain-selection="groupId.length !== 0"
+      @click.self.native="$emit('select', $event)"
     >
-      <transition-group
-        :name="isDragging ? 'flip-list' : 'fall'"
-        type="transition"
-        class="color-group"
-        :class="{'--group': groupId, '--selected': isGroupSelected}"
-        :tag="'ul'"
+      <colorSwatch
+        v-for="(colorId, index) in listLocal"
+        :id="colorId"
+        :key="colorId"
+        :is-selected="selection[colorId]"
         data-maintain-selection
-        @click.self.native="$emit('select', $event)"
-      >
-        <colorSwatch
-          v-for="(colorId, index) in listLocal"
-          :id="colorId"
-          :key="colorId"
-          data-maintain-selection
-          :is-selected="selection[colorId]"
-          @click.self.native="$emit('color-click', $event, {colorId, groupId, index})"
-        />
-      </transition-group>
-    </draggable>
-  </div>
+        @click.self.native="$emit('color-click', $event, {colorId, groupId, index})"
+      />
+    </transition-group>
+  </draggable>
 </template>
 
 <script>
@@ -47,7 +45,6 @@ export default {
       required: true
     },
 
-    // eslint-disable-next-line vue/require-prop-types
     groupId: {
       type: String,
       required: false,
@@ -110,11 +107,7 @@ export default {
 @include transition-fall;
 
 .flip-list-move {
-  transition: transform 0.5s;
-}
-
-.no-move {
-  transition: transform 0s;
+  transition: transform $transition-duration;
 }
 
 .color-group {

@@ -29,7 +29,7 @@ export default {
     },
 
     color: function () {
-      return this.$store.getters._getColorById(this.id)
+      return this.$store.getters.findColorById(this.id)
     }
   }
 }

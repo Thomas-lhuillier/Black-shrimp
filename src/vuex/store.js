@@ -34,7 +34,7 @@ const store = new Vuex.Store({
 
 state.port.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type === 'color') {
-    store.commit('setColor', request.data)
+    store.dispatch('setColor', request.data)
   }
 })
 

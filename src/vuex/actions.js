@@ -171,6 +171,26 @@ const actions = {
         coord: payload
       }
     })
+  },
+
+  setColor (context, payload) {
+    context.commit('setColor', payload)
+  },
+
+  setColorMode (context, payload) {
+    context.commit('setColorMode', { data: payload })
+  },
+
+  setColorCollection (context, payload) {
+    context.commit('setColorCollection', { data: payload })
+  },
+
+  setGroups (context, payload) {
+    context.commit('setGroups', { data: payload })
+  },
+
+  setGroupCollection (context, payload) {
+    context.commit('setGroupCollection', { data: payload })
   }
 }
 
