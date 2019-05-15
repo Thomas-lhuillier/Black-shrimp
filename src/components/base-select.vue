@@ -1,21 +1,23 @@
 <template>
   <div class="colorMode select-block" :class="[{'--opened': isOpen }]">
-    <baseButton class="select-value" @click="toggle">
+    <baseButton class="select-button" @click="toggle">
       <span class="text">{{ mutableText }}</span>
       <i class="icon icon-carret-down" />
     </baseButton>
 
-    <ul class="select-options">
-      <li
-        v-for="(option, index) in mutableOptions"
-        :key="index"
-        class="select-option"
-        :class="[{'--selected': option.isSelected }]"
-        tabindex="0"
-        @click="setValue(option)"
-        @keyup.enter="setValue(option)"
-      >{{ option.text }}</li>
-    </ul>
+    <transition name="fall">
+      <ul v-if="isOpen" class="select-options">
+        <li
+          v-for="(option, index) in mutableOptions"
+          :key="index"
+          class="select-option"
+          :class="[{'--selected': option.isSelected }]"
+          tabindex="0"
+          @click="setValue(option)"
+          @keyup.enter="setValue(option)"
+        >{{ option.text }}</li>
+      </ul>
+    </transition>
   </div>
 </template>
 
@@ -48,12 +50,6 @@ export default {
       mutableText: this.text
     }
   },
-
-  // computed: {
-  //   mutableText: function () {
-  //     return this.text
-  //   }
-  // },
 
   watch: {
     mutableOptions: {
@@ -96,10 +92,10 @@ export default {
 
     toggle () {
       if (this.isOpen) {
-        return this.close()
+        this.close()
+      } else {
+        this.open()
       }
-
-      return this.open()
     },
 
     open () {
@@ -135,25 +131,25 @@ export default {
 
 <style lang="scss">
 @import "../sass/abstracts/variables";
+@import "../sass/abstracts/mixins";
+
+@include transition-fall;
 
 .select-block {
   position: relative;
   cursor: pointer;
 
   &.--opened {
-    > .select-value {
+    > .select-button {
       .icon {
         transform: rotateZ(-90deg);
       }
     }
-
-    > .select-options {
-      display: block;
-    }
   }
 }
 
-.select-value {
+.select-button {
+  position: relative;
   display: flex;
   width: 100%;
   padding-left: $spacer;
@@ -163,6 +159,7 @@ export default {
   line-height: 22px;
 
   user-select: none;
+  z-index: 2;
 
   > .icon {
     width: 22px;
@@ -180,7 +177,6 @@ export default {
 }
 
 .select-options {
-  display: none;
   position: absolute;
   left: 0;
   right: 0;
