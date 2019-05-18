@@ -1,6 +1,6 @@
 {
   "name": "black-shrimp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "An open source eyedropper extension for Chrome to pick, save and organize color swatches. Export them as '.ase' files for programs like Illustrator or Photoshop.",
   "author": "Thomas L'huillier <lhuillier.tom@gmail.com>",
   "scripts": {
