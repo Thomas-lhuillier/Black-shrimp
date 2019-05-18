@@ -8,7 +8,7 @@
       <!-- Empty state - no color and no groups -->
       <div v-if="!colorCollection.length && !groupCollection.length" class="panel-empty-state">
         Click on the screen with the<br>
-        eyedropper <span class="btn btn-square"><i class="icon icon-eyeDropper" /></span> to pick a color<br>
+        eyedropper <span class="btn btn-square"><i class="icon icon-eyedropper" /></span> to pick a color<br>
         then click on <span class="btn btn-square"><i class="icon icon-plus" /></span> to save it
       </div>
 

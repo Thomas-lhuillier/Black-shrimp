@@ -80,7 +80,12 @@ $height: 1.75rem;
       background: $gray-dark;
     }
 
-    &:not(:last-child):after {
+    &:focus {
+      @include outline-inset;
+    }
+
+    // outside corner
+    &:not(:last-child):not(:focus):after {
       content: "";
       border-style: solid;
       position: absolute;
