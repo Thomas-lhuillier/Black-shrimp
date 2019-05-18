@@ -5,6 +5,7 @@
   "author": "Thomas L'huillier <lhuillier.tom@gmail.com>",
   "scripts": {
     "watch": "NODE_ENV=development webpack --mode=development --watch --colors --display=normal --display-chunks=false",
+    "debug": "./node_modules/.bin/vue-devtools & DEBUG=true npm run watch",
     "lint": "eslint --cache --cache-location .cache/.eslintcache --ext .js,.vue src/",
     "build": "NODE_ENV=production webpack --mode=production --colors --display=normal --display-chunks=false"
   },
@@ -17,6 +18,7 @@
   "devDependencies": {
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
+    "@vue/devtools": "^5.1.0",
     "ase-utils": "latest",
     "autoprefixer": "^9.5.1",
     "babel-loader": "latest",

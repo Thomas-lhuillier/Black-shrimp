@@ -1,3 +1,5 @@
+/* globals DEBUG */
+
 import Vue from 'vue'
 import Vuex from 'vuex'
 import store from './vuex/store'
@@ -5,6 +7,11 @@ import VTooltip from 'v-tooltip'
 import appOverlay from './components/app-overlay.vue'
 import appWindow from './components/app-window.vue'
 import './sass/main.scss'
+
+if (DEBUG) {
+  const devtools = require('@vue/devtools')
+  devtools.connect()
+}
 
 Vue
   .use(Vuex)

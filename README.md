@@ -42,5 +42,6 @@ Clone the repo, then run `npm install`.
 **Commands**  
 - `npm run watch` — watch code changes and build unpacked extensions  
   Once done, import the `/package` folder as an [unpacked extension](https://developer.chrome.com/extensions/getstarted#manifest)
+- `npm run debug` — watch code changes and open vue devtools standalone
 - `npm run lint` — lint your code before any PR
 - `npm run build` — build for production output packaged zip to `/build`

@@ -10,6 +10,7 @@ const WebpackZipPlugin = require('webpack-zip-plugin')
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader')
 
 const env = process.env.NODE_ENV
+const debug = process.env.DEBUG || false
 
 process.traceDeprecation = true
 
@@ -111,6 +112,9 @@ let options = {
   },
 
   plugins: [
+    new webpack.DefinePlugin({
+      DEBUG: debug
+    }),
     new MiniCssExtractPlugin({
       filename: 'assets/injected.css'
     }),
