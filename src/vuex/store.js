@@ -11,7 +11,7 @@ import state from './state'
 import getters from './getters'
 import mutations from './mutations'
 import actions from './actions'
-import createChromeStorageSyncPlugin from './createChromeStorageSyncPlugin'
+import createChromeStorageSyncPlugin from './plugins/createChromeStorageSyncPlugin'
 
 Vue.use(Vuex)
 
@@ -33,15 +33,15 @@ const store = new Vuex.Store({
 })
 
 state.port.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.type === 'color') {
-    store.dispatch('setColor', request.data)
-  }
+  switch (request.type) {
+    case 'color':
+      store.dispatch('setColor', request.data)
+      break
 
-  if (request.type === 'destroy') {
-    store.dispatch('destroy')
+    case 'destroy':
+      store.dispatch('destroy')
+      break
   }
 })
-
-// store.dispatch('registerCollectionsListener')
 
 export default store
