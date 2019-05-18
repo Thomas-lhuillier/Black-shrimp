@@ -54,7 +54,7 @@ $height: 1.75rem;
   display: flex;
   height: $height;
   color: $gray-dark;
-  background-color: $soft-white;
+  background-color: $gray-dark;
   user-select: none;
 
   .item {
@@ -137,7 +137,7 @@ $height: 1.75rem;
 
     &:focus {
       box-shadow: none;
-      background-color: $soft-white;
+      background-color: $gray-dark;
 
       &:after {
         @include outline;
