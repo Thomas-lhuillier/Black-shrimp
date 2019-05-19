@@ -1,5 +1,4 @@
 <h1 align="center">
-  <p align="center">Black shrimp</p>
   <img src="https://raw.githubusercontent.com/Thomas-lhuillier/Black-shrimp/master/img/promo-banner.jpg" alt="Black shrimp">
 </h1>
 
