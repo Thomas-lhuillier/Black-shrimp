@@ -1,4 +1,9 @@
-## Black shrimp
+<h1 align="center">
+  <p align="center">Black shrimp</p>
+  <img src="https://raw.githubusercontent.com/Thomas-lhuillier/Black-shrimp/master/img/promo-banner.jpg" alt="Black shrimp">
+</h1>
+
+## Introduction
 
 > An open source eyedropper extension for Chrome to **pick**, **save** and **organize color swatches**.  
   **Export** them as `.ase` files for programs like Illustrator or Photoshop.
@@ -11,8 +16,6 @@
 
 **Install Black shrimp**  
 [Black shrimp on the _Chrome Web Store_](https://chrome.google.com/webstore/detail/oggljfcldhdcoemgnamdaaaofaenefni)
-
-![demo](https://raw.githubusercontent.com/Thomas-lhuillier/Black-shrimp/master/img/demo_screenshot.png)
 
 **Hotkeys**
 - `ALT + B` is the default key bidding to open Black shrimp  
