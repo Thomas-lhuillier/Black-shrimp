@@ -44,6 +44,12 @@ class Tab {
     })
 
     this.captureTab()
+    this.getZoom()
+
+    chrome.tabs.onZoomChange.addListener(({ tabId, oldZoomFactor, newZoomFactor }) => {
+      if (tabId !== this.tab.id) return
+      this.setZoom(newZoomFactor)
+    })
 
     this.messagingService.trigger('injected', { type: 'init' })
     this.worker.postMessage({ type: 'init' })
@@ -171,6 +177,19 @@ class Tab {
     )
 
     this.messagingService.trigger('injected', { type: 'captureDone' })
+  }
+
+  getZoom () {
+    chrome.tabs.getZoom(this.tab.id, this.setZoom.bind(this))
+  }
+
+  setZoom (zoom) {
+    this.worker.postMessage(
+      {
+        type: 'setZoom',
+        zoom
+      }
+    )
   }
 }
 

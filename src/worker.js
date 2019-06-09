@@ -1,7 +1,5 @@
-let imageData
-let width
 // eslint-disable-next-line no-unused-vars
-let height
+let imageData, width, height, zoom
 
 // In this file we can process the image data we received
 // operating on a Uint8ClampedArray
@@ -19,11 +17,17 @@ onmessage = function (event) {
     case 'getColor':
       getColor(event.data.coord)
       break
+
+    case 'setZoom':
+      zoom = event.data.zoom
+      break
   }
 }
 
 function getColor (coord) {
-  const { x, y } = coord
+  let { x, y } = coord
+  x = Math.round(x * zoom)
+  y = Math.round(y * zoom)
   const color = getPixelValueAt(x, y)
 
   postMessage({
